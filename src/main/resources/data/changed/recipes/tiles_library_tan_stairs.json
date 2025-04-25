@@ -7,11 +7,11 @@
 	],
 	"key": {
 		"#": {
-			"item": "changed:tiles_white"
+			"item": "changed:tiles_library_tan"
 		}
 	},
 	"result": {
-		"item": "changed:tiles_white_stairs",
+		"item": "changed:tiles_library_tan_stairs",
 		"count": 4
 	}
 }

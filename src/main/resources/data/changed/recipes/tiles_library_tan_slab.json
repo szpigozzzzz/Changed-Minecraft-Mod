@@ -1,17 +1,15 @@
 {
 	"type": "minecraft:crafting_shaped",
 	"pattern": [
-		"#  ",
-		"## ",
 		"###"
 	],
 	"key": {
 		"#": {
-			"item": "changed:tiles_white"
+			"item": "changed:tiles_library_tan"
 		}
 	},
 	"result": {
-		"item": "changed:tiles_white_stairs",
-		"count": 4
+		"item": "changed:tiles_library_tan_slab",
+		"count": 6
 	}
 }
