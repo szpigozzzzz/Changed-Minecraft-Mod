@@ -351,6 +351,8 @@
   "block.changed.wall_lightred_striped": "Randig ljusröd vägg",
   "block.changed.wall_vent": "Ventileravägg",
   "block.changed.wall_white": "Vit vägg",
+  "block.changed.wall_white_green_striped": "Grön randig vit vägg",
+  "block.changed.wall_white_green_tiled": "Grön teglad vit vägg",
   "block.changed.wall_white_slab": "Vit väggplatta",
   "block.changed.wall_white_stairs": "Vit väggtrappa",
   "block.changed.white_lab_table": "Vit laboratoriebord",

@@ -86,6 +86,8 @@
     "changed:wall_library_upper",
     "changed:wall_vent",
     "changed:wall_white",
+    "changed:wall_white_green_striped",
+    "changed:wall_white_green_tiled",
     "changed:wall_white_slab",
     "changed:wall_white_stairs",
     "changed:infuser",

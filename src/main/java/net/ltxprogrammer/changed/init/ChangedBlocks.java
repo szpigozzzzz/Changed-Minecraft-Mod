@@ -173,6 +173,8 @@ public class ChangedBlocks {
     public static final RegistryObject<LabBlock> WALL_GREEN_STRIPED = register("wall_green_striped", () -> new LabBlock(BlockBehaviour.Properties.copy(WALL_GREEN.get())));
     public static final RegistryObject<LabBlock> WALL_VENT = register("wall_vent", () -> new LabBlock(BlockBehaviour.Properties.of(Material.METAL, MaterialColor.COLOR_GRAY).sound(SoundType.METAL).strength(2.5F, 6.5F)));
     public static final RegistryObject<LabBlock> WALL_WHITE = register("wall_white", () -> new LabBlock(BlockBehaviour.Properties.copy(WALL_GRAY.get()).color(MaterialColor.QUARTZ)));
+    public static final RegistryObject<LabBlock> WALL_WHITE_GREEN_STRIPED = register("wall_white_green_striped", () -> new LabBlock(BlockBehaviour.Properties.copy(WALL_WHITE.get()).color(MaterialColor.COLOR_LIGHT_GREEN)));
+    public static final RegistryObject<LabBlock> WALL_WHITE_GREEN_TILED = register("wall_white_green_tiled", () -> new LabBlock(BlockBehaviour.Properties.copy(WALL_WHITE.get()).color(MaterialColor.COLOR_LIGHT_GREEN)));
     public static final RegistryObject<LabSlabBlock> WALL_WHITE_SLAB = register("wall_white_slab", () -> new LabSlabBlock(WALL_WHITE.get()::defaultBlockState, BlockBehaviour.Properties.copy(WALL_WHITE.get())));
     public static final RegistryObject<LabStairBlock> WALL_WHITE_STAIRS = register("wall_white_stairs", () -> new LabStairBlock(WALL_WHITE.get()::defaultBlockState, BlockBehaviour.Properties.copy(WALL_WHITE.get())));
     public static final RegistryObject<LabTable> WHITE_LAB_TABLE = register("white_lab_table", () -> new LabTable(BlockBehaviour.Properties.of(Material.METAL, MaterialColor.COLOR_GRAY).sound(SoundType.METAL).requiresCorrectToolForDrops().strength(3.0F, 5.0F)), ChangedBlocks::cutoutRenderer);

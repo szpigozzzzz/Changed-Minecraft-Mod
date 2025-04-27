@@ -105,6 +105,8 @@
   "changed:wall_green_striped": "composite",
   "changed:wall_vent": "hardmetal",
   "changed:wall_white": "composite",
+  "changed:wall_white_green_striped": "composite",
+  "changed:wall_white_green_tiled": "composite",
   "changed:wall_white_slab": "composite",
   "changed:wall_white_stairs": "composite",
   "changed:wolf_gas_canister": "hollowmetal",

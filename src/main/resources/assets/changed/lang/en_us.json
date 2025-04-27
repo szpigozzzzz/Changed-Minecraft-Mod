@@ -351,6 +351,8 @@
   "block.changed.wall_lightred_striped": "Striped Light Red Wall",
   "block.changed.wall_vent": "Vent Wall",
   "block.changed.wall_white": "White Wall",
+  "block.changed.wall_white_green_striped": "Green Striped White Wall",
+  "block.changed.wall_white_green_tiled": "Green Tiled White Wall",
   "block.changed.wall_white_slab": "White Wall Slab",
   "block.changed.wall_white_stairs": "White Wall Stairs",
   "block.changed.white_lab_table": "White Lab Table",

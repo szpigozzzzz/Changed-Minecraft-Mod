@@ -351,6 +351,8 @@
   "block.changed.wall_lightred_striped": "Stripet lyserød vegg",
   "block.changed.wall_vent": "Ventilasjonsvegg",
   "block.changed.wall_white": "Hvit vegg",
+  "block.changed.wall_white_green_striped": "Grønn stripet hvit vegg",
+  "block.changed.wall_white_green_tiled": "Grønn flislagt hvit vegg",
   "block.changed.wall_white_slab": "Helle av hvit vegg",
   "block.changed.wall_white_stairs": "Trapp av hvit vegg",
   "block.changed.white_lab_table": "Hvit laboratoriebord",
