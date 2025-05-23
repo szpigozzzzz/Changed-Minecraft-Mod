@@ -1,6 +1,7 @@
 package net.ltxprogrammer.changed.util;
 
 import net.ltxprogrammer.changed.entity.ChangedEntity;
+import net.ltxprogrammer.changed.entity.variant.TransfurVariantInstance;
 import net.ltxprogrammer.changed.process.ProcessTransfur;
 import net.minecraft.core.BlockPos;
 import net.minecraft.tags.BlockTags;
@@ -21,10 +22,26 @@ public class EntityUtil {
         return null;
     }
 
+    /**
+     * Checks if the entity is a transfurred player's form, and returns the underlying entity if so. Otherwise, returns the entity.
+     * @param entity Entity to check
+     * @return Underlying entity or original entity
+     */
     public static LivingEntity maybeGetUnderlying(LivingEntity entity) {
         if (entity instanceof ChangedEntity changedEntity)
             return changedEntity.maybeGetUnderlying();
         return entity;
+    }
+
+    /**
+     * Checks if the entity is a transfurred player, and returns the changed entity if so. Otherwise, returns the entity.
+     * @param entity Entity to check
+     * @return Changed entity or original entity
+     */
+    public static LivingEntity maybeGetOverlaying(LivingEntity entity) {
+        return ProcessTransfur.getPlayerTransfurVariantSafe(playerOrNull(entity))
+                .map(instance -> (LivingEntity)instance.getChangedEntity())
+                .orElse(entity);
     }
 
     public static float getFrictionOnBlock(@NotNull Entity entity) {

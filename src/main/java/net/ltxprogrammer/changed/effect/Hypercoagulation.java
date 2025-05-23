@@ -1,6 +1,8 @@
 package net.ltxprogrammer.changed.effect;
 
 import net.ltxprogrammer.changed.init.ChangedDamageSources;
+import net.ltxprogrammer.changed.init.ChangedTags;
+import net.ltxprogrammer.changed.util.EntityUtil;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectCategory;
 import net.minecraft.world.entity.LivingEntity;
@@ -24,6 +26,8 @@ public class Hypercoagulation extends MobEffect {
 
     @Override
     public void applyEffectTick(@NotNull LivingEntity entity, int amplifier) {
+        if (EntityUtil.maybeGetOverlaying(entity).getType().is(ChangedTags.EntityTypes.LATEX))
+            return;
         entity.hurt(ChangedDamageSources.BLOODLOSS, 1.0f);
     }
 }
