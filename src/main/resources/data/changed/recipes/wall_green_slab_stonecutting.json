@@ -1,0 +1,8 @@
+{
+	"type": "minecraft:stonecutting",
+	"ingredient": {
+		"item": "changed:wall_green"
+	},
+	"result": "changed:wall_green_slab",
+	"count": 2
+}
