@@ -6,6 +6,7 @@ import net.ltxprogrammer.changed.entity.variant.TransfurVariant;
 import net.ltxprogrammer.changed.entity.variant.TransfurVariantInstance;
 import net.ltxprogrammer.changed.init.ChangedAbilities;
 import net.ltxprogrammer.changed.init.ChangedCriteriaTriggers;
+import net.ltxprogrammer.changed.init.ChangedEffects;
 import net.ltxprogrammer.changed.init.ChangedTags;
 import net.ltxprogrammer.changed.process.ProcessTransfur;
 import net.minecraft.server.level.ServerPlayer;
@@ -88,6 +89,9 @@ public class ServerTransfurVariantInstance<T extends ChangedEntity> extends Tran
     @Override
     public void tick() {
         super.tick();
+
+        if (parent.getEntityType().is(ChangedTags.EntityTypes.LATEX))
+            host.removeEffect(ChangedEffects.HYPERCOAGULATION);
 
         final double distance = 8D;
         final double farRunSpeed = 1.0D;
