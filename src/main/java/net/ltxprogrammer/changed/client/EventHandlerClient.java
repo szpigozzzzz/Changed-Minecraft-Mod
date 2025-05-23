@@ -7,7 +7,6 @@ import net.ltxprogrammer.changed.ability.GrabEntityAbility;
 import net.ltxprogrammer.changed.client.gui.ContentWarningScreen;
 import net.ltxprogrammer.changed.client.renderer.layers.DarkLatexMaskLayer;
 import net.ltxprogrammer.changed.client.renderer.layers.GasMaskLayer;
-import net.ltxprogrammer.changed.client.renderer.layers.ExoskeletonLayer;
 import net.ltxprogrammer.changed.client.tfanimations.TransfurAnimator;
 import net.ltxprogrammer.changed.data.BiListener;
 import net.ltxprogrammer.changed.entity.*;
@@ -199,7 +198,6 @@ public class EventHandlerClient {
             if (pair.getSecond() instanceof PlayerRenderer renderer) {
                 renderer.addLayer(new DarkLatexMaskLayer<>(renderer, event.getEntityModels()));
                 renderer.addLayer(new GasMaskLayer<>(renderer, event.getEntityModels()));
-                renderer.addLayer(ExoskeletonLayer.forPlayerModel(renderer, event.getEntityModels()));
             }
         });
     }

@@ -1,12 +1,10 @@
 package net.ltxprogrammer.changed.client.renderer.animate.arm;
 
-import net.ltxprogrammer.changed.client.animations.Limb;
 import net.ltxprogrammer.changed.client.renderer.animate.HumanoidAnimator;
 import net.ltxprogrammer.changed.client.renderer.model.AdvancedHumanoidModel;
 import net.ltxprogrammer.changed.entity.ChangedEntity;
-import net.ltxprogrammer.changed.entity.robot.WearableExoskeleton;
+import net.ltxprogrammer.changed.entity.robot.Exoskeleton;
 import net.minecraft.client.model.AnimationUtils;
-import net.ltxprogrammer.changed.client.renderer.model.AdvancedHumanoidModel;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.util.Mth;
@@ -36,7 +34,7 @@ public class ArmBobAnimator<T extends ChangedEntity, M extends AdvancedHumanoidM
             AnimationUtils.bobModelPart(leftArm, ageInTicks, -1.0F);
         }
 
-        if (entity.maybeGetUnderlying().getFirstPassenger() instanceof WearableExoskeleton exo) {
+        if (Exoskeleton.getEntityExoskeleton(entity.maybeGetUnderlying()).isPresent()) {
             rightArm.zRot += Mth.DEG_TO_RAD * 12f;
             leftArm.zRot += Mth.DEG_TO_RAD * -12f;
         }

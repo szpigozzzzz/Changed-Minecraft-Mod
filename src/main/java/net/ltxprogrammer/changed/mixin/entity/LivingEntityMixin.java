@@ -11,12 +11,13 @@ import net.ltxprogrammer.changed.block.entity.StasisChamberBlockEntity;
 import net.ltxprogrammer.changed.data.AccessorySlotType;
 import net.ltxprogrammer.changed.data.AccessorySlots;
 import net.ltxprogrammer.changed.entity.*;
-import net.ltxprogrammer.changed.entity.robot.WearableExoskeleton;
+import net.ltxprogrammer.changed.entity.robot.Exoskeleton;
 import net.ltxprogrammer.changed.entity.variant.TransfurVariant;
 import net.ltxprogrammer.changed.fluid.AbstractLatexFluid;
 import net.ltxprogrammer.changed.fluid.Gas;
 import net.ltxprogrammer.changed.fluid.TransfurGas;
 import net.ltxprogrammer.changed.init.*;
+import net.ltxprogrammer.changed.item.ExoskeletonItem;
 import net.ltxprogrammer.changed.item.ExtendedItemProperties;
 import net.ltxprogrammer.changed.item.SpecializedAnimations;
 import net.ltxprogrammer.changed.network.packet.AccessorySyncPacket;
@@ -124,8 +125,10 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityDa
     @Inject(method = "getJumpPower", at = @At("RETURN"), cancellable = true)
     public void getJumpPower(CallbackInfoReturnable<Float> callback) {
         ProcessTransfur.getEntityVariant((LivingEntity)(Object)this).map(variant -> callback.getReturnValue() * variant.jumpStrength).ifPresent(callback::setReturnValue);
-        if (this.getFirstPassenger() instanceof WearableExoskeleton mechSuit)
-            callback.setReturnValue(callback.getReturnValue() * mechSuit.getJumpStrengthMultiplier());
+        Exoskeleton.getEntityExoskeleton((LivingEntity)(Object)this)
+                        .ifPresent(pair -> {
+                            callback.setReturnValue(callback.getReturnValue() * pair.getSecond().getJumpStrengthMultiplier(pair.getFirst()));
+                        });
     }
 
     @Inject(method = "hasEffect", at = @At("HEAD"), cancellable = true)

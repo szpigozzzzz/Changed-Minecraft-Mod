@@ -4,8 +4,11 @@ import net.ltxprogrammer.changed.client.ClientLivingEntityExtender;
 import net.ltxprogrammer.changed.client.renderer.AdvancedHumanoidRenderer;
 import net.ltxprogrammer.changed.client.animations.Limb;
 import net.ltxprogrammer.changed.client.renderer.ExoskeletonRenderer;
+import net.ltxprogrammer.changed.client.renderer.accessory.WornExoskeletonRenderer;
+import net.ltxprogrammer.changed.client.renderer.layers.AccessoryLayer;
 import net.ltxprogrammer.changed.client.tfanimations.TransfurAnimator;
 import net.ltxprogrammer.changed.entity.robot.Exoskeleton;
+import net.ltxprogrammer.changed.init.ChangedAccessoryRenderers;
 import net.ltxprogrammer.changed.item.SpecializedAnimations;
 import net.ltxprogrammer.changed.process.ProcessTransfur;
 import net.ltxprogrammer.changed.util.EntityUtil;
@@ -105,7 +108,7 @@ public abstract class HumanoidModelMixin<T extends LivingEntity> extends Ageable
             }
         });
 
-        if (entity.getFirstPassenger() instanceof Exoskeleton exoskeleton) {
+        Exoskeleton.getEntityExoskeleton(entity).ifPresent(pair -> {
             this.leftLeg.visible = false;
             this.rightLeg.visible = false;
             if ((Object)this instanceof PlayerModel<?> playerModel) {
@@ -113,12 +116,11 @@ public abstract class HumanoidModelMixin<T extends LivingEntity> extends Ageable
                 playerModel.rightPants.visible = false;
             }
 
-            final Minecraft minecraft = Minecraft.getInstance();
-            final EntityRenderDispatcher dispatcher = minecraft.getEntityRenderDispatcher();
-            final var renderer = dispatcher.getRenderer(exoskeleton);
-            if (renderer instanceof ExoskeletonRenderer exoRenderer) {
-                exoRenderer.getModel().animateWearerLimbs(this, exoskeleton);
-            }
-        }
+            AccessoryLayer.getRenderer(pair.getSecond()).ifPresent(renderer -> {
+                if (renderer instanceof WornExoskeletonRenderer exoRenderer) {
+                    exoRenderer.getModel().animateWearerLimbs(this, pair.getFirst());
+                }
+            });
+        });
     }
 }

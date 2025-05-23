@@ -23,13 +23,6 @@ public class ExoskeletonRenderer extends MobRenderer<Exoskeleton, ExoskeletonMod
 
     @Override
     public void render(Exoskeleton suit, float yRot, float partialTicks, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight) {
-        if (suit.getWearerEntity() != null) {
-            this.shadowStrength = 0f;
-            return; // Suit will be rendered as layer instead
-        } else {
-            this.shadowStrength = 1f;
-        };
-
         poseStack.pushPose();
 
         float f = (float)suit.getHurtTime() - partialTicks;

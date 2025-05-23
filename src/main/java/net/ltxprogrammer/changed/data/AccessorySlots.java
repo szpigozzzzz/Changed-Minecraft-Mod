@@ -129,7 +129,7 @@ public class AccessorySlots implements Container {
     }
 
     public boolean moveToSlot(AccessorySlotType slot, ItemStack stack) {
-        if (!slot.canHoldItem(stack))
+        if (!slot.canHoldItem(stack, owner))
             return false;
 
         ItemStack oldStack = items.get(slot);
@@ -197,7 +197,7 @@ public class AccessorySlots implements Container {
     }
 
     public Set<AccessorySlotType> getAccessorySlotsForItem(ItemStack stack) {
-        return items.keySet().stream().filter(slotType -> slotType.canHoldItem(stack)).collect(Collectors.toSet());
+        return items.keySet().stream().filter(slotType -> slotType.canHoldItem(stack, owner)).collect(Collectors.toSet());
     }
 
     public <T> Stream<T> getMergedStream(BiFunction<AccessorySlotType, ItemStack, T> mapper) {

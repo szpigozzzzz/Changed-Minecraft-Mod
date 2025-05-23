@@ -16,6 +16,8 @@ import net.minecraft.client.resources.DefaultPlayerSkin;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.ItemStack;
+import org.jetbrains.annotations.Nullable;
 
 public class ExoskeletonModel extends EntityModel<Exoskeleton> {
     public static final ModelLayerLocation LAYER_LOCATION_SUIT = new ModelLayerLocation(Changed.modResource("exoskeleton"), "main");
@@ -211,23 +213,24 @@ public class ExoskeletonModel extends EntityModel<Exoskeleton> {
     @Override
     public void prepareMobModel(Exoskeleton entity, float limbSwing, float limbSwingAmount, float partialTick) {
         super.prepareMobModel(entity, limbSwing, limbSwingAmount, partialTick);
-        if (entity.getWearerEntity() != null) { // TODO animate wearer a little
-            HeadSupport.y = 7.0F;
-            BackBraceLeft.yRot = 0.0F;
-            BackBraceRight.yRot = 0.0F;
-            RightArmBraceLeft.yRot = 0.0F;
-            RightArmBraceRight.yRot = 0.0F;
-            LeftArmBraceLeft.yRot = 0.0F;
-            LeftArmBraceRight.yRot = 0.0F;
-        } else {
-            HeadSupport.y = 1.0F;
-            BackBraceLeft.yRot = Mth.DEG_TO_RAD * -20.0F;
-            BackBraceRight.yRot = Mth.DEG_TO_RAD * 20.0F;
-            RightArmBraceLeft.yRot = Mth.DEG_TO_RAD * -10.0F;
-            RightArmBraceRight.yRot = Mth.DEG_TO_RAD * 10.0F;
-            LeftArmBraceLeft.yRot = Mth.DEG_TO_RAD * -10.0F;
-            LeftArmBraceRight.yRot = Mth.DEG_TO_RAD * 10.0F;
-        }
+        HeadSupport.y = 1.0F;
+        BackBraceLeft.yRot = Mth.DEG_TO_RAD * -20.0F;
+        BackBraceRight.yRot = Mth.DEG_TO_RAD * 20.0F;
+        RightArmBraceLeft.yRot = Mth.DEG_TO_RAD * -10.0F;
+        RightArmBraceRight.yRot = Mth.DEG_TO_RAD * 10.0F;
+        LeftArmBraceLeft.yRot = Mth.DEG_TO_RAD * -10.0F;
+        LeftArmBraceRight.yRot = Mth.DEG_TO_RAD * 10.0F;
+    }
+
+    public void prepareMobModel(ItemStack itemStack, float limbSwing, float limbSwingAmount, float partialTick) {
+        // TODO animate wearer a little
+        HeadSupport.y = 7.0F;
+        BackBraceLeft.yRot = 0.0F;
+        BackBraceRight.yRot = 0.0F;
+        RightArmBraceLeft.yRot = 0.0F;
+        RightArmBraceRight.yRot = 0.0F;
+        LeftArmBraceLeft.yRot = 0.0F;
+        LeftArmBraceRight.yRot = 0.0F;
     }
 
     public <T extends LivingEntity, M extends EntityModel<T> & HeadedModel> void animateWearerLimbs(M wearerModel, Exoskeleton entity) {
@@ -240,7 +243,26 @@ public class ExoskeletonModel extends EntityModel<Exoskeleton> {
         Limb.LEFT_LEG.getModelPartSafe(wearerModel).ifPresent(part -> part.zRot += Mth.DEG_TO_RAD * -2.5f);
     }
 
-    public <T extends LivingEntity, M extends EntityModel<T> & HeadedModel> void matchWearersAnim(M wearerModel, Exoskeleton entity) {
+    public <T extends LivingEntity, M extends EntityModel<T> & HeadedModel> void animateWearerLimbs(M wearerModel, ItemStack stack) {
+        Limb.RIGHT_ARM.getModelPartSafe(wearerModel).ifPresent(part -> part.zRot += Mth.DEG_TO_RAD * 12f);
+        Limb.LEFT_ARM.getModelPartSafe(wearerModel).ifPresent(part -> part.zRot += Mth.DEG_TO_RAD * -12f);
+
+        if (wearerModel instanceof AdvancedHumanoidModel<?>) return;
+
+        Limb.RIGHT_LEG.getModelPartSafe(wearerModel).ifPresent(part -> part.zRot += Mth.DEG_TO_RAD * 2.5f);
+        Limb.LEFT_LEG.getModelPartSafe(wearerModel).ifPresent(part -> part.zRot += Mth.DEG_TO_RAD * -2.5f);
+    }
+
+    public <T extends LivingEntity, M extends EntityModel<T>> void matchWearersAnim(M wearerModel, Exoskeleton entity) {
+        Limb.HEAD.getModelPartSafe(wearerModel).ifPresent(this.Head::copyFrom);
+        Limb.TORSO.getModelPartSafe(wearerModel).ifPresent(this.Torso::copyFrom);
+        Limb.RIGHT_ARM.getModelPartSafe(wearerModel).ifPresent(this.RightArm::copyFrom);
+        Limb.LEFT_ARM.getModelPartSafe(wearerModel).ifPresent(this.LeftArm::copyFrom);
+        Limb.RIGHT_LEG.getModelPartSafe(wearerModel).ifPresent(this.RightLeg::copyFrom);
+        Limb.LEFT_LEG.getModelPartSafe(wearerModel).ifPresent(this.LeftLeg::copyFrom);
+    }
+
+    public <T extends LivingEntity, M extends EntityModel<T>> void matchWearersAnim(M wearerModel, ItemStack stack) {
         Limb.HEAD.getModelPartSafe(wearerModel).ifPresent(this.Head::copyFrom);
         Limb.TORSO.getModelPartSafe(wearerModel).ifPresent(this.Torso::copyFrom);
         Limb.RIGHT_ARM.getModelPartSafe(wearerModel).ifPresent(this.RightArm::copyFrom);
@@ -265,6 +287,10 @@ public class ExoskeletonModel extends EntityModel<Exoskeleton> {
         return TEXTURE;
     }
 
+    public ResourceLocation getTexture(ItemStack stack) {
+        return TEXTURE;
+    }
+
     public static class ReplacementLimbs extends EntityModel<Exoskeleton> {
         private final ModelPart Root;
         private final ModelPart LeftLeg;
@@ -281,7 +307,12 @@ public class ExoskeletonModel extends EntityModel<Exoskeleton> {
             // TODO default animation
         }
 
-        public <T extends LivingEntity, M extends EntityModel<T> & HeadedModel> void matchWearersAnim(M wearerModel, Exoskeleton entity) {
+        public <T extends LivingEntity, M extends EntityModel<T>> void matchWearersAnim(M wearerModel, Exoskeleton entity) {
+            Limb.RIGHT_LEG.getModelPartSafe(wearerModel).ifPresent(this.RightLeg::copyFrom);
+            Limb.LEFT_LEG.getModelPartSafe(wearerModel).ifPresent(this.LeftLeg::copyFrom);
+        }
+
+        public <T extends LivingEntity, M extends EntityModel<T>> void matchWearersAnim(M wearerModel, ItemStack stack) {
             Limb.RIGHT_LEG.getModelPartSafe(wearerModel).ifPresent(this.RightLeg::copyFrom);
             Limb.LEFT_LEG.getModelPartSafe(wearerModel).ifPresent(this.LeftLeg::copyFrom);
         }
@@ -292,8 +323,8 @@ public class ExoskeletonModel extends EntityModel<Exoskeleton> {
             LeftLeg.render(poseStack, buffer, packedLight, packedOverlay, red, green, blue, alpha);
         }
 
-        public ResourceLocation getTexture(Exoskeleton entity) {
-            if (entity.getWearerEntity() instanceof AbstractClientPlayer clientPlayer)
+        public ResourceLocation getTexture(LivingEntity entity) {
+            if (entity instanceof AbstractClientPlayer clientPlayer)
                 return clientPlayer.getSkinTextureLocation();
             return DefaultPlayerSkin.getDefaultSkin(entity.getUUID());
         }

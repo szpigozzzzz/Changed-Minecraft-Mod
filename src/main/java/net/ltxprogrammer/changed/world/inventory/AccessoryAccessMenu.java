@@ -65,7 +65,7 @@ public class AccessoryAccessMenu extends AbstractContainerMenu {
 
                 @Override
                 public boolean mayPlace(ItemStack stack) {
-                    return super.mayPlace(stack) && slotType.canHoldItem(stack);
+                    return super.mayPlace(stack) && slotType.canHoldItem(stack, inventory.player);
                 }
             }));
         }

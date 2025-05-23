@@ -117,8 +117,8 @@ public class ChangedItems {
 
     public static final RegistryObject<PlaceableEntity<Roomba>> ROOMBA = register("roomba",
             () -> new PlaceableEntity<>(new Item.Properties().tab(ChangedTabs.TAB_CHANGED_ITEMS).stacksTo(4), ChangedEntities.ROOMBA));
-    public static final RegistryObject<PlaceableEntity<Exoskeleton>> EXOSKELETON = register("exoskeleton",
-            () -> new PlaceableEntity<>(new Item.Properties().tab(ChangedTabs.TAB_CHANGED_ITEMS).stacksTo(1), ChangedEntities.EXOSKELETON));
+    public static final RegistryObject<ExoskeletonItem<Exoskeleton>> EXOSKELETON = register("exoskeleton",
+            () -> new ExoskeletonItem<>(new Item.Properties().tab(ChangedTabs.TAB_CHANGED_ITEMS).stacksTo(1), ChangedEntities.EXOSKELETON));
 
     // Unsure whether to keep this record, it doesn't fit with the BGM from changed
     public static final RegistryObject<RecordItem> OWO_RECORD = register("owo_record", () -> new RecordItem(8, ChangedSounds.OWO, (new Item.Properties()).stacksTo(1).tab(ChangedTabs.TAB_CHANGED_MUSIC).rarity(Rarity.RARE)));

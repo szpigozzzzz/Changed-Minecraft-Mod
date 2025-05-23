@@ -1,6 +1,7 @@
 package net.ltxprogrammer.changed.item;
 
 import net.ltxprogrammer.changed.ability.IAbstractChangedEntity;
+import net.ltxprogrammer.changed.data.AccessorySlotType;
 import net.ltxprogrammer.changed.data.AccessorySlots;
 import net.ltxprogrammer.changed.entity.ChangedEntity;
 import net.ltxprogrammer.changed.entity.variant.ClothingShape;
@@ -35,6 +36,10 @@ public interface ExtendedItemProperties {
             case ARMOR -> allowedToWear(itemStack, wearer, slot);
             case HAND -> true;
         };
+    }
+
+    default boolean allowedInSlot(ItemStack itemStack, LivingEntity wearer, AccessorySlotType slot) {
+        return true;
     }
 
     // Should only be called with armor slots

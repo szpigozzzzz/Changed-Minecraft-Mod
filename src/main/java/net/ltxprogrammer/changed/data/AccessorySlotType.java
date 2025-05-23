@@ -1,6 +1,7 @@
 package net.ltxprogrammer.changed.data;
 
 import net.ltxprogrammer.changed.item.AccessoryItem;
+import net.ltxprogrammer.changed.item.ExtendedItemProperties;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
@@ -27,8 +28,12 @@ public class AccessorySlotType extends ForgeRegistryEntry<AccessorySlotType> {
         return itemTagKey;
     }
 
-    public boolean canHoldItem(ItemStack itemStack) {
-        return itemStack.is(this.getItemTag());
+    public boolean canHoldItem(ItemStack itemStack, LivingEntity wearer) {
+        if (!itemStack.is(this.getItemTag()))
+            return false;
+        if (itemStack.getItem() instanceof ExtendedItemProperties ext && !ext.allowedInSlot(itemStack, wearer, this))
+            return false;
+        return true;
     }
 
     public ResourceLocation getNoItemIcon() {
