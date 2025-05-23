@@ -1,0 +1,8 @@
+{
+	"type": "minecraft:stonecutting",
+	"ingredient": {
+		"item": "changed:tiles_library_brown"
+	},
+	"result": "changed:tiles_library_brown_stairs",
+	"count": 1
+}

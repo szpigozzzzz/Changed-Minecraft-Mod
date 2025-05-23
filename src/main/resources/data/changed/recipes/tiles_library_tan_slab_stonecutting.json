@@ -1,0 +1,8 @@
+{
+	"type": "minecraft:stonecutting",
+	"ingredient": {
+		"item": "changed:tiles_library_tan"
+	},
+	"result": "changed:tiles_library_tan_slab",
+	"count": 2
+}
