@@ -68,7 +68,7 @@ public class ChangedDataFixer {
     });
 
     private final HashMap<ResourceLocation, ResourceLocation> BLOCK_ID_REMAP = Util.make(new HashMap<>(), map -> {
-        map.put(Changed.modResource("tiles_darkblue"), ChangedBlocks.TILES_TEAL.getId());
+        
     });
 
     // IDs that both blocks and items share
