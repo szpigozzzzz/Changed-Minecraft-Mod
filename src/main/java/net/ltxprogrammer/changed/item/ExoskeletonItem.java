@@ -14,6 +14,7 @@ import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.DispenserBlock;
 
 import java.util.UUID;
 import java.util.function.Supplier;
@@ -37,6 +38,7 @@ public class ExoskeletonItem<T extends AbstractRobot> extends PlaceableEntity<T>
 
     public ExoskeletonItem(Properties builder, Supplier<EntityType<T>> entityType) {
         super(builder, entityType);
+        DispenserBlock.registerBehavior(this, AccessoryItem.DISPENSE_ITEM_BEHAVIOR);
     }
 
     @Override

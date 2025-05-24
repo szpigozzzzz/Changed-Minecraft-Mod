@@ -7,11 +7,13 @@ import net.ltxprogrammer.changed.entity.ChangedEntity;
 import net.ltxprogrammer.changed.entity.LivingEntityDataExtension;
 import net.ltxprogrammer.changed.extension.ChangedCompatibility;
 import net.ltxprogrammer.changed.init.ChangedRegistry;
+import net.ltxprogrammer.changed.init.ChangedSounds;
 import net.ltxprogrammer.changed.network.packet.AccessoryEventPacket;
 import net.ltxprogrammer.changed.util.Cacheable;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attribute;
@@ -20,6 +22,7 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
+import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.items.ItemHandlerHelper;
 import net.minecraftforge.network.PacketDistributor;
@@ -92,6 +95,15 @@ public class AccessorySlots implements Container {
         return Optional.empty();
     }
 
+    public static void equipEventAndSound(LivingEntity entity, ItemStack stack) {
+        SoundEvent soundevent = stack.getEquipSound();
+        if (!stack.isEmpty() && soundevent != null && !entity.isSpectator()) {
+            entity.gameEvent(GameEvent.EQUIP);
+            if (!entity.level.isClientSide)
+                ChangedSounds.broadcastSound(entity, soundevent, 1.0F, 1.0F);
+        }
+    }
+
     public static void onBrokenAccessory(LivingEntity livingEntity, AccessorySlotType slotType) {
         if (livingEntity.level.isClientSide)
             return;
@@ -129,6 +141,8 @@ public class AccessorySlots implements Container {
     }
 
     public boolean moveToSlot(AccessorySlotType slot, ItemStack stack) {
+        if (!items.containsKey(slot))
+            return false;
         if (!slot.canHoldItem(stack, owner))
             return false;
 
@@ -353,6 +367,26 @@ public class AccessorySlots implements Container {
             consumer.accept(entry.getValue());
             entry.setValue(ItemStack.EMPTY);
         });
+    }
+
+    public boolean hasSpaceFor(ItemStack stack) {
+        for (var slot : items.keySet()) {
+            if (!slot.canHoldItem(stack, owner))
+                continue;
+
+            ItemStack oldStack = items.get(slot);
+            if (oldStack.isEmpty()) {
+                return true;
+            } else if (ItemStack.isSameItemSameTags(stack, oldStack)) {
+                int maxMove = oldStack.getMaxStackSize() - oldStack.getCount();
+                int toMove = Math.min(stack.getCount(), maxMove);
+
+                if (toMove > 0)
+                    return true;
+            }
+        }
+
+        return false;
     }
 
     public static class DropItemEvent extends Event {

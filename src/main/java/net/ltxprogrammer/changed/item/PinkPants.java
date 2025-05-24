@@ -17,26 +17,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.*;
 import org.jetbrains.annotations.Nullable;
 
-public class PinkPants extends Item implements Wearable, LatexFusingItem, Shorts {
-    public PinkPants() {
-        super(new Properties().tab(ChangedTabs.TAB_CHANGED_ITEMS).durability(5));
-    }
-
-    @Override
-    public boolean isDamageable(ItemStack stack) {
-        return false;
-    }
-
-    @Override
-    public SoundEvent getEquipSound() {
-        return ChangedSounds.EQUIP3;
-    }
-
-    @Override
-    public SoundEvent getBreakSound(ItemStack itemStack) {
-        return ChangedSounds.SLASH10;
-    }
-
+public class PinkPants extends ClothingItem implements LatexFusingItem {
     @Nullable
     @Override
     public String getArmorTexture(ItemStack stack, Entity entity, EquipmentSlot slot, String type) {
