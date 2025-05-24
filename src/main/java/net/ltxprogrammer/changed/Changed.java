@@ -112,6 +112,11 @@ public class Changed {
 
     private void commonSetup(final FMLCommonSetupEvent event) {
         event.enqueueWork(() -> {
+            if (!config.common.downloadPatreonContent.get()) {
+                Changed.LOGGER.info("Patreon benefits is disabled on this client. Patrons will not receive benefits visible to this client.");
+                return;
+            }
+
             try {
                 PatreonBenefits.loadBenefits();
                 PatreonBenefits.UPDATE_CHECKER.start();

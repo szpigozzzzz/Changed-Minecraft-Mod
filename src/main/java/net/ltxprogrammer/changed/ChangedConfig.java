@@ -39,13 +39,16 @@ public class ChangedConfig {
     static final Marker CONFIG = MarkerManager.getMarker("CONFIG");
 
     public static class Common {
+        public final ForgeConfigSpec.ConfigValue<Boolean> downloadPatreonContent;
         public final ForgeConfigSpec.ConfigValue<String> githubDomain;
         public final ForgeConfigSpec.ConfigValue<Boolean> displayPatronage;
 
         public Common(ForgeConfigSpec.Builder builder) {
-            builder.comment("Choose your domain. Let's you specify a mirror domain if your ISP blocks github (for whatever reason)");
+            builder.comment("Choose whether this instance will download patreon content. If disabled: this instance will not recognize patrons' rank or special form.");
+            downloadPatreonContent = builder.define("downloadPatreonContent", true);
+            builder.comment("Choose your domain. Let's you specify a mirror domain if your ISP blocks github (for whatever reason).");
             githubDomain = builder.define("githubDomain", "raw.githubusercontent.com");
-            builder.comment("Compatibility is weird, you can disable displaying player's patronage to Changed:MC here");
+            builder.comment("Compatibility is weird, you can disable displaying player's patronage to Changed:MC here.");
             displayPatronage = builder.define("displayPatronage", true);
         }
     }
