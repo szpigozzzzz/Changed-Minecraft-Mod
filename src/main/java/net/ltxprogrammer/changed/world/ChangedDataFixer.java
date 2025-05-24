@@ -157,6 +157,9 @@ public class ChangedDataFixer {
         updateID(ENTITY_ID_REMAP, entityTag, "id");
 
         updateName(ENUM_REMAP, entityTag, "LatexType");
+
+        updateID(BLOCK_ID_REMAP, entityTag, "final_state");
+        updateID(BLOCK_ITEM_ID_REMAP, entityTag, "final_state");
     }
 
     private void updateBlock(@NotNull CompoundTag blockTag) {
