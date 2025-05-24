@@ -15,6 +15,7 @@ import net.ltxprogrammer.changed.entity.ChangedEntity;
 import net.ltxprogrammer.changed.entity.VisionType;
 import net.ltxprogrammer.changed.entity.variant.TransfurVariantInstance;
 import net.ltxprogrammer.changed.process.ProcessTransfur;
+import net.ltxprogrammer.changed.util.Cacheable;
 import net.ltxprogrammer.changed.util.EntityUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -41,8 +42,8 @@ public class ChangedClient {
     public static final LatexParticleEngine particleSystem = new LatexParticleEngine(minecraft);
     public static final ChangedBlockEntityWithoutLevelRenderer itemRenderer =
             new ChangedBlockEntityWithoutLevelRenderer(minecraft.getBlockEntityRenderDispatcher(), minecraft.getEntityModels());
-    public static final AbilityColors abilityColors = AbilityColors.createDefault();
-    public static final AbilityRenderer abilityRenderer = new AbilityRenderer(minecraft.textureManager, minecraft.getModelManager(), abilityColors);
+    public static final Cacheable<AbilityColors> abilityColors = Cacheable.of(AbilityColors::createDefault);
+    public static final Cacheable<AbilityRenderer> abilityRenderer = Cacheable.of(() -> new AbilityRenderer(minecraft.textureManager, minecraft.getModelManager(), abilityColors.getOrThrow()));
 
     public static void registerEventListeners() {
         Changed.addEventListener(ChangedClient::afterRenderStage);
@@ -51,7 +52,7 @@ public class ChangedClient {
 
     public static void registerReloadListeners(Consumer<PreparableReloadListener> resourceManager) {
         resourceManager.accept(particleSystem);
-        resourceManager.accept(abilityRenderer);
+        resourceManager.accept(abilityRenderer.getOrThrow());
         resourceManager.accept(AnimationDefinitions.INSTANCE);
         resourceManager.accept(AnimationAssociations.INSTANCE);
     }

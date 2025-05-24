@@ -59,7 +59,7 @@ public class AbilityOverlay {
     }
 
     public static void renderForeground(int x, int y, PoseStack stack, AbstractRadialScreen.ColorScheme scheme, Player player, TransfurVariantInstance<?> variant, AbstractAbilityInstance selected) {
-        ChangedClient.abilityRenderer.renderAndDecorateAbility(
+        ChangedClient.abilityRenderer.getOrThrow().renderAndDecorateAbility(
                 player,
                 selected,
                 x,

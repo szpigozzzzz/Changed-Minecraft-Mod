@@ -103,7 +103,7 @@ public class AbilityRadialScreen extends VariantRadialScreen<AbilityRadialMenu> 
         }
 
         else {
-            ChangedClient.abilityRenderer.renderAndDecorateAbility(
+            ChangedClient.abilityRenderer.getOrThrow().renderAndDecorateAbility(
                     menu.player,
                     menu.variant.getAbilityInstance(abilities.get(section)),
                     (int) (x - 24 + this.leftPos),
