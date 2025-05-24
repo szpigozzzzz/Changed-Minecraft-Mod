@@ -93,7 +93,7 @@ public class ArmorLatexAlienModel<T extends ChangedEntity> extends LatexHumanoid
     public void prepareVisibility(EquipmentSlot armorSlot, ItemStack item) {
         super.prepareVisibility(armorSlot, item);
         if (armorSlot == EquipmentSlot.LEGS) {
-            prepareUnifiedLegsForArmor(item, LeftLeg, RightLeg);
+            prepareUnifiedLegsForArmor(item, LeftLeg, RightLeg, Tail);
         }
     }
 
@@ -101,7 +101,7 @@ public class ArmorLatexAlienModel<T extends ChangedEntity> extends LatexHumanoid
     public void unprepareVisibility(EquipmentSlot armorSlot, ItemStack item) {
         super.unprepareVisibility(armorSlot, item);
         if (armorSlot == EquipmentSlot.LEGS) {
-            prepareUnifiedLegsForArmor(item, LeftLeg, RightLeg);
+            prepareUnifiedLegsForArmor(item, LeftLeg, RightLeg, Tail);
         }
     }
 

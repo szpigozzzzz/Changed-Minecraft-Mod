@@ -32,7 +32,6 @@ import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.client.renderer.entity.layers.HumanoidArmorLayer;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
 import net.minecraft.core.Direction;
-import net.minecraft.core.NonNullList;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -40,7 +39,6 @@ import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ArmorItem;
-import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.Nullable;
 import java.util.*;
@@ -394,6 +392,7 @@ public abstract class TransfurAnimator {
 
         ModelPose beforePose = CAPTURED_MODELS.getOrDefault(before, NULL_POSE);
         final ModelPose afterPose = CAPTURED_MODELS.getOrDefault(after, NULL_POSE);
+        if (afterPose == NULL_POSE) return;
 
         {
             var helper = maybeReplaceWithHelper(afterModel, limb);
@@ -613,16 +612,17 @@ public abstract class TransfurAnimator {
                             if (renderer instanceof TransitionalAccessory transitionalAccessory) {
                                 final var texture = transitionalAccessory.getModelTexture(slotContextVariant);
                                 final var before = transitionalAccessory.getBeforeModel(slotContextPlayer, livingPlayerRenderer);
-                                final var after = transitionalAccessory.getAfterModel(slotContextPlayer, latexHumanoidRenderer);
-
-                                if (texture.isEmpty() || before.isEmpty() || after.isEmpty())
+                                if (texture.isEmpty() || before.isEmpty())
                                     return;
 
-                                renderMorphedEntity(player,
-                                        before.get(),
-                                        after.get(),
-                                        morphProgress, Color3.WHITE, 1f, stack, buffer, light,
-                                        texture.get(), true);
+                                transitionalAccessory.getAfterModels(slotContextPlayer, latexHumanoidRenderer).forEach(after -> {
+
+                                    renderMorphedEntity(player,
+                                            before.get(),
+                                            after,
+                                            morphProgress, Color3.WHITE, 1f, stack, buffer, light,
+                                            texture.get(), true);
+                                });
                             }
                         });
             }));

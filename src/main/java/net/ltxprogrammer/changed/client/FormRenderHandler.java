@@ -181,6 +181,30 @@ public abstract class FormRenderHandler {
         part.zRot = prevZ;
     }
 
+    public static void renderVanillaModelPartWithTexture(ModelPart part, PoseStack stackCorrector, PoseStack stack, VertexConsumer buffer, int light, float alpha) {
+        if(part == null) return;
+
+        float prevX = part.xRot;
+        part.xRot = 0F;
+        float prevY = part.yRot;
+        part.yRot = 0F;
+        float prevZ = part.zRot;
+        part.zRot = 0.1F;
+
+        //taken from ModelRenderer.render
+        if(part.visible) {
+            stack.pushPose();
+
+            part.render(stack, buffer, light, OverlayTexture.NO_OVERLAY, 1F, 1F, 1F, alpha);
+
+            stack.popPose();
+        }
+
+        part.xRot = prevX;
+        part.yRot = prevY;
+        part.zRot = prevZ;
+    }
+
     public static void renderModelPartWithTexture(ModelPart part, PoseStack stackCorrector, PoseStack stack, VertexConsumer buffer, int light, float red, float green, float blue, float alpha) {
         if(part == null) return;
 
@@ -198,6 +222,30 @@ public abstract class FormRenderHandler {
             part.translateAndRotate(stack);
 
             stack.mulPoseMatrix(stackCorrector.last().pose());
+
+            part.render(stack, buffer, light, OverlayTexture.NO_OVERLAY, red, green, blue, alpha);
+
+            stack.popPose();
+        }
+
+        part.xRot = prevX;
+        part.yRot = prevY;
+        part.zRot = prevZ;
+    }
+
+    public static void renderVanillaModelPartWithTexture(ModelPart part, PoseStack stackCorrector, PoseStack stack, VertexConsumer buffer, int light, float red, float green, float blue, float alpha) {
+        if(part == null) return;
+
+        float prevX = part.xRot;
+        part.xRot = 0F;
+        float prevY = part.yRot;
+        part.yRot = 0F;
+        float prevZ = part.zRot;
+        part.zRot = 0.1F;
+
+        //taken from ModelRenderer.render
+        if(part.visible) {
+            stack.pushPose();
 
             part.render(stack, buffer, light, OverlayTexture.NO_OVERLAY, red, green, blue, alpha);
 

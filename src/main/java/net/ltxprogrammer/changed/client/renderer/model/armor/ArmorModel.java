@@ -23,15 +23,23 @@ public enum ArmorModel {
 
     CLOTHING_OUTER(
             "clothing_outer",
-            ARMOR_OUTER.deformation.extend(-0.66f),
+            ARMOR_OUTER.deformation.extend(-0.75f),
             ARMOR_OUTER.inverseDeformation.extend(-0.66f),
             ARMOR_OUTER.slightDeformation.extend(-0.66f),
             ARMOR_OUTER.altDeformation.extend(-0.66f),
             ARMOR_OUTER.slightAltDeformation.extend(-0.66f),
             ARMOR_OUTER.dualDeformation.extend(-0.66f)),
+    CLOTHING_MIDDLE(
+            "clothing_middle",
+            ARMOR_INNER.deformation.extend(-0.2f),
+            ARMOR_INNER.inverseDeformation.extend(-0.15f),
+            ARMOR_INNER.slightDeformation.extend(-0.15f),
+            ARMOR_INNER.altDeformation.extend(-0.15f),
+            ARMOR_INNER.slightAltDeformation.extend(-0.15f),
+            ARMOR_INNER.dualDeformation.extend(-0.15f)),
     CLOTHING_INNER(
             "clothing_inner",
-            ARMOR_INNER.deformation.extend(-0.2f),
+            ARMOR_INNER.deformation.extend(-0.25f),
             ARMOR_INNER.inverseDeformation.extend(-0.2f),
             ARMOR_INNER.slightDeformation.extend(-0.2f),
             ARMOR_INNER.altDeformation.extend(-0.2f),

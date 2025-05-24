@@ -23,9 +23,21 @@ public abstract class CubeListBuilderMixin implements CubeListBuilderExtender {
     @Unique private List<Triangle.Definition> triangles = null;
 
     @Override
-    public CubeListBuilder removeLastFaces(Direction... directions) {
+    public CubeListBuilderExtender removeLastFaces(Direction... directions) {
         CubeDefinitionExtender cube = (CubeDefinitionExtender)(Object)this.cubes.get(this.cubes.size() - 1);
         cube.removeFaces(directions);
+        return this;
+    }
+
+    @Override
+    public CubeListBuilderExtender copyLastFaceUVStart(Direction from, Direction to) {
+        CubeDefinitionExtender cube = (CubeDefinitionExtender)(Object)this.cubes.get(this.cubes.size() - 1);
+        cube.copyFaceUVStart(from, to);
+        return this;
+    }
+
+    @Override
+    public CubeListBuilder finish() {
         return (CubeListBuilder)(Object)this;
     }
 

@@ -9,6 +9,7 @@ import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
+import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.ItemLike;
 
@@ -17,7 +18,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.Supplier;
 
-public class AccessoryLayer<T extends LivingEntity, M extends EntityModel<T>> extends RenderLayer<T, M> {
+public class AccessoryLayer<T extends LivingEntity, M extends EntityModel<T>> extends RenderLayer<T, M> implements FirstPersonLayer<T> {
     private static final Map<ItemLike, Cacheable<AccessoryRenderer>> RENDERERS = new HashMap<>();
 
     public static void registerRenderer(ItemLike item, Supplier<AccessoryRenderer> renderer) {
@@ -46,6 +47,21 @@ public class AccessoryLayer<T extends LivingEntity, M extends EntityModel<T>> ex
 
                 var context = new AccessorySlotContext<>(entity, slotType, stack);
                 RENDERERS.get(stack.getItem()).get().render(context, poseStack, this.parent, buffers, packedLight, limbSwing, limbSwingAmount, partialTicks, ageInTicks, netHeadYaw, headPitch);
+            });
+        });
+    }
+
+    @Override
+    public void renderFirstPersonOnArms(PoseStack poseStack, MultiBufferSource buffers, int packedLight, T entity, HumanoidArm arm, PoseStack stackCorrector, float partialTick) {
+        AccessorySlots.getForEntity(entity).ifPresent(slots -> {
+            slots.forEachSlot((slotType, stack) -> {
+                if (stack.isEmpty())
+                    return;
+                if (!RENDERERS.containsKey(stack.getItem()))
+                    return;
+
+                var context = new AccessorySlotContext<>(entity, slotType, stack);
+                RENDERERS.get(stack.getItem()).get().renderFirstPersonOnArms(context, poseStack, this.parent, buffers, packedLight, arm, stackCorrector, partialTick);
             });
         });
     }
