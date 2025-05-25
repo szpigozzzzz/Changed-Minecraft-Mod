@@ -3,6 +3,7 @@ package net.ltxprogrammer.changed.data;
 import com.google.common.collect.ImmutableList;
 import com.mojang.serialization.Codec;
 import net.ltxprogrammer.changed.Changed;
+import net.ltxprogrammer.changed.init.ChangedBlockStateProviders;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.random.WeightedEntry;
 import net.minecraft.util.random.WeightedRandom;
@@ -15,7 +16,6 @@ import java.util.Random;
 
 public class MixedStateProvider extends BlockStateProvider {
     public static final Codec<MixedStateProvider> CODEC = WeightedEntry.Wrapper.codec(BlockStateProvider.CODEC).listOf().xmap(MixedStateProvider::new, MixedStateProvider::unwrap);
-    private static final BlockStateProviderType<MixedStateProvider> MIXED_STATE_PROVIDER = DeferredStateProvider.register(Changed.modResource("mixed_state_provider"), MixedStateProvider.CODEC);
     private final List<WeightedEntry.Wrapper<BlockStateProvider>> items;
     private final int totalWeight;
 
@@ -30,7 +30,7 @@ public class MixedStateProvider extends BlockStateProvider {
 
     @Override
     protected BlockStateProviderType<?> type() {
-        return MIXED_STATE_PROVIDER;
+        return ChangedBlockStateProviders.MIXED_STATE_PROVIDER.get();
     }
 
     @Override

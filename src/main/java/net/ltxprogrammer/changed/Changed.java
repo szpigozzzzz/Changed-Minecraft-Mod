@@ -100,6 +100,7 @@ public class Changed {
         ChangedBlockEntities.REGISTRY.register(modEventBus);
         ChangedFluids.REGISTRY.register(modEventBus);
         ChangedItems.REGISTRY.register(modEventBus);
+        ChangedBlockStateProviders.REGISTRY.register(modEventBus);
         ChangedBlocks.REGISTRY.register(modEventBus);
         ChangedTransfurVariants.REGISTRY.register(modEventBus);
         ChangedEntities.REGISTRY.register(modEventBus);
