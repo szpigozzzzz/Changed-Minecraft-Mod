@@ -5,15 +5,16 @@ import net.ltxprogrammer.changed.Changed;
 import net.ltxprogrammer.changed.client.renderer.layers.*;
 import net.ltxprogrammer.changed.client.renderer.model.PooltoyWolfModel;
 import net.ltxprogrammer.changed.client.renderer.model.armor.ArmorLatexMaleWolfModel;
+import net.ltxprogrammer.changed.client.renderer.model.armor.ArmorPooltoyWolfModel;
 import net.ltxprogrammer.changed.entity.SpringType;
 import net.ltxprogrammer.changed.entity.beast.PooltoyWolf;
 import net.ltxprogrammer.changed.util.Color3;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.resources.ResourceLocation;
 
-public class PooltoyWolfRenderer extends AdvancedHumanoidRenderer<PooltoyWolf, PooltoyWolfModel, ArmorLatexMaleWolfModel<PooltoyWolf>> {
+public class PooltoyWolfRenderer extends AdvancedHumanoidRenderer<PooltoyWolf, PooltoyWolfModel, ArmorPooltoyWolfModel<PooltoyWolf>> {
     public PooltoyWolfRenderer(EntityRendererProvider.Context context) {
-        super(context, new PooltoyWolfModel(context.bakeLayer(PooltoyWolfModel.LAYER_LOCATION)), ArmorLatexMaleWolfModel.MODEL_SET, 0.5f);
+        super(context, new PooltoyWolfModel(context.bakeLayer(PooltoyWolfModel.LAYER_LOCATION)), ArmorPooltoyWolfModel.MODEL_SET, 0.5f);
         var translucent = new LatexTranslucentLayer<>(this, this.model, Changed.modResource("textures/pooltoy_wolf_translucent.png"));
         this.addLayer(translucent);
         this.addLayer(TransfurCapeLayer.normalCape(this, context.getModelSet()));

@@ -162,6 +162,7 @@ public class ChangedLayerDefinitions {
 
         ArmorLatexOtterModel.MODEL_SET.registerDefinitions(event::registerLayerDefinition);
         ArmorLatexStigerModel.MODEL_SET.registerDefinitions(event::registerLayerDefinition);
+        ArmorPooltoyWolfModel.MODEL_SET.registerDefinitions(event::registerLayerDefinition);
 
         if (useNewModels) {
             event.registerLayerDefinition(HairRemodel.RIG_UPPER_LOCATION, HairRemodel::createUpperHair);
