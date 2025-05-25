@@ -1,6 +1,8 @@
 package net.ltxprogrammer.changed.mixin.render;
 
 import com.google.common.collect.Queues;
+import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -202,9 +204,11 @@ public abstract class LevelRendererMixin {
             this.entityRenderDispatcher
     ));
 
-    @Inject(method = "setBlockDirty(Lnet/minecraft/core/BlockPos;Z)V", at = @At("HEAD"))
-    public void ensureChunkIsUpdated(BlockPos blockPos, boolean important, CallbackInfo ci) {
-        if (!ChangedClient.isRenderingWaveVision()) return; // Sodium overwrites this function, so we have to put it back
+    @WrapMethod(method = "setBlockDirty(Lnet/minecraft/core/BlockPos;Z)V")
+    public void ensureChunkIsUpdated(BlockPos blockPos, boolean important, Operation<Void> original) {
+        original.call(blockPos, important); // Sodium overwrites this function, so we have to put it back
+
+        if (!ChangedClient.shouldRenderingWaveVision()) return;
 
         for(int z = blockPos.getZ() - 1; z <= blockPos.getZ() + 1; ++z) {
             for(int x = blockPos.getX() - 1; x <= blockPos.getX() + 1; ++x) {
