@@ -112,6 +112,17 @@ public class AccessorySlots implements Container {
                 new AccessoryEventPacket(livingEntity.getId(), slotType, 1));
     }
 
+    public static void onInteractAccessory(LivingEntity livingEntity, AccessorySlotType slotType) {
+        if (livingEntity.level.isClientSide) {
+            Changed.PACKET_HANDLER.sendToServer(
+                    new AccessoryEventPacket(livingEntity.getId(), slotType, 2));
+            return;
+        }
+
+        Changed.PACKET_HANDLER.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> livingEntity),
+                new AccessoryEventPacket(livingEntity.getId(), slotType, 2));
+    }
+
     /**
      * Call when the slot carrier may change configuration, causing
      * @param allowedSlots test for which slots may stay

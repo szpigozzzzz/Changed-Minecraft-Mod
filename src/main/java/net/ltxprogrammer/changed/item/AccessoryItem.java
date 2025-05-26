@@ -54,4 +54,5 @@ public interface AccessoryItem {
     };
 
     default void accessoryBreak(AccessorySlotContext<?> slotContext) {}
+    default void accessoryInteract(AccessorySlotContext<?> slotContext) {}
 }

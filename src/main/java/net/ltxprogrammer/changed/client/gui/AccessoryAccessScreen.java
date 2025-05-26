@@ -3,6 +3,8 @@ package net.ltxprogrammer.changed.client.gui;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.ltxprogrammer.changed.Changed;
+import net.ltxprogrammer.changed.data.AccessorySlotType;
+import net.ltxprogrammer.changed.data.AccessorySlots;
 import net.ltxprogrammer.changed.world.inventory.AccessoryAccessMenu;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.inventory.EffectRenderingInventoryScreen;
@@ -10,7 +12,11 @@ import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.inventory.ClickType;
+import net.minecraft.world.inventory.Slot;
+import org.jetbrains.annotations.NotNull;
 
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class AccessoryAccessScreen extends EffectRenderingInventoryScreen<AccessoryAccessMenu> {
@@ -72,6 +78,21 @@ public class AccessoryAccessScreen extends EffectRenderingInventoryScreen<Access
         }
 
         return super.keyPressed(key, b, c);
+    }
+
+    @Override
+    protected void slotClicked(Slot slot, int index, int button, @NotNull ClickType clickType) {
+        if (button == this.minecraft.options.keyUse.getKey().getValue()) {
+            if (slot.container instanceof AccessorySlots accessorySlots) {
+                AccessorySlotType slotType = accessorySlots.getSlotTypeByIndex(slot.getSlotIndex());
+                if (slotType != null) {
+                    AccessorySlots.onInteractAccessory(menu.owner, slotType);
+                    return;
+                }
+            }
+        }
+
+        super.slotClicked(slot, index, button, clickType);
     }
 
     @Override

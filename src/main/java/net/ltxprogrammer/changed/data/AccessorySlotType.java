@@ -52,5 +52,7 @@ public class AccessorySlotType extends ForgeRegistryEntry<AccessorySlotType> {
     public void handleEvent(LivingEntity wearer, ItemStack itemStack, int event) {
         if (event == 1 && itemStack.getItem() instanceof AccessoryItem accessoryItem)
             accessoryItem.accessoryBreak(new AccessorySlotContext<>(wearer, this, itemStack));
+        if (event == 2 && itemStack.getItem() instanceof AccessoryItem accessoryItem)
+            accessoryItem.accessoryInteract(new AccessorySlotContext<>(wearer, this, itemStack));
     }
 }
