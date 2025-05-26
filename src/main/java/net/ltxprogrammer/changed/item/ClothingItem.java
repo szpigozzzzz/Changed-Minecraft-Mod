@@ -3,7 +3,13 @@ package net.ltxprogrammer.changed.item;
 import net.ltxprogrammer.changed.data.AccessorySlots;
 import net.ltxprogrammer.changed.init.ChangedSounds;
 import net.ltxprogrammer.changed.init.ChangedTabs;
+import net.minecraft.ChatFormatting;
+import net.minecraft.client.Minecraft;
+import net.minecraft.core.Registry;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.InteractionHand;
@@ -14,6 +20,7 @@ import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.Wearable;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -26,9 +33,12 @@ import net.minecraft.world.level.gameevent.GameEvent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Consumer;
 
 public class ClothingItem extends Item implements Wearable, Clothing, ExtendedItemProperties {
+    public static String INTERACT_INSTRUCTIONS = "changed.instruction.clothing_state";
     public static BooleanProperty CLOSED = BooleanProperty.create("closed");
 
     public StateDefinition<ClothingItem, ClothingState> stateDefinition;
@@ -41,6 +51,18 @@ public class ClothingItem extends Item implements Wearable, Clothing, ExtendedIt
         this.stateDefinition = builder.create(ClothingItem::defaultClothingState, ClothingState::new);
         this.registerDefaultState(this.stateDefinition.any());
         DispenserBlock.registerBehavior(this, AccessoryItem.DISPENSE_ITEM_BEHAVIOR);
+    }
+
+    @Override
+    public void appendHoverText(ItemStack stack, @Nullable Level level, List<Component> builder, TooltipFlag tooltipFlag) {
+        super.appendHoverText(stack, level, builder, tooltipFlag);
+        if (tooltipFlag.isAdvanced())
+            builder.add((new TextComponent(this.getClothingState(stack).toString())).withStyle(ChatFormatting.DARK_GRAY));
+    }
+
+    protected void addInteractInstructions(Consumer<Component> builder) {
+        builder.accept(new TranslatableComponent(INTERACT_INSTRUCTIONS, Minecraft.getInstance().options.keyUse.getTranslatedKeyMessage())
+                .withStyle(ChatFormatting.GRAY));
     }
 
     protected void createClothingStateDefinition(StateDefinition.Builder<ClothingItem, ClothingState> builder) {

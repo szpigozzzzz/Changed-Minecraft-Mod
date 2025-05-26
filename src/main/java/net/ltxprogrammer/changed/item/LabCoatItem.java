@@ -1,17 +1,33 @@
 package net.ltxprogrammer.changed.item;
 
 import net.ltxprogrammer.changed.data.AccessorySlotContext;
+import net.minecraft.client.Minecraft;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.StateDefinition;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.List;
 
 public class LabCoatItem extends ClothingItem {
     public LabCoatItem() {
         this.registerDefaultState(this.stateDefinition.any().setValue(CLOSED, false));
+    }
+
+    @Override
+    public void appendHoverText(ItemStack stack, @Nullable Level level, List<Component> builder, TooltipFlag tooltipFlag) {
+        if (level != null && level.isClientSide) {
+            this.addInteractInstructions(builder::add);
+        }
+
+        super.appendHoverText(stack, level, builder, tooltipFlag);
     }
 
     @Override
