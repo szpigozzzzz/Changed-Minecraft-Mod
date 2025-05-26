@@ -29,6 +29,7 @@ import org.jetbrains.annotations.NotNull;
 import javax.annotation.Nullable;
 import java.util.*;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 public class StasisChamberMenu extends AbstractContainerMenu implements UpdateableMenu {
     public final StasisChamberBlockEntity blockEntity;
@@ -38,6 +39,8 @@ public class StasisChamberMenu extends AbstractContainerMenu implements Updateab
 
     private final Map<Integer, Slot> customSlots = new HashMap<>();
     public int configuredCustomLatex = -1;
+
+    public boolean hideSlots = false;
 
     private static final ResourceLocation EMPTY_SYRINGE_SLOT = Changed.modResource("items/empty_slot_syringe");
 
@@ -67,6 +70,20 @@ public class StasisChamberMenu extends AbstractContainerMenu implements Updateab
         this.createSlots(inventory);
     }
 
+    private static class HideableSlot extends Slot {
+        private final Supplier<Boolean> shouldHide;
+
+        public HideableSlot(Container container, int index, int x, int y, Supplier<Boolean> shouldHide) {
+            super(container, index, x, y);
+            this.shouldHide = shouldHide;
+        }
+
+        @Override
+        public boolean isActive() {
+            return super.isActive() && !shouldHide.get();
+        }
+    }
+
     protected void createSlots(Inventory inv) {
         // Transfur variant slot
         this.customSlots.put(0, this.addSlot(new Slot(this.container, 0, 174, 142) {
@@ -84,7 +101,7 @@ public class StasisChamberMenu extends AbstractContainerMenu implements Updateab
                 return Pair.of(InventoryMenu.BLOCK_ATLAS, EMPTY_SYRINGE_SLOT);
             }
         }));
-        // Chamber fluid slot TODO some kind of fluid container (not a bucket)
+        // Chamber fluid slot
         this.customSlots.put(1, this.addSlot(new Slot(this.container, 1, 196, 142) {
             @Override
             public boolean mayPlace(ItemStack stack) {
@@ -99,9 +116,9 @@ public class StasisChamberMenu extends AbstractContainerMenu implements Updateab
 
         for (int slotY = 0; slotY < 3; ++slotY)
             for (int slotX = 0; slotX < 9; ++slotX)
-                this.addSlot(new Slot(inv, slotX + (slotY + 1) * 9, 0 + 8 + slotX * 18, 0 + 84 + slotY * 18));
+                this.addSlot(new HideableSlot(inv, slotX + (slotY + 1) * 9, 0 + 8 + slotX * 18, 0 + 84 + slotY * 18, () -> hideSlots));
         for (int slotY = 0; slotY < 9; ++slotY)
-            this.addSlot(new Slot(inv, slotY, 0 + 8 + slotY * 18, 0 + 142));
+            this.addSlot(new HideableSlot(inv, slotY, 0 + 8 + slotY * 18, 0 + 142, () -> hideSlots));
     }
 
     @Override

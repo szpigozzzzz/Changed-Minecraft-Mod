@@ -10,11 +10,8 @@ import net.ltxprogrammer.changed.entity.animation.StasisAnimationParameters;
 import net.ltxprogrammer.changed.entity.beast.CustomLatexEntity;
 import net.ltxprogrammer.changed.entity.variant.TransfurVariant;
 import net.ltxprogrammer.changed.entity.variant.TransfurVariantInstance;
-import net.ltxprogrammer.changed.fluid.Gas;
-import net.ltxprogrammer.changed.fluid.TransfurGas;
 import net.ltxprogrammer.changed.init.*;
 import net.ltxprogrammer.changed.item.FluidCanister;
-import net.ltxprogrammer.changed.item.GasCanister;
 import net.ltxprogrammer.changed.item.Syringe;
 import net.ltxprogrammer.changed.process.ProcessTransfur;
 import net.ltxprogrammer.changed.util.EntityUtil;
@@ -178,6 +175,8 @@ public class StasisChamberBlockEntity extends BaseContainerBlockEntity implement
         tag.putInt("configuredCustomLatex", configuredCustomLatex);
         tag.putInt("waitDuration", waitDuration);
         tag.putBoolean("stabilized", stabilized);
+        if (entityHolder != null)
+            tag.putInt("entityHolderId", entityHolder.getId());
 
         var commandTag = new ListTag();
         scheduledCommands.stream().map(command -> StringTag.valueOf(command.name())).forEach(commandTag::add);
@@ -195,6 +194,11 @@ public class StasisChamberBlockEntity extends BaseContainerBlockEntity implement
         configuredCustomLatex = tag.getInt("configuredCustomLatex");
         waitDuration = tag.getInt("waitDuration");
         stabilized = tag.getBoolean("stabilized");
+        if (tag.contains("entityHolderId") && level != null && level.isClientSide) {
+            Entity entity = level.getEntity(tag.getInt("entityHolderId"));
+            if (entity instanceof SeatEntity seat)
+                entityHolder = seat;
+        }
 
         scheduledCommands.clear();
         var commandTag = tag.getList("scheduledCommands", 8);
@@ -232,6 +236,7 @@ public class StasisChamberBlockEntity extends BaseContainerBlockEntity implement
     public boolean chamberEntity(LivingEntity entity) {
         if (entityHolder == null || entityHolder.isRemoved()) {
             entityHolder = SeatEntity.createFor(entity.level, this.getBlockState(), this.getBlockPos(), false, true, false);
+            this.markUpdated();
         }
 
         if (this.getSeatedEntity() != null)
@@ -303,6 +308,16 @@ public class StasisChamberBlockEntity extends BaseContainerBlockEntity implement
     public void setFluidLevel(float fluidLevel) {
         this.fluidLevelO = fluidLevel;
         this.fluidLevel = fluidLevel;
+    }
+
+    public boolean shouldChamberIdle(LivingEntity entity) {
+        if (!(entity instanceof Player player))
+            return false;
+
+        if (!(player.containerMenu instanceof StasisChamberMenu stasisMenu))
+            return false;
+
+        return stasisMenu.blockEntity == this;
     }
 
     public static void serverTick(Level level, BlockPos blockPos, BlockState blockState, StasisChamberBlockEntity blockEntity) {
@@ -408,6 +423,14 @@ public class StasisChamberBlockEntity extends BaseContainerBlockEntity implement
 
     public void setConfiguredCustomLatex(int configuredCustomLatex) {
         this.configuredCustomLatex = configuredCustomLatex;
+        if (currentCommand == ScheduledCommand.MODIFY_ENTITY) {
+            getChamberedLatex().ifPresent(entity -> {
+                if (entity.getChangedEntity() instanceof CustomLatexEntity customLatexEntity) {
+                    customLatexEntity.setRawFormFlags(configuredCustomLatex);
+                    ChangedSounds.broadcastSound(entity.getEntity(), ChangedSounds.POISON, 1.0f, 1.0f);
+                }
+            });
+        }
         markUpdated();
     }
 
@@ -533,7 +556,7 @@ public class StasisChamberBlockEntity extends BaseContainerBlockEntity implement
         }), // If chamber is open -> Closes chamber
         FILL(StasisChamberBlockEntity::isClosedAndNotFull, blockEntity -> {
             blockEntity.fluidLevelO = blockEntity.fluidLevel;
-            blockEntity.fluidLevel += 0.005f; // Take 10 seconds to fill
+            blockEntity.fluidLevel += (0.05f / 12.0f); // Take 12 seconds to fill
 
             if (blockEntity.fluidLevel > 0.6f)
                 blockEntity.ensureCapturedIsStillInside();
@@ -562,8 +585,26 @@ public class StasisChamberBlockEntity extends BaseContainerBlockEntity implement
             if (!blockEntity.ensureCapturedIsStillInside())
                 return false;
 
+            if (blockEntity.getChamberedEntity().map(blockEntity::shouldChamberIdle).orElse(false)) {
+                blockEntity.getChamberedLatex().ifPresent(entity -> {
+                    if (entity.getChangedEntity() instanceof CustomLatexEntity customLatexEntity) {
+                        int currentConfigured = customLatexEntity.getRawFormFlags();
+                        if (blockEntity.configuredCustomLatex == currentConfigured)
+                            return;
+
+                        blockEntity.configuredCustomLatex = currentConfigured;
+                        blockEntity.markUpdated();
+                    }
+                });
+
+                return true; // Idle while captured entity has panel open
+            }
+
             blockEntity.getChamberedLatex().ifPresent(entity -> {
                 if (entity.getChangedEntity() instanceof CustomLatexEntity customLatexEntity) {
+                    if (customLatexEntity.getRawFormFlags() == blockEntity.configuredCustomLatex)
+                        return;
+
                     customLatexEntity.setRawFormFlags(blockEntity.configuredCustomLatex);
                     ChangedSounds.broadcastSound(entity.getEntity(), ChangedSounds.POISON, 1.0f, 1.0f);
                 } else ChangedTransfurVariants.Gendered.getOpposite(entity.getSelfVariant()).ifPresent(otherVariant -> {
@@ -579,6 +620,9 @@ public class StasisChamberBlockEntity extends BaseContainerBlockEntity implement
         }, blockEntity -> {
             if (!blockEntity.ensureCapturedIsStillInside())
                 return false;
+
+            if (blockEntity.getChamberedEntity().map(blockEntity::shouldChamberIdle).orElse(false))
+                return true; // Idle while captured entity has panel open
 
             blockEntity.getChamberedEntity().ifPresent(entity -> {
                 if (TransfurVariant.getEntityVariant(entity) != null) return;
@@ -598,7 +642,7 @@ public class StasisChamberBlockEntity extends BaseContainerBlockEntity implement
         }), // If chamber is filled, and has captured entity -> Transfurs the entity with given variant
         DRAIN(StasisChamberBlockEntity::isPartiallyFilled, blockEntity -> {
             blockEntity.fluidLevelO = blockEntity.fluidLevel;
-            blockEntity.fluidLevel -= 0.01f; // Take 5 seconds to drain
+            blockEntity.fluidLevel -= (0.05f / 8f); // Take 8 seconds to drain
 
             if (blockEntity.stabilized) {
                 blockEntity.stabilized = false;

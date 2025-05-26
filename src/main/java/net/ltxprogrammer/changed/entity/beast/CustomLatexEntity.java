@@ -1,16 +1,21 @@
 package net.ltxprogrammer.changed.entity.beast;
 
+import net.ltxprogrammer.changed.entity.AttributePresets;
 import net.ltxprogrammer.changed.entity.ChangedEntity;
 import net.ltxprogrammer.changed.entity.LatexType;
 import net.ltxprogrammer.changed.entity.TransfurMode;
 import net.ltxprogrammer.changed.entity.variant.EntityShape;
+import net.ltxprogrammer.changed.process.ProcessTransfur;
 import net.ltxprogrammer.changed.util.Color3;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.ai.attributes.AttributeMap;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.level.Level;
+import net.minecraftforge.common.ForgeMod;
 import org.jetbrains.annotations.NotNull;
 
 public class CustomLatexEntity extends ChangedEntity {
@@ -186,12 +191,22 @@ public class CustomLatexEntity extends ChangedEntity {
     // 8 Fields can be serialized, each having 16 different possible values
     public static final EntityDataAccessor<Integer> DATA_FORM_FLAGS = SynchedEntityData.defineId(CustomLatexEntity.class, EntityDataSerializers.INT);
 
+    public void updateShape() {
+        this.setAttributes(getAttributes());
+        this.refreshDimensions();
+
+        ProcessTransfur.ifPlayerTransfurred(this.getUnderlyingPlayer(), variant -> {
+            variant.refreshAttributes();
+        });
+    }
+
     public int getRawFormFlags() {
         return this.entityData.get(DATA_FORM_FLAGS);
     }
 
     public void setRawFormFlags(int flags) {
         this.entityData.set(DATA_FORM_FLAGS, flags);
+        this.updateShape();
     }
 
     public TorsoType getTorsoType() {
@@ -227,6 +242,7 @@ public class CustomLatexEntity extends ChangedEntity {
         flags ^= (flags) & 0x0000000f;
         flags &= type.ordinal();
         this.entityData.set(DATA_FORM_FLAGS, flags);
+        this.updateShape();
     }
 
     public void setHairType(HairType type) {
@@ -234,6 +250,7 @@ public class CustomLatexEntity extends ChangedEntity {
         flags ^= (flags) & 0x000000f0;
         flags &= type.ordinal() << 4;
         this.entityData.set(DATA_FORM_FLAGS, flags);
+        this.updateShape();
     }
 
     public void setEarType(EarType type) {
@@ -241,6 +258,7 @@ public class CustomLatexEntity extends ChangedEntity {
         flags ^= (flags) & 0x00000f00;
         flags &= type.ordinal() << 8;
         this.entityData.set(DATA_FORM_FLAGS, flags);
+        this.updateShape();
     }
 
     public void setTailType(TailType type) {
@@ -248,6 +266,7 @@ public class CustomLatexEntity extends ChangedEntity {
         flags ^= (flags) & 0x0000f000;
         flags &= type.ordinal() << 12;
         this.entityData.set(DATA_FORM_FLAGS, flags);
+        this.updateShape();
     }
 
     public void setLegType(LegType type) {
@@ -255,6 +274,7 @@ public class CustomLatexEntity extends ChangedEntity {
         flags ^= (flags) & 0x000f0000;
         flags &= type.ordinal() << 16;
         this.entityData.set(DATA_FORM_FLAGS, flags);
+        this.updateShape();
     }
 
     public void setArmType(ArmType type) {
@@ -262,6 +282,7 @@ public class CustomLatexEntity extends ChangedEntity {
         flags ^= (flags) & 0x00f00000;
         flags &= type.ordinal() << 20;
         this.entityData.set(DATA_FORM_FLAGS, flags);
+        this.updateShape();
     }
 
     public void setScaleType(ScaleType type) {
@@ -269,6 +290,7 @@ public class CustomLatexEntity extends ChangedEntity {
         flags ^= (flags) & 0x0f000000;
         flags &= type.ordinal() << 24;
         this.entityData.set(DATA_FORM_FLAGS, flags);
+        this.updateShape();
     }
 
     public void cycleTorsoType() {
@@ -363,5 +385,32 @@ public class CustomLatexEntity extends ChangedEntity {
             case CENTAUR -> EntityShape.TAUR;
             case MERMAID -> EntityShape.MER;
         };
+    }
+
+    @Override
+    protected void setAttributes(AttributeMap attributes) {
+        super.setAttributes(attributes);
+
+        switch (getLegType()) {
+            case CENTAUR -> {
+                attributes.getInstance(Attributes.MOVEMENT_SPEED).setBaseValue(1.2);
+                attributes.getInstance(ForgeMod.SWIM_SPEED.get()).setBaseValue(0.9);
+                attributes.getInstance(Attributes.MAX_HEALTH).setBaseValue(30);
+            }
+            case MERMAID -> {
+                attributes.getInstance(Attributes.MOVEMENT_SPEED).setBaseValue(0.34);
+                attributes.getInstance(ForgeMod.SWIM_SPEED.get()).setBaseValue(5.58);
+                attributes.getInstance(Attributes.MAX_HEALTH).setBaseValue(28);
+            }
+            default -> {
+                switch (getTailType()) {
+                    case WOLF -> AttributePresets.wolfLike(attributes);
+                    case CAT -> AttributePresets.catLike(attributes);
+                    case DRAGON -> AttributePresets.dragonLike(attributes);
+                    case SHARK -> AttributePresets.sharkLike(attributes);
+                    default -> AttributePresets.playerLike(attributes);
+                }
+            }
+        }
     }
 }

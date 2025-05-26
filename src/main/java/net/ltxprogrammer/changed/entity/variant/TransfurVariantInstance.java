@@ -89,6 +89,10 @@ public abstract class TransfurVariantInstance<T extends ChangedEntity> {
     public boolean willSurviveTransfur = true;
     protected boolean isTemporaryFromSuit = false;
 
+    public void refreshAttributes() {
+        newAttributes.clear();
+    }
+
     private void captureBaseline(Map<Attribute, Double> baseValues, AttributeMap attributeMap) {
         baseValues.clear();
         baseValues.putAll(getBaseAttributeValues(attributeMap));
