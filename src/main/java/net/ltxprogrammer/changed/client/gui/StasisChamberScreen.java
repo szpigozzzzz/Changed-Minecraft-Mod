@@ -74,7 +74,7 @@ public class StasisChamberScreen extends AbstractContainerScreen<StasisChamberMe
                 InventoryScreen.renderEntityInInventory(entityX, entityY, 40,
                         (float)(this.leftPos) - mouseX + entityX,
                         (float)(this.topPos) - mouseY + (entityY - 100),
-                        EntityUtil.maybeGetOverlaying(entity));
+                        entity);
             });
         }
 
