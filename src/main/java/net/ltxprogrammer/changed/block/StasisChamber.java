@@ -260,6 +260,11 @@ public class StasisChamber extends HorizontalDirectionalBlock implements NonLate
         return getOcclusionShape(state, level, pos);
     }
 
+    @Override
+    public VoxelShape getVisualShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
+        return getOcclusionShape(state.setValue(OPEN, true), level, pos);
+    }
+
     public VoxelShape getInteractionShape(BlockState state, BlockGetter level, BlockPos pos) {
         var offset = state.getValue(SECTION).getOffset(state.getValue(FACING), ThreeXThreeSection.MIDDLE_BOTTOM_MIDDLE);
         return INTERACTION_SHAPE.move(offset.getX(), offset.getY(), offset.getZ());

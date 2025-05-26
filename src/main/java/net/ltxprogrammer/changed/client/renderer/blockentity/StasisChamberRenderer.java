@@ -18,6 +18,7 @@ import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.block.HorizontalDirectionalBlock;
+import net.minecraft.world.level.material.Fluids;
 import net.minecraftforge.client.ForgeHooksClient;
 
 import java.util.ArrayList;
@@ -194,7 +195,9 @@ public class StasisChamberRenderer<T extends StasisChamberBlockEntity> implement
 
             var color = fluid.getAttributes().getColor(blockEntity.getLevel(), blockEntity.getBlockPos());
             var rgb = Color3.fromInt(color);
-            var alpha = ((float)(color >> 24)) / 255f;
+            float alpha = ((float)((color >> 24) & 0xFF)) / 255f;
+            if (fluid.isSame(Fluids.WATER))
+                alpha *= 0.5f;
 
             float fillYLevel = fillPercent * 2.75f; // Fill percent -> fill in blocks
             pose.translate(0, fillYLevel + 0.125f, 0);
@@ -211,13 +214,14 @@ public class StasisChamberRenderer<T extends StasisChamberBlockEntity> implement
                 fluid.defaultFluidState().animateTick(blockEntity.getLevel(), blockEntity.getBlockPos().above(), blockEntity.getLevel().getRandom());
             }
 
+            final float renderAlpha = alpha;
             for (RenderType rendertype : RenderType.chunkBufferLayers()) {
                 if (!fluidState.isEmpty() && ItemBlockRenderTypes.canRenderInLayer(fluidState, rendertype)) {
                     final PoseStack.Pose renderPose = pose.last();
                     ChangedClient.recordTranslucentRender(buffers, rendertype, buffer -> {
                         if (fillPercent < 1f)
-                            renderTopSurface(renderPose, buffer, packedLight, packedOverlay, rgb.red(), rgb.green(), rgb.blue(), alpha, sprites[0]);
-                        renderFrontSurface(renderPose, buffer, packedLight, packedOverlay, rgb.red(), rgb.green(), rgb.blue(), alpha, sprites[1], fillYLevel);
+                            renderTopSurface(renderPose, buffer, packedLight, packedOverlay, rgb.red(), rgb.green(), rgb.blue(), renderAlpha, sprites[0]);
+                        renderFrontSurface(renderPose, buffer, packedLight, packedOverlay, rgb.red(), rgb.green(), rgb.blue(), renderAlpha, sprites[1], fillYLevel);
                     });
                 }
             }
