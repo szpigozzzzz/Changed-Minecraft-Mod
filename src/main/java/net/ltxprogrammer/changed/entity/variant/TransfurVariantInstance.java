@@ -164,11 +164,8 @@ public abstract class TransfurVariantInstance<T extends ChangedEntity> {
         if (newAttributes.isEmpty())
             captureBaseline(newAttributes, entity.getAttributes());
 
-        final float taggedProgress = tag.getFloat("transfurProgression");
-        if (Mth.abs(transfurProgression - taggedProgress) > 0.5f) { // Prevent sync shudder
-            transfurProgressionO = tag.getFloat("transfurProgressionO");
-            transfurProgression = tag.getFloat("transfurProgression");
-        }
+        transfurProgressionO = tag.getFloat("transfurProgressionO");
+        transfurProgression = tag.getFloat("transfurProgression");
 
         willSurviveTransfur = tag.getBoolean("willSurviveTransfur");
         isTemporaryFromSuit = tag.getBoolean("isTemporaryFromSuit");

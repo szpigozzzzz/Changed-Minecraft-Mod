@@ -1,17 +1,14 @@
 package net.ltxprogrammer.changed.mixin.entity;
 
+import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.mojang.authlib.GameProfile;
 import net.ltxprogrammer.changed.Changed;
 import net.ltxprogrammer.changed.data.AccessorySlots;
 import net.ltxprogrammer.changed.entity.PlayerDataExtension;
-import net.ltxprogrammer.changed.entity.TransfurCause;
-import net.ltxprogrammer.changed.entity.UseItemMode;
 import net.ltxprogrammer.changed.entity.variant.TransfurVariant;
 import net.ltxprogrammer.changed.entity.variant.TransfurVariantInstance;
-import net.ltxprogrammer.changed.init.ChangedGameRules;
-import net.ltxprogrammer.changed.init.ChangedRegistry;
-import net.ltxprogrammer.changed.init.ChangedTags;
-import net.ltxprogrammer.changed.init.ChangedTransfurVariants;
+import net.ltxprogrammer.changed.init.*;
 import net.ltxprogrammer.changed.network.packet.MountTransfurPacket;
 import net.ltxprogrammer.changed.process.Pale;
 import net.ltxprogrammer.changed.process.ProcessTransfur;
@@ -23,25 +20,26 @@ import net.minecraft.nbt.FloatTag;
 import net.minecraft.nbt.IntTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.decoration.HangingEntity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.network.PacketDistributor;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import java.util.Objects;
-import java.util.Optional;
 import java.util.UUID;
 
 @Mixin(ServerPlayer.class)
 public abstract class ServerPlayerMixin extends Player implements PlayerDataExtension {
+    @Shadow private int spawnInvulnerableTime;
+
     public ServerPlayerMixin(Level p_36114_, BlockPos p_36115_, float p_36116_, GameProfile p_36117_) {
         super(p_36114_, p_36115_, p_36116_, p_36117_);
     }
@@ -66,6 +64,31 @@ public abstract class ServerPlayerMixin extends Player implements PlayerDataExte
         }
 
         this.getAccessorySlots().ifPresent(slots -> slots.replaceWith(AccessorySlots.getForEntity(player).orElse(null)));
+    }
+
+    @WrapMethod(method = "hurt")
+    private boolean ignoreInvulnForTFKill(DamageSource source, float damage, Operation<Boolean> original) {
+        int oldSpawnInvulnerableTime = this.spawnInvulnerableTime;
+        var damageSourceName = source.msgId;
+
+        boolean wrapInvuln;
+        if (this.spawnInvulnerableTime > 0 && this.getTransfurVariant() != null && (ChangedDamageSources.TRANSFUR_NAME.equals(damageSourceName)
+                || ChangedDamageSources.ABSORB_NAME.equals(damageSourceName))) {
+            this.spawnInvulnerableTime = 0;
+            wrapInvuln = true;
+        }
+
+        else {
+            wrapInvuln = false;
+        }
+
+        var result = original.call(source, damage);
+
+        if (wrapInvuln) {
+            this.spawnInvulnerableTime = oldSpawnInvulnerableTime;
+        }
+
+        return result;
     }
 
     @Unique
