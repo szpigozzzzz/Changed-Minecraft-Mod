@@ -203,7 +203,7 @@ dependencies {
     implementation fg.deobf("curse.maven:modernfix-790626:5399365") // Forge 1.18.2 v5.18.0
     implementation fg.deobf("curse.maven:rubidium-574856:4494903") // Forge 1.18.2 v0.5.6
     implementation fg.deobf("curse.maven:oculus-581495:4578744") // Forge 1.18.2 v1.6.4
-    implementation fg.deobf("curse.maven:vivecraft-667903:5830810") // Forge 1.18.2 v1.1.14
+    implementation fg.deobf("curse.maven:vivecraft-667903:6208677") // Forge 1.18.2 v1.2.5
     runtimeOnly fg.deobf("curse.maven:ferritecore-429235:4074294") // Forge 1.18.2 v4.2.2
 
     compileOnly fg.deobf("mezz.jei:jei-${minecraftVersion}:${jeiVersion}:api")
