@@ -644,6 +644,8 @@
   "changed.tutorial.use_ability.title": "Használja ki képességét",
   "changed.tutorial.use_ability.description": "Nyomd meg vagy megnyomva tartani a %s gombot",
 
+  "changed.instruction.clothing_state": "Kattintson a %sra, ha fel van szerelve az állapot megváltoztatásához",
+  
   "facility.zone.red_zone": "Vörös zóna",
   "facility.zone.gray_zone": "Szürke zóna",
   "facility.zone.maintenance_zone": "Karbantartási zóna",
@@ -705,6 +707,8 @@
   "changed.stasis.program.transfur": "Transzfur",
   "changed.stasis.program.modify": "Módosít",
 
+  "changed.stasis.modify.gender": "Nem váltása",
+  
   "changed.stasis.modify.torso": "Törzs: %s",
   "changed.stasis.modify.hair": "Haj: %s",
   "changed.stasis.modify.ears": "Fülek: %s",
