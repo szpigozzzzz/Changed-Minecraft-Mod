@@ -63,6 +63,7 @@ public class StasisChamberBlockEntity extends BaseContainerBlockEntity implement
     private int configuredCustomLatex = 0;
     private int waitDuration = 0;
     private boolean stabilized = false;
+    private boolean skipModify = false;
 
     protected final ContainerData dataAccess = new ContainerData() {
         public int get(int dataSlot) {
@@ -425,10 +426,17 @@ public class StasisChamberBlockEntity extends BaseContainerBlockEntity implement
         this.configuredCustomLatex = configuredCustomLatex;
         if (currentCommand == ScheduledCommand.MODIFY_ENTITY) {
             getChamberedLatex().ifPresent(entity -> {
+                this.skipModify = true;
                 if (entity.getChangedEntity() instanceof CustomLatexEntity customLatexEntity) {
+                    if (customLatexEntity.getRawFormFlags() == configuredCustomLatex)
+                        return;
+
                     customLatexEntity.setRawFormFlags(configuredCustomLatex);
                     ChangedSounds.broadcastSound(entity.getEntity(), ChangedSounds.POISON, 1.0f, 1.0f);
-                }
+                } else ChangedTransfurVariants.Gendered.getOpposite(entity.getSelfVariant()).ifPresent(otherVariant -> {
+                    entity.replaceVariant(otherVariant);
+                    ChangedSounds.broadcastSound(entity.getEntity(), ChangedSounds.POISON, 1.0f, 1.0f);
+                });
             });
         }
         markUpdated();
@@ -600,6 +608,11 @@ public class StasisChamberBlockEntity extends BaseContainerBlockEntity implement
                 return true; // Idle while captured entity has panel open
             }
 
+            if (blockEntity.skipModify) {
+                blockEntity.skipModify = false;
+                return false;
+            }
+
             blockEntity.getChamberedLatex().ifPresent(entity -> {
                 if (entity.getChangedEntity() instanceof CustomLatexEntity customLatexEntity) {
                     if (customLatexEntity.getRawFormFlags() == blockEntity.configuredCustomLatex)
@@ -620,9 +633,6 @@ public class StasisChamberBlockEntity extends BaseContainerBlockEntity implement
         }, blockEntity -> {
             if (!blockEntity.ensureCapturedIsStillInside())
                 return false;
-
-            if (blockEntity.getChamberedEntity().map(blockEntity::shouldChamberIdle).orElse(false))
-                return true; // Idle while captured entity has panel open
 
             blockEntity.getChamberedEntity().ifPresent(entity -> {
                 if (TransfurVariant.getEntityVariant(entity) != null) return;

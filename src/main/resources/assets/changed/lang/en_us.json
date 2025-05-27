@@ -707,6 +707,8 @@
   "changed.stasis.program.transfur": "Transfur",
   "changed.stasis.program.modify": "Modify",
 
+  "changed.stasis.modify.gender": "Toggle Gender",
+
   "changed.stasis.modify.torso": "Torso: %s",
   "changed.stasis.modify.hair": "Hair: %s",
   "changed.stasis.modify.ears": "Ears: %s",

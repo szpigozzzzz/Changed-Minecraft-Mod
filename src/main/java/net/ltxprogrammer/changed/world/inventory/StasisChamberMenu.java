@@ -10,12 +10,8 @@ import net.ltxprogrammer.changed.entity.variant.TransfurVariant;
 import net.ltxprogrammer.changed.init.*;
 import net.ltxprogrammer.changed.item.FluidCanister;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.StringTag;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.LivingEntity;
@@ -358,7 +354,7 @@ public class StasisChamberMenu extends AbstractContainerMenu implements Updateab
         this.setDirty(tag);
     }
 
-    public void inputCustomLatexConfig(int configuredCustomLatex) {
+    public void inputModifyConfig(int configuredCustomLatex) {
         CompoundTag tag = new CompoundTag();
         tag.putString("control", "config");
         tag.putInt("customLatex", configuredCustomLatex);

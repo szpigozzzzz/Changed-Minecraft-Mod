@@ -3,10 +3,8 @@ package net.ltxprogrammer.changed.client.gui;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.ltxprogrammer.changed.Changed;
-import net.ltxprogrammer.changed.block.entity.StasisChamberBlockEntity;
 import net.ltxprogrammer.changed.entity.beast.CustomLatexEntity;
-import net.ltxprogrammer.changed.process.ProcessTransfur;
-import net.ltxprogrammer.changed.util.EntityUtil;
+import net.ltxprogrammer.changed.init.ChangedTransfurVariants;
 import net.ltxprogrammer.changed.world.inventory.StasisChamberMenu;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
@@ -35,8 +33,10 @@ public class StasisChamberScreen extends AbstractContainerScreen<StasisChamberMe
     }
 
     private static final ResourceLocation texture = Changed.modResource("textures/gui/stasis_chamber.png");
+    private static final ResourceLocation GENDER_SWITCH_LOCATION = Changed.modResource("textures/gui/gender_switch.png");
 
     private ButtonScope buttonScope = ButtonScope.DEFAULT;
+    private ModifyType modifyType = ModifyType.DEFAULT;
 
     @Override
     public void render(PoseStack ms, int mouseX, int mouseY, float partialTicks) {
@@ -141,6 +141,12 @@ public class StasisChamberScreen extends AbstractContainerScreen<StasisChamberMe
         }
     }
 
+    public enum ModifyType {
+        DEFAULT,
+        GENDERED,
+        CUSTOM
+    }
+
     private boolean initialized = false;
     private Button programsButton;
     private Button modifyButton;
@@ -151,6 +157,7 @@ public class StasisChamberScreen extends AbstractContainerScreen<StasisChamberMe
 
     private List<Button> programButtons = new ArrayList<>();
     private List<Button> modificationButtons = new ArrayList<>();
+    private Button genderButton;
 
     private void checkButtonStates() {
         if (!initialized) return;
@@ -167,8 +174,17 @@ public class StasisChamberScreen extends AbstractContainerScreen<StasisChamberMe
         toggleStasisButton.active = true;
         toggleStasisButton.visible = buttonScope == ButtonScope.DEFAULT;
 
+        modifyType = menu.getChamberedLatex().map(entity -> {
+            if (entity.getChangedEntity() instanceof CustomLatexEntity)
+                return ModifyType.CUSTOM;
+            else if (ChangedTransfurVariants.Gendered.getOpposite(entity.getSelfVariant()).isPresent())
+                return ModifyType.GENDERED;
+            return ModifyType.DEFAULT;
+        }).orElse(ModifyType.CUSTOM); // Default to custom to allow pre-programming
+
         programButtons.forEach(button -> button.visible = buttonScope == ButtonScope.PROGRAMS);
-        modificationButtons.forEach(button -> button.visible = buttonScope == ButtonScope.MODIFICATIONS);
+        genderButton.visible = buttonScope == ButtonScope.MODIFICATIONS && modifyType == ModifyType.GENDERED;
+        modificationButtons.forEach(button -> button.visible = buttonScope == ButtonScope.MODIFICATIONS && modifyType == ModifyType.CUSTOM);
     }
 
     @Override
@@ -190,6 +206,7 @@ public class StasisChamberScreen extends AbstractContainerScreen<StasisChamberMe
         int buttonHeight = 20;
         int buttonHeightSpacing = buttonHeight + 4;
         int buttonWidthSpacing = buttonWidth + 4;
+        int buttonWidthLong = buttonWidth + buttonWidthSpacing;
 
         programsButton = this.addRenderableWidget(new Button(leftMargin, topMargin, buttonWidth, buttonHeight, new TranslatableComponent("changed.stasis.programs"), button -> {
             buttonScope = buttonScope.toggleScope(ButtonScope.PROGRAMS);
@@ -197,7 +214,6 @@ public class StasisChamberScreen extends AbstractContainerScreen<StasisChamberMe
 
         modifyButton = this.addRenderableWidget(new Button(leftMargin + buttonWidthSpacing, topMargin, buttonWidth, buttonHeight, new TranslatableComponent("changed.stasis.modify"), button -> {
             buttonScope = buttonScope.toggleScope(ButtonScope.MODIFICATIONS);
-            //this.minecraft.setScreen(new StasisChamberModifyScreen(menu, this));
         }));
 
         openDoorButton = this.addRenderableWidget(new Button(leftMargin, topMargin + buttonHeightSpacing, buttonWidth, buttonHeight, new TranslatableComponent("changed.stasis.open"), button -> {
@@ -224,52 +240,56 @@ public class StasisChamberScreen extends AbstractContainerScreen<StasisChamberMe
             menu.inputProgram("modify");
         })));
 
+        genderButton = this.addRenderableWidget(new Button(leftMargin, topMargin + buttonHeightSpacing, buttonWidthLong, buttonHeight, new TranslatableComponent("changed.stasis.modify.gender"), button -> {
+            menu.inputModifyConfig(menu.getConfiguredCustomLatex());
+        }));
+
         modificationButtons.add(this.addRenderableWidget(new Button(leftMargin, topMargin + buttonHeightSpacing, buttonWidth, buttonHeight, new TranslatableComponent("changed.stasis.modify.torso", CustomLatexEntity.TorsoType.fromFlags(menu.getConfiguredCustomLatex()).name()), button -> {
             int flags = menu.getConfiguredCustomLatex();
             var next = CustomLatexEntity.TorsoType.fromFlags(flags).cycle();
-            menu.inputCustomLatexConfig(next.setFlags(flags));
+            menu.inputModifyConfig(next.setFlags(flags));
             button.setMessage(new TranslatableComponent("changed.stasis.modify.torso", next.name()));
         })));
 
         modificationButtons.add(this.addRenderableWidget(new Button(leftMargin + buttonWidthSpacing, topMargin + buttonHeightSpacing, buttonWidth, buttonHeight, new TranslatableComponent("changed.stasis.modify.hair", CustomLatexEntity.HairType.fromFlags(menu.getConfiguredCustomLatex()).name()), button -> {
             int flags = menu.getConfiguredCustomLatex();
             var next = CustomLatexEntity.HairType.fromFlags(flags).cycle();
-            menu.inputCustomLatexConfig(next.setFlags(flags));
+            menu.inputModifyConfig(next.setFlags(flags));
             button.setMessage(new TranslatableComponent("changed.stasis.modify.hair", next.name()));
         })));
 
         modificationButtons.add(this.addRenderableWidget(new Button(leftMargin, topMargin + buttonHeightSpacing * 2, buttonWidth, buttonHeight, new TranslatableComponent("changed.stasis.modify.ears", CustomLatexEntity.EarType.fromFlags(menu.getConfiguredCustomLatex()).name()), button -> {
             int flags = menu.getConfiguredCustomLatex();
             var next = CustomLatexEntity.EarType.fromFlags(flags).cycle();
-            menu.inputCustomLatexConfig(next.setFlags(flags));
+            menu.inputModifyConfig(next.setFlags(flags));
             button.setMessage(new TranslatableComponent("changed.stasis.modify.ears", next.name()));
         })));
 
         modificationButtons.add(this.addRenderableWidget(new Button(leftMargin + buttonWidthSpacing, topMargin + buttonHeightSpacing * 2, buttonWidth, buttonHeight, new TranslatableComponent("changed.stasis.modify.tail", CustomLatexEntity.TailType.fromFlags(menu.getConfiguredCustomLatex()).name()), button -> {
             int flags = menu.getConfiguredCustomLatex();
             var next = CustomLatexEntity.TailType.fromFlags(flags).cycle();
-            menu.inputCustomLatexConfig(next.setFlags(flags));
+            menu.inputModifyConfig(next.setFlags(flags));
             button.setMessage(new TranslatableComponent("changed.stasis.modify.tail", next.name()));
         })));
 
         modificationButtons.add(this.addRenderableWidget(new Button(leftMargin, topMargin + buttonHeightSpacing * 3, buttonWidth, buttonHeight, new TranslatableComponent("changed.stasis.modify.legs", CustomLatexEntity.LegType.fromFlags(menu.getConfiguredCustomLatex()).name()), button -> {
             int flags = menu.getConfiguredCustomLatex();
             var next = CustomLatexEntity.LegType.fromFlags(flags).cycle();
-            menu.inputCustomLatexConfig(next.setFlags(flags));
+            menu.inputModifyConfig(next.setFlags(flags));
             button.setMessage(new TranslatableComponent("changed.stasis.modify.legs", next.name()));
         })));
 
         modificationButtons.add(this.addRenderableWidget(new Button(leftMargin + buttonWidthSpacing, topMargin + buttonHeightSpacing * 3, buttonWidth, buttonHeight, new TranslatableComponent("changed.stasis.modify.arms", CustomLatexEntity.ArmType.fromFlags(menu.getConfiguredCustomLatex()).name()), button -> {
             int flags = menu.getConfiguredCustomLatex();
             var next = CustomLatexEntity.ArmType.fromFlags(flags).cycle();
-            menu.inputCustomLatexConfig(next.setFlags(flags));
+            menu.inputModifyConfig(next.setFlags(flags));
             button.setMessage(new TranslatableComponent("changed.stasis.modify.arms", next.name()));
         })));
 
         modificationButtons.add(this.addRenderableWidget(new Button(leftMargin, topMargin + buttonHeightSpacing * 4, buttonWidth, buttonHeight, new TranslatableComponent("changed.stasis.modify.scale", CustomLatexEntity.ScaleType.fromFlags(menu.getConfiguredCustomLatex()).name()), button -> {
             int flags = menu.getConfiguredCustomLatex();
             var next = CustomLatexEntity.ScaleType.fromFlags(flags).cycle();
-            menu.inputCustomLatexConfig(next.setFlags(flags));
+            menu.inputModifyConfig(next.setFlags(flags));
             button.setMessage(new TranslatableComponent("changed.stasis.modify.scale", next.name()));
         })));
 
