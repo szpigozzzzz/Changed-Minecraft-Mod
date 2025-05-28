@@ -253,14 +253,14 @@ public class AbstractLargeLabDoor extends HorizontalDirectionalBlock implements 
         return level.getBlockState(state.getValue(SECTION).getRelative(pos, state.getValue(FACING), otherSect));
     }
 
-    public boolean canSurvive(BlockState state, LevelReader level, BlockPos pos, Either<Boolean, Direction.Axis> allCheckOrAxis) {
-        if (allCheckOrAxis.left().isPresent() && !allCheckOrAxis.left().get() && state.getValue(SECTION) == NineSection.BOTTOM_MIDDLE)
+    public boolean canSurvive(BlockState state, LevelReader level, BlockPos pos, Either<Boolean, Direction> allCheckOrDir) {
+        if (allCheckOrDir.left().isPresent() && !allCheckOrDir.left().get() && state.getValue(SECTION) == NineSection.BOTTOM_MIDDLE)
             return level.getBlockState(pos.below()).isFaceSturdy(level, pos.below(), Direction.UP);
 
         var thisSect = state.getValue(SECTION);
-        for (var sect : allCheckOrAxis.left().isPresent() && allCheckOrAxis.left().get() ? Arrays.stream(NineSection.values()).toList() : thisSect.getOtherValues()) {
-            if (allCheckOrAxis.right().isPresent()) {
-                if (!thisSect.isOnAxis(sect, state.getValue(FACING), allCheckOrAxis.right().get()))
+        for (var sect : allCheckOrDir.left().isPresent() && allCheckOrDir.left().get() ? Arrays.stream(NineSection.values()).toList() : thisSect.getOtherValues()) {
+            if (allCheckOrDir.right().isPresent()) {
+                if (!thisSect.isRelative(sect, state.getValue(FACING), allCheckOrDir.right().get()))
                     continue;
             }
 
@@ -280,7 +280,7 @@ public class AbstractLargeLabDoor extends HorizontalDirectionalBlock implements 
 
     @Override
     public BlockState updateShape(BlockState state, Direction direction, BlockState otherState, LevelAccessor level, BlockPos pos, BlockPos otherBlockPos) {
-        if (!this.canSurvive(state, level, pos, Either.right(direction.getAxis())))
+        if (!this.canSurvive(state, level, pos, Either.right(direction)))
             return Blocks.AIR.defaultBlockState();
         return super.updateShape(state, direction, otherState, level, pos, otherBlockPos);
     }

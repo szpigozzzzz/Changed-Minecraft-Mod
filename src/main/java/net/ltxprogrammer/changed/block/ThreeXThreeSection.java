@@ -209,4 +209,30 @@ public enum ThreeXThreeSection implements StringRepresentable {
             case Z -> xMatch && yMatch && !zMatch;
         };
     }
+
+    public boolean isRelative(ThreeXThreeSection other, Direction facing, Direction where) {
+        if (!this.isOnAxis(other, facing, where.getAxis()))
+            return false;
+
+        if (this == other)
+            return false;
+
+        return switch (where.getAxis()) {
+            case X -> switch (facing) {
+                case NORTH -> (this.yAxis == other.yAxis) && (this.xAxis.relativeTo(other.xAxis) == -where.getStepX());
+                case SOUTH -> (this.yAxis == other.yAxis) && (this.xAxis.relativeTo(other.xAxis) == where.getStepX());
+                case EAST -> (this.yAxis == other.yAxis) && (this.zAxis.relativeTo(other.zAxis) == where.getStepX());
+                case WEST -> (this.yAxis == other.yAxis) && (this.zAxis.relativeTo(other.zAxis) == -where.getStepX());
+                default -> false;
+            };
+            case Y -> (this.yAxis.relativeTo(other.yAxis) == where.getStepY()) && (this.xAxis == other.xAxis);
+            case Z -> switch (facing) {
+                case NORTH -> (this.yAxis == other.yAxis) && (this.zAxis.relativeTo(other.zAxis) == where.getStepZ());
+                case SOUTH -> (this.yAxis == other.yAxis) && (this.zAxis.relativeTo(other.zAxis) == -where.getStepZ());
+                case EAST -> (this.yAxis == other.yAxis) && (this.xAxis.relativeTo(other.xAxis) == -where.getStepZ());
+                case WEST -> (this.yAxis == other.yAxis) && (this.xAxis.relativeTo(other.xAxis) == where.getStepZ());
+                default -> false;
+            };
+        };
+    }
 }
