@@ -687,8 +687,8 @@
   "changed.stasis.open": "Ajtó megnyitása",
   "changed.stasis.close": "Ajtó bezárása",
   "changed.stasis.run": "Módosítások végrehajtása",
-  "changed.stasis.capture_next": "Következő rögzítése",
-  "changed.stasis.toggle_stasis": "Sztázis: %s",
+  "changed.stasis.capture_next": "Közeli befogása",
+  "changed.stasis.toggle_stasis": "Sztázis kapcsolása",
   "changed.stasis.modify": "Módosítások",
 
   "changed.stasis.command._active": "> %s",
