@@ -9,6 +9,7 @@ import net.ltxprogrammer.changed.extension.ChangedCompatibility;
 import net.ltxprogrammer.changed.init.ChangedRegistry;
 import net.ltxprogrammer.changed.init.ChangedSounds;
 import net.ltxprogrammer.changed.network.packet.AccessoryEventPacket;
+import net.ltxprogrammer.changed.network.packet.AccessorySyncPacket;
 import net.ltxprogrammer.changed.util.Cacheable;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
@@ -58,6 +59,11 @@ public class AccessorySlots implements Container {
     });
 
     public static final AccessorySlots DUMMY = new AccessorySlots(null);
+
+    public static void openAccessoriesMenu(@NotNull LivingEntity entity) {
+        if (entity.level.isClientSide)
+            Changed.PACKET_HANDLER.sendToServer(new AccessorySyncPacket(entity.getId(), AccessorySlots.DUMMY));
+    }
 
     public AccessorySlots(@Nullable LivingEntity owner) {
         this.owner = owner;

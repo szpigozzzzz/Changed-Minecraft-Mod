@@ -42,6 +42,11 @@ public class AccessoryAccessMenu extends AbstractContainerMenu {
         this.inventory = owner.getInventory();
         this.accessorySlots = AccessorySlots.getForEntity(owner).orElseGet(AccessorySlots::new);
         this.createSlots(inventory);
+
+        if (owner.containerMenu != null) {
+            this.setCarried(owner.containerMenu.getCarried());
+            owner.containerMenu.setCarried(ItemStack.EMPTY);
+        }
     }
 
     public AccessoryAccessMenu(int id, Inventory inventory, FriendlyByteBuf extra) {

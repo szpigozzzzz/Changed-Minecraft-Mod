@@ -60,6 +60,7 @@
     "entity.LocalPlayerMixin",
     "gui.AbstractContainerScreenMixin",
     "gui.ClientRecipeBookMixin",
+    "gui.CreativeModeInventoryScreenMixin",
     "gui.EffectRenderingInventoryScreenMixin",
     "gui.ForgeIngameGuiMixin",
     "gui.GuiMixin",

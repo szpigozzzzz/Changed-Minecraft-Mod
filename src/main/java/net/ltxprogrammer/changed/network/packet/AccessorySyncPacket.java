@@ -62,7 +62,10 @@ public class AccessorySyncPacket implements ChangedPacket {
 
             context.setPacketHandled(true);
         } else if (context.getDirection().getReceptionSide() == LogicalSide.SERVER) {
-            context.getSender().openMenu(new SimpleMenuProvider((id, inv, player) -> new AccessoryAccessMenu(id, player), TextComponent.EMPTY));
+            var sender = context.getSender();
+            if (sender == null) return;
+
+            sender.openMenu(new SimpleMenuProvider((id, inv, player) -> new AccessoryAccessMenu(id, player), TextComponent.EMPTY));
 
             context.setPacketHandled(true);
         }
