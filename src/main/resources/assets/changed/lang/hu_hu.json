@@ -684,11 +684,11 @@
   "changed.config.bpi.override_all_eye_styles": "Az összes szem stílus felülbírálása, hogy megfeleljen",
 
   "changed.stasis.programs": "Programok",
-  "changed.stasis.open": "Ajtó megnyitása",
-  "changed.stasis.close": "Ajtó bezárása",
+  "changed.stasis.open": "Ajtó nyitása",
+  "changed.stasis.close": "Ajtó zárása",
   "changed.stasis.run": "Módosítások végrehajtása",
-  "changed.stasis.capture_next": "Következő rögzítése",
-  "changed.stasis.toggle_stasis": "Sztázis: %s",
+  "changed.stasis.capture_next": "Közeli elfogása",
+  "changed.stasis.toggle_stasis": "Sztázis váltása",
   "changed.stasis.modify": "Módosítások",
 
   "changed.stasis.command._active": "> %s",
