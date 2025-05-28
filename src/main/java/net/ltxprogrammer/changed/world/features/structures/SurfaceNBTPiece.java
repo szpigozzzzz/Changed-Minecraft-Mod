@@ -91,6 +91,7 @@ public class SurfaceNBTPiece extends StructurePiece {
                 .setMirror(this.getMirror())
                 .setRotation(this.getRotation()).setRandom(random)
                 .addProcessor(BlockIgnoreProcessor.STRUCTURE_BLOCK)
+                .addProcessor(HangingBlockFixerProcessor.INSTANCE)
                 .setBoundingBox(bb)
                 .setKeepLiquids(false)
                 .setKnownShape(true)

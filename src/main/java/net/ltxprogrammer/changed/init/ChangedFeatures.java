@@ -9,6 +9,7 @@ import net.ltxprogrammer.changed.world.features.lakes.DarkLatexLake;
 import net.ltxprogrammer.changed.world.features.lakes.WhiteLatexLake;
 import net.ltxprogrammer.changed.world.features.structures.ChestLootTableProcessor;
 import net.ltxprogrammer.changed.world.features.structures.GluReplacementProcessor;
+import net.ltxprogrammer.changed.world.features.structures.HangingBlockFixerProcessor;
 import net.minecraft.core.Holder;
 import net.minecraft.core.MappedRegistry;
 import net.minecraft.core.Registry;
@@ -74,6 +75,8 @@ public class ChangedFeatures {
             Changed.modResource("chest_loot_table_processor"), ChestLootTableProcessor.CODEC);
     public static StructureProcessorType<GluReplacementProcessor> GLU_REPLACEMENT_PROCESSOR = registerProcessorType(
             Changed.modResource("glu_replacement_processor"), GluReplacementProcessor.CODEC);
+    public static StructureProcessorType<HangingBlockFixerProcessor> HANGING_BLOCK_FIXER_PROCESSOR = registerProcessorType(
+            Changed.modResource("hanging_block_fixer_processor"), HangingBlockFixerProcessor.CODEC);
 
     private static TreeConfiguration.TreeConfigurationBuilder createStraightBlobTree(BlockStateProvider p_195147_, BlockStateProvider p_195148_, int p_195149_, int p_195150_, int p_195151_, int p_195152_) {
         return new TreeConfiguration.TreeConfigurationBuilder(p_195147_, new StraightTrunkPlacer(p_195149_, p_195150_, p_195151_), p_195148_, new BlobFoliagePlacer(ConstantInt.of(p_195152_), ConstantInt.of(0), 3), new TwoLayersFeatureSize(1, 0, 1));
