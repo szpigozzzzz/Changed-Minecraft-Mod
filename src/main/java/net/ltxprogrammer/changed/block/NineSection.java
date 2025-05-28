@@ -129,6 +129,28 @@ public enum NineSection implements StringRepresentable {
         };
     }
 
+    public boolean isRelative(NineSection other, Direction facing, Direction where) {
+        if (!this.isOnAxis(other, facing, where.getAxis()))
+            return false;
+
+        if (this == other)
+            return false;
+
+        return switch (where.getAxis()) {
+            case X -> switch (facing) {
+                case NORTH -> (this.yAxis == other.yAxis) && (this.xAxis.relativeTo(other.xAxis) == -where.getStepX());
+                case SOUTH -> (this.yAxis == other.yAxis) && (this.xAxis.relativeTo(other.xAxis) == where.getStepX());
+                default -> false;
+            };
+            case Y -> (this.yAxis.relativeTo(other.yAxis) == where.getStepY()) && (this.xAxis == other.xAxis);
+            case Z -> switch (facing) {
+                case EAST -> (this.yAxis == other.yAxis) && (this.xAxis.relativeTo(other.xAxis) == -where.getStepZ());
+                case WEST -> (this.yAxis == other.yAxis) && (this.xAxis.relativeTo(other.xAxis) == where.getStepZ());
+                default -> false;
+            };
+        };
+    }
+
     public NineSection getHorizontalNeighbor() {
         return switch (this) {
             case TOP_LEFT -> TOP_RIGHT;
