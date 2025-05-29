@@ -1,7 +1,11 @@
 package net.ltxprogrammer.changed.mixin.client;
 
+import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.mojang.datafixers.util.Pair;
+import net.ltxprogrammer.changed.ability.AbstractAbility;
 import net.ltxprogrammer.changed.block.MicrophoneBlock;
+import net.ltxprogrammer.changed.init.ChangedAbilities;
 import net.ltxprogrammer.changed.init.ChangedBlocks;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
@@ -12,6 +16,8 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
 import net.minecraft.util.profiling.ProfilerFiller;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.dimension.DimensionType;
@@ -76,5 +82,24 @@ public abstract class ClientLevelMixin extends Level {
                 this.playLocalSound(pair2.getFirst(), event, SoundSource.BLOCKS, volume, pitch, delay);
             });
         });
+    }
+
+    @WrapMethod(method = "tickNonPassenger")
+    private void ensureSetNoCulling(Entity entity, Operation<Void> original) {
+        boolean originalNoCullState = entity.noCulling;
+
+        if (entity instanceof LivingEntity livingEntity && AbstractAbility.getAbilityInstanceSafe(livingEntity, ChangedAbilities.GRAB_ENTITY_ABILITY.get())
+                .map(ability -> ability.grabbedEntity == this.minecraft.getCameraEntity()).orElse(false)) {
+            entity.noCulling = true;
+        }
+
+        else if (this.minecraft.getCameraEntity() instanceof LivingEntity livingEntity && AbstractAbility.getAbilityInstanceSafe(livingEntity, ChangedAbilities.GRAB_ENTITY_ABILITY.get())
+                .map(ability -> ability.grabbedEntity == entity).orElse(false)) {
+            entity.noCulling = true;
+        }
+
+        original.call(entity);
+
+        entity.noCulling = originalNoCullState;
     }
 }
