@@ -993,6 +993,14 @@ public abstract class ChangedEntity extends Monster {
         });
     }
 
+    public float getVerticalSpringOffset() {
+        return 0f;
+    }
+
+    public float getHorizontalSpringOffset() {
+        return 0f;
+    }
+
     @Override
     public boolean hurt(@NotNull DamageSource source, float amount) {
         if (this.tickCount < 30)

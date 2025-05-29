@@ -43,11 +43,19 @@ public enum SpringType {
     }
 
     public enum Direction implements Function<LivingEntity, Float> {
-        VERTICAL(entity -> entity.isOnGround() ? 0.0f : (float)entity.getDeltaMovement().y),
+        VERTICAL(entity -> {
+            float vertVelocity = entity.isOnGround() ? 0.0f : (float) entity.getDeltaMovement().y;
+            if (entity instanceof ChangedEntity changedEntity)
+                vertVelocity += changedEntity.getVerticalSpringOffset();
+            return vertVelocity;
+        }),
         FORWARDS(entity -> {
             float f1 = -entity.yBodyRot * ((float)Math.PI / 180F);
             var facingForwards = new Vec3(Mth.sin(f1), 0.0, Mth.cos(f1));
-            return (float)facingForwards.dot(entity.getDeltaMovement());
+            float horiVelocity = (float)facingForwards.dot(entity.getDeltaMovement());
+            if (entity instanceof ChangedEntity changedEntity)
+                horiVelocity += changedEntity.getHorizontalSpringOffset();
+            return horiVelocity;
         });
 
         private final Function<LivingEntity, Float> fn;
