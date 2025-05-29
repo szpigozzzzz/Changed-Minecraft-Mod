@@ -9,6 +9,7 @@ import net.ltxprogrammer.changed.util.TagUtil;
 import net.ltxprogrammer.changed.world.features.structures.ChestLootTableProcessor;
 import net.ltxprogrammer.changed.world.features.structures.FacilityPieces;
 import net.ltxprogrammer.changed.world.features.structures.GluReplacementProcessor;
+import net.ltxprogrammer.changed.world.features.structures.HangingBlockFixerProcessor;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -85,6 +86,7 @@ public abstract class FacilitySinglePiece extends FacilityPiece {
                     .addProcessor(BlockIgnoreProcessor.STRUCTURE_BLOCK)
                     .addProcessor(JigsawReplacementProcessor.INSTANCE)
                     .addProcessor(GluReplacementProcessor.INSTANCE)
+                    .addProcessor(HangingBlockFixerProcessor.INSTANCE)
                     .setKnownShape(true)
                     .setKeepLiquids(false)
                     .setIgnoreEntities(false);

@@ -446,7 +446,7 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityDa
 
     @Inject(method = "stopSleeping", at = @At("HEAD"), cancellable = true)
     public void unlessIsStabilizedAndMultiplayer(CallbackInfo ci) {
-        if (level instanceof ServerLevel serverLevel) {
+        if ((LivingEntity)(Object)this instanceof Player && level instanceof ServerLevel serverLevel) {
             if (serverLevel.players().stream().filter(player -> !player.isSpectator()).count() == 1) {
                 // Singleplayer, just skip stasis time
                 if (this.vehicle instanceof SeatEntity seatEntity) {

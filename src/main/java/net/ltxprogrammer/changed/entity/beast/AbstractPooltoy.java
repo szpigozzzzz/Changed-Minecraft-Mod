@@ -9,11 +9,15 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.MobType;
+import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.ai.attributes.AttributeMap;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.registries.ForgeRegistries;
 
 public abstract class AbstractPooltoy extends ChangedEntity implements PowderSnowWalkable {
+    protected float crouchImpulse = 0f;
+    protected Pose lastPose = Pose.STANDING;
+
     public AbstractPooltoy(EntityType<? extends ChangedEntity> type, Level level) {
         super(type, level);
     }
@@ -67,7 +71,28 @@ public abstract class AbstractPooltoy extends ChangedEntity implements PowderSno
     }
 
     @Override
+    public float getVerticalSpringOffset() {
+        return crouchImpulse;
+    }
+
+    @Override
     public void variantTick(Level level) {
+        var currentPose = getPose();
+
+        if (lastPose == Pose.STANDING && currentPose == Pose.CROUCHING) {
+            crouchImpulse = -0.7f;
+        }
+
+        else if (lastPose == Pose.CROUCHING && currentPose == Pose.STANDING) {
+            crouchImpulse = 0.7f;
+        }
+
+        else {
+            crouchImpulse = 0f;
+        }
+
+        lastPose = currentPose;
+
         super.variantTick(level);
         final var entity = maybeGetUnderlying();
         if (entity.isInWaterOrBubble()) {
