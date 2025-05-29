@@ -12,6 +12,7 @@ import net.ltxprogrammer.changed.item.FluidCanister;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.LivingEntity;
@@ -19,15 +20,19 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.*;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.material.Fluid;
 import net.minecraftforge.fml.LogicalSide;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
+import java.text.NumberFormat;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 public class StasisChamberMenu extends AbstractContainerMenu implements UpdateableMenu {
+    public static final int MAX_WAIT_DURATION = 20 * 120;
+
     public final StasisChamberBlockEntity blockEntity;
     public final Container container;
     public final ContainerData data;
@@ -48,12 +53,14 @@ public class StasisChamberMenu extends AbstractContainerMenu implements Updateab
         if (extra == null) {
             this.blockEntity = null;
             this.container = new SimpleContainer(2);
+            this.container.startOpen(inventory.player);
             this.createSlots(inventory);
             return;
         }
 
         this.blockEntity = inventory.player.level.getBlockEntity(extra.readBlockPos(), ChangedBlockEntities.STASIS_CHAMBER.get()).orElse(null);
         this.container = blockEntity;
+        this.container.startOpen(inventory.player);
         this.createSlots(inventory);
     }
 
@@ -63,7 +70,13 @@ public class StasisChamberMenu extends AbstractContainerMenu implements Updateab
         this.data = dataAccess;
         this.blockEntity = blockEntity;
         this.container = blockEntity != null ? blockEntity : new SimpleContainer(2);
+        this.container.startOpen(inventory.player);
         this.createSlots(inventory);
+    }
+
+    public void removed(Player player) {
+        super.removed(player);
+        this.container.stopOpen(player);
     }
 
     private static class HideableSlot extends Slot {
@@ -240,6 +253,16 @@ public class StasisChamberMenu extends AbstractContainerMenu implements Updateab
         return flag;
     }
 
+    public double getWaitDurationPercent() {
+        if (blockEntity == null)
+            return 0.0;
+        return ((double)blockEntity.getWaitDuration()) / (double)MAX_WAIT_DURATION; // Ticks to percent
+    }
+
+    public String getWaitDurationSeconds(double percent) {
+        return String.format("%.2f", Math.max(Math.round(percent * MAX_WAIT_DURATION), 0) * 0.05);
+    }
+
     public float getFluidLevel(float partialTick) {
         if (blockEntity == null)
             return 0.0f;
@@ -286,6 +309,18 @@ public class StasisChamberMenu extends AbstractContainerMenu implements Updateab
         if (blockEntity == null)
             return false;
         return blockEntity.getBlockState().getValue(StasisChamber.OPEN);
+    }
+
+    public float getChamberFillLevel(float partialTick) {
+        if (blockEntity == null)
+            return 0f;
+        return blockEntity.getFluidLevel(partialTick);
+    }
+
+    public Optional<Fluid> getChamberFillFluid() {
+        if (blockEntity == null)
+            return Optional.empty();
+        return blockEntity.getFluidType();
     }
 
     public boolean openChamber() {
@@ -361,6 +396,13 @@ public class StasisChamberMenu extends AbstractContainerMenu implements Updateab
         this.setDirty(tag);
     }
 
+    public void inputWaitDuration(double percent) {
+        CompoundTag tag = new CompoundTag();
+        tag.putString("control", "waitDuration");
+        tag.putInt("waitDuration", (int)(percent * MAX_WAIT_DURATION));
+        this.setDirty(tag);
+    }
+
     @Override
     public void update(CompoundTag payload, LogicalSide receiver) {
         if (receiver.isServer() && blockEntity != null) {
@@ -376,6 +418,9 @@ public class StasisChamberMenu extends AbstractContainerMenu implements Updateab
             } else if ("config".equals(control)) {
                 if (payload.contains("customLatex"))
                     blockEntity.setConfiguredCustomLatex(payload.getInt("customLatex"));
+            } else if ("waitDuration".equals(control)) {
+                if (payload.contains("waitDuration"))
+                    blockEntity.setWaitDuration(payload.getInt("waitDuration"));
             }
         }
     }

@@ -687,8 +687,6 @@
   "changed.stasis.open": "Open Door",
   "changed.stasis.close": "Close Door",
   "changed.stasis.run": "Execute Modifications",
-  "changed.stasis.capture_next": "Capture Next",
-  "changed.stasis.toggle_stasis": "Toggle Stasis",
   "changed.stasis.modify": "Modifications",
 
   "changed.stasis.command._active": "> %s",
@@ -699,6 +697,8 @@
   "changed.stasis.command.stabilize_entity": "Stabilize",
   "changed.stasis.command.modify_entity": "Modify Entity",
   "changed.stasis.command.transfur_entity": "Transfur Entity",
+  "changed.stasis.command.create_entity": "Create Entity",
+  "changed.stasis.command.discard_entity": "Discard Entity",
   "changed.stasis.command.drain": "Drain Chamber",
   "changed.stasis.command.release": "Release Entity",
   "changed.stasis.command.close_when_empty": "Close Door",
@@ -706,6 +706,13 @@
 
   "changed.stasis.program.transfur": "Transfur",
   "changed.stasis.program.modify": "Modify",
+  "changed.stasis.program.capture_next": "Capture Next",
+  "changed.stasis.program.toggle_stasis": "Toggle Stasis",
+  "changed.stasis.program.create_entity": "Create Entity",
+  "changed.stasis.program.discard_entity": "Discard Entity",
+  "changed.stasis.program.abort": "Abort Program",
+
+  "changed.stasis.program.wait_duration": "Wait Duration %ss",
 
   "changed.stasis.modify.gender": "Toggle Gender",
 
