@@ -130,6 +130,10 @@ public class StasisChamberMenu extends AbstractContainerMenu implements Updateab
             this.addSlot(new HideableSlot(inv, slotY, 0 + 8 + slotY * 18, 0 + 142, () -> hideSlots));
     }
 
+    public Slot getCustomSlot(int customSlotIndex) {
+        return customSlots.get(customSlotIndex);
+    }
+
     @Override
     public boolean stillValid(Player player) {
         return blockEntity != null;
