@@ -66,11 +66,11 @@ public abstract class AdvancedHumanoidRenderer<T extends ChangedEntity, M extend
     public void setModelResetPoseStack(T entity, @Nullable PoseStack.Pose pose) {
         this.getModel(entity).resetPoseStack = pose;
         this.layers.forEach(layer -> {
-            if (layer instanceof LatexHumanoidArmorLayer<?,?,?> armorLayer) {
-                armorLayer.getArmorModel(EquipmentSlot.HEAD).resetPoseStack = pose;
-                armorLayer.getArmorModel(EquipmentSlot.CHEST).resetPoseStack = pose;
-                armorLayer.getArmorModel(EquipmentSlot.LEGS).resetPoseStack = pose;
-                armorLayer.getArmorModel(EquipmentSlot.FEET).resetPoseStack = pose;
+            if (layer instanceof LatexHumanoidArmorLayer armorLayer) {
+                armorLayer.getArmorModel(entity, EquipmentSlot.HEAD).resetPoseStack = pose;
+                armorLayer.getArmorModel(entity, EquipmentSlot.CHEST).resetPoseStack = pose;
+                armorLayer.getArmorModel(entity, EquipmentSlot.LEGS).resetPoseStack = pose;
+                armorLayer.getArmorModel(entity, EquipmentSlot.FEET).resetPoseStack = pose;
             }
         });
     }

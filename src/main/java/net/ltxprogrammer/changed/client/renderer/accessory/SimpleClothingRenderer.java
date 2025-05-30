@@ -49,9 +49,9 @@ public class SimpleClothingRenderer implements AccessoryRenderer, TransitionalAc
 
     @Override
     public Stream<AdvancedHumanoidModel<?>> getAfterModels(AccessorySlotContext<?> slotContext, RenderLayerParent<?,?> renderLayerParent) {
-        if (renderLayerParent instanceof AdvancedHumanoidRenderer advancedHumanoidRenderer) {
+        if (renderLayerParent instanceof AdvancedHumanoidRenderer advancedHumanoidRenderer && slotContext.wearer() instanceof ChangedEntity wearer) {
             final LatexHumanoidArmorLayer layer = advancedHumanoidRenderer.getArmorLayer();
-            return components.stream().map(component -> Optional.of((LatexHumanoidArmorModel<?, ?>) layer.modelPicker.getModelSetForSlot(component.renderAs)
+            return components.stream().map(component -> Optional.of((LatexHumanoidArmorModel<?,?>) layer.modelPicker.getModelSetForSlot(wearer, component.renderAs)
                     .get(component.armorModel))).filter(Optional::isPresent).map(Optional::get);
         }
 
@@ -79,7 +79,7 @@ public class SimpleClothingRenderer implements AccessoryRenderer, TransitionalAc
             if (entity instanceof ChangedEntity changedEntity && renderLayerParent instanceof AdvancedHumanoidRenderer advancedHumanoidRenderer) {
                 final var layer = advancedHumanoidRenderer.getArmorLayer();
                 for (var component : components) {
-                    final LatexHumanoidArmorModel model = (LatexHumanoidArmorModel<?, ?>) layer.modelPicker.getModelSetForSlot(component.renderAs)
+                    final LatexHumanoidArmorModel model = (LatexHumanoidArmorModel<?, ?>) layer.modelPicker.getModelSetForSlot(changedEntity, component.renderAs)
                             .get(component.armorModel);
 
                     model.prepareMobModel(changedEntity, limbSwing, limbSwingAmount, partialTicks);
@@ -112,7 +112,7 @@ public class SimpleClothingRenderer implements AccessoryRenderer, TransitionalAc
                 for (var component : components) {
                     if (component.renderAs != EquipmentSlot.CHEST) continue;
 
-                    final LatexHumanoidArmorModel model = (LatexHumanoidArmorModel<?, ?>) layer.modelPicker.getModelSetForSlot(component.renderAs)
+                    final LatexHumanoidArmorModel model = (LatexHumanoidArmorModel<?, ?>) layer.modelPicker.getModelSetForSlot(changedEntity, component.renderAs)
                             .get(component.armorModel);
 
                     model.prepareMobModel(changedEntity, 0f, 0f, partialTicks);

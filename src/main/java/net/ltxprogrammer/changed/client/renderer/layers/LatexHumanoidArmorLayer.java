@@ -46,11 +46,11 @@ public class LatexHumanoidArmorLayer<T extends ChangedEntity, M extends Advanced
         boolean firstPerson = ChangedCompatibility.isFirstPersonRendering();
 
         if (!firstPerson || !entity.isVisuallySwimming()) // Don't render chest-plate if swimming in first person
-            this.renderArmorPiece(pose, buffers, entity, EquipmentSlot.CHEST, packedLight, this.getArmorModel(EquipmentSlot.CHEST));
-        this.renderArmorPiece(pose, buffers, entity, EquipmentSlot.LEGS, packedLight, this.getArmorModel(EquipmentSlot.LEGS));
-        this.renderArmorPiece(pose, buffers, entity, EquipmentSlot.FEET, packedLight, this.getArmorModel(EquipmentSlot.FEET));
+            this.renderArmorPiece(pose, buffers, entity, EquipmentSlot.CHEST, packedLight, this.getArmorModel(entity, EquipmentSlot.CHEST));
+        this.renderArmorPiece(pose, buffers, entity, EquipmentSlot.LEGS, packedLight, this.getArmorModel(entity, EquipmentSlot.LEGS));
+        this.renderArmorPiece(pose, buffers, entity, EquipmentSlot.FEET, packedLight, this.getArmorModel(entity, EquipmentSlot.FEET));
         if (!firstPerson) // Don't render helmet if first person; only really applies to first person mods
-            this.renderArmorPiece(pose, buffers, entity, EquipmentSlot.HEAD, packedLight, this.getArmorModel(EquipmentSlot.HEAD));
+            this.renderArmorPiece(pose, buffers, entity, EquipmentSlot.HEAD, packedLight, this.getArmorModel(entity, EquipmentSlot.HEAD));
     }
 
     private void renderArmorPiece(PoseStack pose, MultiBufferSource buffers, T entity, EquipmentSlot slot, int packedLight, LatexHumanoidArmorModel<? super T, ?> model) {
@@ -110,8 +110,8 @@ public class LatexHumanoidArmorLayer<T extends ChangedEntity, M extends Advanced
         model.renderToBuffer(pose, vertexconsumer, packedLight, OverlayTexture.NO_OVERLAY, red, green, blue, 1.0F);
     }
 
-    public LatexHumanoidArmorModel<? super T, ?> getArmorModel(EquipmentSlot slot) {
-        return modelPicker.getModelForSlot(slot);
+    public LatexHumanoidArmorModel<? super T, ?> getArmorModel(T entity, EquipmentSlot slot) {
+        return modelPicker.getModelForSlot(entity, slot);
     }
 
     private boolean usesInnerModel(EquipmentSlot p_117129_) {

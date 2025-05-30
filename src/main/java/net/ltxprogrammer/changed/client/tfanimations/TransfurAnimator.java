@@ -533,7 +533,7 @@ public abstract class TransfurAnimator {
         if (!(playerRenderer instanceof LivingEntityRenderer<?,?> livingPlayerRenderer)) return;
         if (!(livingPlayerRenderer.getModel() instanceof HumanoidModel<?> playerHumanoidModel)) return;
 
-        if (!(latexRenderer instanceof AdvancedHumanoidRenderer<?,?,?> latexHumanoidRenderer)) return;
+        if (!(latexRenderer instanceof AdvancedHumanoidRenderer latexHumanoidRenderer)) return;
 
         final float transfurProgression = variant.getTransfurProgression(partialTick);
         final float coverProgress = getCoverProgression(transfurProgression);
@@ -591,7 +591,7 @@ public abstract class TransfurAnimator {
 
                     var model = armorLayer.getArmorModel(armorSlot);
                     ((HumanoidArmorLayer) armorLayer).setPartVisibility((HumanoidModel) model, armorSlot);
-                    var afterModel = latexHumanoidRenderer.getArmorLayer().getArmorModel(armorSlot);
+                    var afterModel = latexHumanoidRenderer.getArmorLayer().getArmorModel(variant.getChangedEntity(), armorSlot);
                     afterModel.prepareVisibility(armorSlot, item);
                     renderMorphedEntity(player,
                             model,

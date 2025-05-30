@@ -9,8 +9,8 @@ import net.minecraft.world.entity.EquipmentSlot;
 import java.util.Map;
 
 public abstract class ArmorModelPicker<T extends ChangedEntity> {
-    public abstract LatexHumanoidArmorModel<T, ?> getModelForSlot(EquipmentSlot slot);
-    public abstract Map<ArmorModel, LatexHumanoidArmorModel<T, ?>> getModelSetForSlot(EquipmentSlot slot);
+    public abstract LatexHumanoidArmorModel<T, ?> getModelForSlot(T entity, EquipmentSlot slot);
+    public abstract Map<ArmorModel, LatexHumanoidArmorModel<T, ?>> getModelSetForSlot(T entity, EquipmentSlot slot);
 
     public abstract void prepareAndSetupModels(T entity, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch);
 
@@ -19,12 +19,12 @@ public abstract class ArmorModelPicker<T extends ChangedEntity> {
             final Map<ArmorModel, ? extends LatexHumanoidArmorModel<T, ?>> baked = full.createModels(models);
 
             @Override
-            public LatexHumanoidArmorModel<T, ?> getModelForSlot(EquipmentSlot slot) {
+            public LatexHumanoidArmorModel<T, ?> getModelForSlot(T entity, EquipmentSlot slot) {
                 return baked.get(slot == EquipmentSlot.LEGS ? ArmorModel.ARMOR_INNER : ArmorModel.ARMOR_OUTER);
             }
 
             @Override
-            public Map<ArmorModel, LatexHumanoidArmorModel<T, ?>> getModelSetForSlot(EquipmentSlot slot) {
+            public Map<ArmorModel, LatexHumanoidArmorModel<T, ?>> getModelSetForSlot(T entity, EquipmentSlot slot) {
                 return Map.copyOf(baked);
             }
 
@@ -47,14 +47,14 @@ public abstract class ArmorModelPicker<T extends ChangedEntity> {
             final Map<ArmorModel, ? extends LatexHumanoidArmorModel<T, ?>> bakedLower = lowerBody.createModels(models);
 
             @Override
-            public LatexHumanoidArmorModel<T, ?> getModelForSlot(EquipmentSlot slot) {
+            public LatexHumanoidArmorModel<T, ?> getModelForSlot(T entity, EquipmentSlot slot) {
                 return QuadrupedalArmor.useQuadrupedalModel(slot) ?
                         bakedLower.get(QuadrupedalArmor.useInnerQuadrupedalModel(slot) ? ArmorModel.ARMOR_INNER : ArmorModel.ARMOR_OUTER) :
                         bakedUpper.get(slot == EquipmentSlot.LEGS ? ArmorModel.ARMOR_INNER : ArmorModel.ARMOR_OUTER);
             }
 
             @Override
-            public Map<ArmorModel, LatexHumanoidArmorModel<T, ?>> getModelSetForSlot(EquipmentSlot slot) {
+            public Map<ArmorModel, LatexHumanoidArmorModel<T, ?>> getModelSetForSlot(T entity, EquipmentSlot slot) {
                 return Map.copyOf(slot == EquipmentSlot.LEGS || slot == EquipmentSlot.FEET ? bakedLower : bakedUpper);
             }
 
@@ -85,14 +85,14 @@ public abstract class ArmorModelPicker<T extends ChangedEntity> {
             final Map<ArmorModel, ? extends LatexHumanoidArmorModel<T, ?>> bakedLower = lowerBody.createModels(models);
 
             @Override
-            public LatexHumanoidArmorModel<T, ?> getModelForSlot(EquipmentSlot slot) {
+            public LatexHumanoidArmorModel<T, ?> getModelForSlot(T entity, EquipmentSlot slot) {
                 return AbdomenArmor.useAbdomenModel(slot) ?
                         bakedLower.get(AbdomenArmor.useInnerAbdomenModel(slot) ? ArmorModel.ARMOR_INNER : ArmorModel.ARMOR_OUTER) :
                         bakedUpper.get(slot == EquipmentSlot.LEGS ? ArmorModel.ARMOR_INNER : ArmorModel.ARMOR_OUTER);
             }
 
             @Override
-            public Map<ArmorModel, LatexHumanoidArmorModel<T, ?>> getModelSetForSlot(EquipmentSlot slot) {
+            public Map<ArmorModel, LatexHumanoidArmorModel<T, ?>> getModelSetForSlot(T entity, EquipmentSlot slot) {
                 return Map.copyOf(slot == EquipmentSlot.LEGS || slot == EquipmentSlot.FEET ? bakedLower : bakedUpper);
             }
 
