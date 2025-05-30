@@ -160,6 +160,7 @@ public class ChangedLayerDefinitions {
 
         ArmorHumanModel.MODEL_SET.registerDefinitions(event::registerLayerDefinition);
 
+        ArmorLatexMothModel.MODEL_SET.registerDefinitions(event::registerLayerDefinition);
         ArmorLatexOtterModel.MODEL_SET.registerDefinitions(event::registerLayerDefinition);
         ArmorLatexStigerModel.MODEL_SET.registerDefinitions(event::registerLayerDefinition);
         ArmorPooltoyWolfModel.MODEL_SET.registerDefinitions(event::registerLayerDefinition);
