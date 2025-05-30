@@ -68,7 +68,11 @@ public class AnimationInstance {
 
     public void resetToBaseline(HumanoidModel<?> model) {
         animation.channels.keySet().stream().filter(Limb::isVanillaPart).filter(baselineH::containsKey).forEach(limb -> {
-            limb.getModelPartSafe(model).ifPresent(part -> part.loadPose(baselineH.get(limb)));
+            limb.getModelPartSafe(model).ifPresent(part -> {
+                final var baseline = baselineH.get(limb);
+                if (baseline != null)
+                    part.loadPose(baseline);
+            });
         });
         baselineH.clear();
     }
@@ -82,7 +86,11 @@ public class AnimationInstance {
 
     public void resetToBaseline(AdvancedHumanoidModel<?> model) {
         animation.channels.keySet().stream().filter(baselineAH::containsKey).forEach(limb -> {
-            limb.getModelPartSafe(model).ifPresent(part -> part.loadPose(baselineAH.get(limb)));
+            limb.getModelPartSafe(model).ifPresent(part -> {
+                final var baseline = baselineAH.get(limb);
+                if (baseline != null)
+                    part.loadPose(baselineAH.get(limb));
+            });
         });
         baselineAH.clear();
     }
