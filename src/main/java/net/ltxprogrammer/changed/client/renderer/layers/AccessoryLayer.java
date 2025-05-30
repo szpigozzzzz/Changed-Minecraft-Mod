@@ -4,6 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import net.ltxprogrammer.changed.client.renderer.accessory.AccessoryRenderer;
 import net.ltxprogrammer.changed.data.AccessorySlotContext;
 import net.ltxprogrammer.changed.data.AccessorySlots;
+import net.ltxprogrammer.changed.entity.AccessoryEntities;
 import net.ltxprogrammer.changed.util.Cacheable;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -38,12 +39,15 @@ public class AccessoryLayer<T extends LivingEntity, M extends EntityModel<T>> ex
 
     @Override
     public void render(PoseStack poseStack, MultiBufferSource buffers, int packedLight, T entity, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch) {
+        final var slotTypePredicate = AccessoryEntities.INSTANCE.canEntityTypeUseSlot(entity.getType());
         AccessorySlots.getForEntity(entity).ifPresent(slots -> {
             slots.forEachSlot((slotType, stack) -> {
                 if (stack.isEmpty())
                     return;
                 if (!RENDERERS.containsKey(stack.getItem()))
                     return;
+                if (!slotTypePredicate.test(slotType) || !slotType.canHoldItem(stack, entity))
+                    return; // Ensure lag doesn't crash with an invalid slot
 
                 var context = new AccessorySlotContext<>(entity, slotType, stack);
                 RENDERERS.get(stack.getItem()).get().render(context, poseStack, this.parent, buffers, packedLight, limbSwing, limbSwingAmount, partialTicks, ageInTicks, netHeadYaw, headPitch);
@@ -53,12 +57,15 @@ public class AccessoryLayer<T extends LivingEntity, M extends EntityModel<T>> ex
 
     @Override
     public void renderFirstPersonOnArms(PoseStack poseStack, MultiBufferSource buffers, int packedLight, T entity, HumanoidArm arm, PoseStack stackCorrector, float partialTick) {
+        final var slotTypePredicate = AccessoryEntities.INSTANCE.canEntityTypeUseSlot(entity.getType());
         AccessorySlots.getForEntity(entity).ifPresent(slots -> {
             slots.forEachSlot((slotType, stack) -> {
                 if (stack.isEmpty())
                     return;
                 if (!RENDERERS.containsKey(stack.getItem()))
                     return;
+                if (!slotTypePredicate.test(slotType) || !slotType.canHoldItem(stack, entity))
+                    return; // Ensure lag doesn't crash with an invalid slot
 
                 var context = new AccessorySlotContext<>(entity, slotType, stack);
                 RENDERERS.get(stack.getItem()).get().renderFirstPersonOnArms(context, poseStack, this.parent, buffers, packedLight, arm, stackCorrector, partialTick);

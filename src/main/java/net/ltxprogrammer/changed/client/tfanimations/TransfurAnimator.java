@@ -14,6 +14,7 @@ import net.ltxprogrammer.changed.client.renderer.layers.LatexHumanoidArmorLayer;
 import net.ltxprogrammer.changed.client.renderer.model.AdvancedHumanoidModel;
 import net.ltxprogrammer.changed.data.AccessorySlotContext;
 import net.ltxprogrammer.changed.data.AccessorySlots;
+import net.ltxprogrammer.changed.entity.AccessoryEntities;
 import net.ltxprogrammer.changed.entity.LimbCoverTransition;
 import net.ltxprogrammer.changed.entity.variant.TransfurVariantInstance;
 import net.ltxprogrammer.changed.extension.ChangedCompatibility;
@@ -600,10 +601,14 @@ public abstract class TransfurAnimator {
                     afterModel.unprepareVisibility(armorSlot, item);
                 });
             });
+
+            final var slotTypePredicate = AccessoryEntities.INSTANCE.canEntityTypeUseSlot(variant.getChangedEntity().getType());
             findAccessoryLayer(livingPlayerRenderer).flatMap(accessoryLayer -> AccessorySlots.getForEntity(player))
                     .ifPresent(slots -> slots.forEachSlot((slotType, itemStack) -> {
                         if (itemStack.isEmpty())
                             return;
+                        if (!slotTypePredicate.test(slotType) || !slotType.canHoldItem(itemStack, player))
+                            return; // Ensure lag doesn't crash with an invalid slot
 
                         var slotContextPlayer = new AccessorySlotContext<>(player, slotType, itemStack);
                         var slotContextVariant = new AccessorySlotContext<>(variant.getChangedEntity(), slotType, itemStack);

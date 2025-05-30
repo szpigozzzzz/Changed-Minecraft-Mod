@@ -11,6 +11,7 @@ import net.ltxprogrammer.changed.data.AccessorySlots;
 import net.ltxprogrammer.changed.init.ChangedRegistry;
 import net.ltxprogrammer.changed.network.packet.AccessorySyncPacket;
 import net.ltxprogrammer.changed.network.packet.ChangedPacket;
+import net.ltxprogrammer.changed.util.EntityUtil;
 import net.ltxprogrammer.changed.util.UniversalDist;
 import net.minecraft.core.Registry;
 import net.minecraft.network.FriendlyByteBuf;
@@ -49,10 +50,7 @@ public class AccessoryEntities extends SimplePreparableReloadListener<Multimap<E
     private final Multimap<EntityType<?>, AccessorySlotType> validEntities = HashMultimap.create();
 
     public static EntityType<?> getApparentEntityType(LivingEntity entity) {
-        return IAbstractChangedEntity.forEitherSafe(entity)
-                .map(IAbstractChangedEntity::getChangedEntity)
-                .map(ChangedEntity::getType)
-                .orElse((EntityType)entity.getType());
+        return EntityUtil.maybeGetOverlaying(entity).getType();
     }
 
     public void forceReloadAccessories(LivingEntity entity) {
