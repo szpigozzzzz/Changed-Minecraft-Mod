@@ -48,7 +48,7 @@ public class ArmorLatexCentaurLowerModel<T extends ChangedEntity> extends LatexH
         var rightFoot2 = rightLowerLeg2.getChild("RightFoot2");
 
         animator = HumanoidAnimator.of(this)
-                .addPreset(AnimatorPresets.taurLegs(EMPTY_PART, List.of(),
+                .addPreset(AnimatorPresets.taurLegs(
                         LowerTorso, FrontLeftLeg, leftLowerLeg, leftLowerLeg.getChild("LeftFoot"), FrontRightLeg, rightLowerLeg, rightLowerLeg.getChild("RightFoot"),
                         BackLeftLeg, leftLowerLeg2, leftFoot2, leftFoot2.getChild("LeftPad2"), BackRightLeg, rightLowerLeg2, rightFoot2, rightFoot2.getChild("RightPad2")))
                 .forwardOffset(-7.0f).hipOffset(-1.5f).legLength(13.5f).torsoLength(11.05f);

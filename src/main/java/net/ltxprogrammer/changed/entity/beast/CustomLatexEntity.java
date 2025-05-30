@@ -1,5 +1,6 @@
 package net.ltxprogrammer.changed.entity.beast;
 
+import net.ltxprogrammer.changed.block.WhiteLatexTransportInterface;
 import net.ltxprogrammer.changed.entity.AttributePresets;
 import net.ltxprogrammer.changed.entity.ChangedEntity;
 import net.ltxprogrammer.changed.entity.LatexType;
@@ -11,12 +12,16 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.ai.attributes.AttributeMap;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.common.ForgeMod;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.Objects;
 
 public class CustomLatexEntity extends ChangedEntity {
     public enum TorsoType {
@@ -198,6 +203,30 @@ public class CustomLatexEntity extends ChangedEntity {
         ProcessTransfur.ifPlayerTransfurred(this.getUnderlyingPlayer(), variant -> {
             variant.refreshAttributes();
         });
+    }
+
+    protected EntityDimensions getDimensionsForForm() {
+        return switch (this.getLegType()) {
+            case MERMAID -> EntityDimensions.scalable(0.7F, 1.58625F);
+            case CENTAUR -> EntityDimensions.scalable(1.1F, 2.0F);
+            default -> EntityDimensions.scalable(0.7F, 1.93F);
+        };
+    }
+
+    public EntityDimensions getDimensions(Pose pose) {
+        EntityDimensions core = getDimensionsForForm();
+
+        if (WhiteLatexTransportInterface.isEntityInWhiteLatex(this.maybeGetUnderlying()))
+            return EntityDimensions.scalable(core.width, core.width);
+
+        return (switch (Objects.requireNonNullElse(overridePose, pose)) {
+            case STANDING -> core;
+            case SLEEPING -> SLEEPING_DIMENSIONS;
+            case FALL_FLYING, SWIMMING, SPIN_ATTACK -> EntityDimensions.scalable(core.width, core.width);
+            case CROUCHING -> EntityDimensions.scalable(core.width, core.height - 0.3f);
+            case DYING -> EntityDimensions.fixed(0.2f, 0.2f);
+            default -> core;
+        }).scale(getBasicPlayerInfo().getSize() * this.getScale());
     }
 
     public int getRawFormFlags() {

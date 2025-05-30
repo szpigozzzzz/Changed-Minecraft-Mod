@@ -5,6 +5,7 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.ltxprogrammer.changed.Changed;
 import net.ltxprogrammer.changed.client.renderer.animate.AnimatorPresets;
 import net.ltxprogrammer.changed.client.renderer.animate.HumanoidAnimator;
+import net.ltxprogrammer.changed.client.renderer.animate.tail.WolfTailInitAnimator;
 import net.ltxprogrammer.changed.client.tfanimations.HelperModel;
 import net.ltxprogrammer.changed.client.animations.Limb;
 import net.ltxprogrammer.changed.client.tfanimations.TransfurHelper;
@@ -64,9 +65,9 @@ public class LatexHyenaTaurModel extends AdvancedHumanoidModel<LatexHyenaTaur> i
         animator = HumanoidAnimator.of(this).addPreset(AnimatorPresets.taurLike(
                 Head, Head.getChild("LeftEar"), Head.getChild("RightEar"),
                 Torso, LeftArm, RightArm,
-                Tail, List.of(tailPrimary, tailSecondary, tailTertiary),
                 LowerTorso, FrontLeftLeg, leftLowerLeg, leftLowerLeg.getChild("LeftFoot"), FrontRightLeg, rightLowerLeg, rightLowerLeg.getChild("RightFoot"),
                 BackLeftLeg, leftLowerLeg2, leftFoot2, leftFoot2.getChild("LeftPad2"), BackRightLeg, rightLowerLeg2, rightFoot2, rightFoot2.getChild("RightPad2")))
+                .addAnimator(new WolfTailInitAnimator<>(Tail, List.of(tailPrimary, tailSecondary, tailTertiary)))
                 .forwardOffset(-7.0f).hipOffset(-1.5f).legLength(13.5f).torsoLength(11.05f);
     }
 
