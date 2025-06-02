@@ -220,5 +220,9 @@ public class ChangedTransfurVariants {
                     consumer.accept(pair.getMaleVariant());
             }).findAny();
         }
+
+        public static boolean hasOpposite(TransfurVariant<?> variant) {
+            return getPairs().anyMatch(pair -> pair.contains(variant));
+        }
     }
 }

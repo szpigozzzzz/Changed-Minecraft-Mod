@@ -10,15 +10,21 @@ import java.util.Locale;
 import java.util.Set;
 
 public enum QuarterSection implements StringRepresentable {
-    BOTTOM_LEFT,
-    TOP_LEFT,
-    TOP_RIGHT,
-    BOTTOM_RIGHT;
+    BOTTOM_LEFT("bottom_left"),
+    TOP_LEFT("top_left"),
+    TOP_RIGHT("top_right"),
+    BOTTOM_RIGHT("bottom_right");
+
+    private final String serialName;
+
+    QuarterSection(String serialName) {
+        this.serialName = serialName;
+    }
 
     @NotNull
     @Override
     public String getSerializedName() {
-        return name().toLowerCase(Locale.ROOT);
+        return serialName;
     }
 
     public boolean isLeft() {

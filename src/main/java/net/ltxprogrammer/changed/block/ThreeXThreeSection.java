@@ -12,37 +12,38 @@ import java.util.Locale;
 import java.util.stream.Collectors;
 
 public enum ThreeXThreeSection implements StringRepresentable {
-    BACK_BOTTOM_LEFT(ZAxis.BACK, YAxis.BOTTOM, XAxis.LEFT),
-    BACK_MIDDLE_LEFT(ZAxis.BACK, YAxis.MIDDLE, XAxis.LEFT),
-    BACK_TOP_LEFT(ZAxis.BACK, YAxis.TOP, XAxis.LEFT),
-    BACK_TOP_MIDDLE(ZAxis.BACK, YAxis.TOP, XAxis.MIDDLE),
-    BACK_TOP_RIGHT(ZAxis.BACK, YAxis.TOP, XAxis.RIGHT),
-    BACK_MIDDLE_RIGHT(ZAxis.BACK, YAxis.MIDDLE, XAxis.RIGHT),
-    BACK_BOTTOM_RIGHT(ZAxis.BACK, YAxis.BOTTOM, XAxis.RIGHT),
-    BACK_BOTTOM_MIDDLE(ZAxis.BACK, YAxis.BOTTOM, XAxis.MIDDLE),
-    BACK_MIDDLE_MIDDLE(ZAxis.BACK, YAxis.MIDDLE, XAxis.MIDDLE),
+    BACK_BOTTOM_LEFT("back_bottom_left", ZAxis.BACK, YAxis.BOTTOM, XAxis.LEFT),
+    BACK_MIDDLE_LEFT("back_middle_left", ZAxis.BACK, YAxis.MIDDLE, XAxis.LEFT),
+    BACK_TOP_LEFT("back_top_left", ZAxis.BACK, YAxis.TOP, XAxis.LEFT),
+    BACK_TOP_MIDDLE("back_top_middle", ZAxis.BACK, YAxis.TOP, XAxis.MIDDLE),
+    BACK_TOP_RIGHT("back_top_right", ZAxis.BACK, YAxis.TOP, XAxis.RIGHT),
+    BACK_MIDDLE_RIGHT("back_middle_right", ZAxis.BACK, YAxis.MIDDLE, XAxis.RIGHT),
+    BACK_BOTTOM_RIGHT("back_bottom_right", ZAxis.BACK, YAxis.BOTTOM, XAxis.RIGHT),
+    BACK_BOTTOM_MIDDLE("back_bottom_middle", ZAxis.BACK, YAxis.BOTTOM, XAxis.MIDDLE),
+    BACK_MIDDLE_MIDDLE("back_middle_middle", ZAxis.BACK, YAxis.MIDDLE, XAxis.MIDDLE),
 
-    MIDDLE_BOTTOM_LEFT(ZAxis.MIDDLE, YAxis.BOTTOM, XAxis.LEFT),
-    MIDDLE_MIDDLE_LEFT(ZAxis.MIDDLE, YAxis.MIDDLE, XAxis.LEFT),
-    MIDDLE_TOP_LEFT(ZAxis.MIDDLE, YAxis.TOP, XAxis.LEFT),
-    MIDDLE_TOP_MIDDLE(ZAxis.MIDDLE, YAxis.TOP, XAxis.MIDDLE),
-    MIDDLE_TOP_RIGHT(ZAxis.MIDDLE, YAxis.TOP, XAxis.RIGHT),
-    MIDDLE_MIDDLE_RIGHT(ZAxis.MIDDLE, YAxis.MIDDLE, XAxis.RIGHT),
-    MIDDLE_BOTTOM_RIGHT(ZAxis.MIDDLE, YAxis.BOTTOM, XAxis.RIGHT),
-    MIDDLE_BOTTOM_MIDDLE(ZAxis.MIDDLE, YAxis.BOTTOM, XAxis.MIDDLE),
-    CENTER(ZAxis.MIDDLE, YAxis.MIDDLE, XAxis.MIDDLE),
+    MIDDLE_BOTTOM_LEFT("middle_bottom_left", ZAxis.MIDDLE, YAxis.BOTTOM, XAxis.LEFT),
+    MIDDLE_MIDDLE_LEFT("middle_middle_left", ZAxis.MIDDLE, YAxis.MIDDLE, XAxis.LEFT),
+    MIDDLE_TOP_LEFT("middle_top_left", ZAxis.MIDDLE, YAxis.TOP, XAxis.LEFT),
+    MIDDLE_TOP_MIDDLE("middle_top_middle", ZAxis.MIDDLE, YAxis.TOP, XAxis.MIDDLE),
+    MIDDLE_TOP_RIGHT("middle_top_right", ZAxis.MIDDLE, YAxis.TOP, XAxis.RIGHT),
+    MIDDLE_MIDDLE_RIGHT("middle_middle_right", ZAxis.MIDDLE, YAxis.MIDDLE, XAxis.RIGHT),
+    MIDDLE_BOTTOM_RIGHT("middle_bottom_right", ZAxis.MIDDLE, YAxis.BOTTOM, XAxis.RIGHT),
+    MIDDLE_BOTTOM_MIDDLE("middle_bottom_middle", ZAxis.MIDDLE, YAxis.BOTTOM, XAxis.MIDDLE),
+    CENTER("center", ZAxis.MIDDLE, YAxis.MIDDLE, XAxis.MIDDLE),
 
-    FRONT_BOTTOM_LEFT(ZAxis.FRONT, YAxis.BOTTOM, XAxis.LEFT),
-    FRONT_MIDDLE_LEFT(ZAxis.FRONT, YAxis.MIDDLE, XAxis.LEFT),
-    FRONT_TOP_LEFT(ZAxis.FRONT, YAxis.TOP, XAxis.LEFT),
-    FRONT_TOP_MIDDLE(ZAxis.FRONT, YAxis.TOP, XAxis.MIDDLE),
-    FRONT_TOP_RIGHT(ZAxis.FRONT, YAxis.TOP, XAxis.RIGHT),
-    FRONT_MIDDLE_RIGHT(ZAxis.FRONT, YAxis.MIDDLE, XAxis.RIGHT),
-    FRONT_BOTTOM_RIGHT(ZAxis.FRONT, YAxis.BOTTOM, XAxis.RIGHT),
-    FRONT_BOTTOM_MIDDLE(ZAxis.FRONT, YAxis.BOTTOM, XAxis.MIDDLE),
-    FRONT_MIDDLE_MIDDLE(ZAxis.FRONT, YAxis.MIDDLE, XAxis.MIDDLE);
+    FRONT_BOTTOM_LEFT("front_bottom_left", ZAxis.FRONT, YAxis.BOTTOM, XAxis.LEFT),
+    FRONT_MIDDLE_LEFT("front_middle_left", ZAxis.FRONT, YAxis.MIDDLE, XAxis.LEFT),
+    FRONT_TOP_LEFT("front_top_left", ZAxis.FRONT, YAxis.TOP, XAxis.LEFT),
+    FRONT_TOP_MIDDLE("front_top_middle", ZAxis.FRONT, YAxis.TOP, XAxis.MIDDLE),
+    FRONT_TOP_RIGHT("front_top_right", ZAxis.FRONT, YAxis.TOP, XAxis.RIGHT),
+    FRONT_MIDDLE_RIGHT("front_middle_right", ZAxis.FRONT, YAxis.MIDDLE, XAxis.RIGHT),
+    FRONT_BOTTOM_RIGHT("front_bottom_right", ZAxis.FRONT, YAxis.BOTTOM, XAxis.RIGHT),
+    FRONT_BOTTOM_MIDDLE("front_bottom_middle", ZAxis.FRONT, YAxis.BOTTOM, XAxis.MIDDLE),
+    FRONT_MIDDLE_MIDDLE("front_middle_middle", ZAxis.FRONT, YAxis.MIDDLE, XAxis.MIDDLE);
 
-    ThreeXThreeSection(ZAxis zAxis, YAxis yAxis, XAxis xAxis) {
+    ThreeXThreeSection(String serialName, ZAxis zAxis, YAxis yAxis, XAxis xAxis) {
+        this.serialName = serialName;
         this.yAxis = yAxis;
         this.xAxis = xAxis;
         this.zAxis = zAxis;
@@ -120,6 +121,7 @@ public enum ThreeXThreeSection implements StringRepresentable {
         }
     }
 
+    private final String serialName;
     public final YAxis yAxis;
     public final XAxis xAxis;
     public final ZAxis zAxis;
@@ -127,7 +129,7 @@ public enum ThreeXThreeSection implements StringRepresentable {
     @NotNull
     @Override
     public String getSerializedName() {
-        return name().toLowerCase(Locale.ROOT);
+        return serialName;
     }
 
     @NotNull

@@ -11,17 +11,18 @@ import java.util.Locale;
 import java.util.stream.Collectors;
 
 public enum NineSection implements StringRepresentable {
-    BOTTOM_LEFT(YAxis.BOTTOM, XAxis.LEFT),
-    MIDDLE_LEFT(YAxis.MIDDLE, XAxis.LEFT),
-    TOP_LEFT(YAxis.TOP, XAxis.LEFT),
-    TOP_MIDDLE(YAxis.TOP, XAxis.MIDDLE),
-    TOP_RIGHT(YAxis.TOP, XAxis.RIGHT),
-    MIDDLE_RIGHT(YAxis.MIDDLE, XAxis.RIGHT),
-    BOTTOM_RIGHT(YAxis.BOTTOM, XAxis.RIGHT),
-    BOTTOM_MIDDLE(YAxis.BOTTOM, XAxis.MIDDLE),
-    CENTER(YAxis.MIDDLE, XAxis.MIDDLE);
+    BOTTOM_LEFT("bottom_left", YAxis.BOTTOM, XAxis.LEFT),
+    MIDDLE_LEFT("middle_left", YAxis.MIDDLE, XAxis.LEFT),
+    TOP_LEFT("top_left", YAxis.TOP, XAxis.LEFT),
+    TOP_MIDDLE("top_middle", YAxis.TOP, XAxis.MIDDLE),
+    TOP_RIGHT("top_right", YAxis.TOP, XAxis.RIGHT),
+    MIDDLE_RIGHT("middle_right", YAxis.MIDDLE, XAxis.RIGHT),
+    BOTTOM_RIGHT("bottom_right", YAxis.BOTTOM, XAxis.RIGHT),
+    BOTTOM_MIDDLE("bottom_middle", YAxis.BOTTOM, XAxis.MIDDLE),
+    CENTER("center", YAxis.MIDDLE, XAxis.MIDDLE);
 
-    NineSection(YAxis yAxis, XAxis xAxis) {
+    NineSection(String serialName, YAxis yAxis, XAxis xAxis) {
+        this.serialName = serialName;
         this.yAxis = yAxis;
         this.xAxis = xAxis;
     }
@@ -74,13 +75,14 @@ public enum NineSection implements StringRepresentable {
         }
     }
 
+    private final String serialName;
     public final YAxis yAxis;
     public final XAxis xAxis;
 
     @NotNull
     @Override
     public String getSerializedName() {
-        return name().toLowerCase(Locale.ROOT);
+        return serialName;
     }
 
     @NotNull

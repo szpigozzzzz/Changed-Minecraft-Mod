@@ -83,10 +83,7 @@ public class TransfurVariant<T extends ChangedEntity> extends ForgeRegistryEntry
     public TransfurMode transfurMode() { return transfurMode; }
 
     public boolean isGendered() {
-        for (Gender g : Gender.values())
-            if (this.getFormId().getPath().endsWith(g.name().toLowerCase(Locale.ROOT)))
-                return true;
-        return false;
+        return ChangedTransfurVariants.Gendered.hasOpposite(this);
     }
 
     public int getTicksRequiredToFreeze(Level level) {

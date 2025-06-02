@@ -26,10 +26,8 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.Mth;
 import net.minecraft.world.CompoundContainer;
-import net.minecraft.world.Container;
 import net.minecraft.world.ContainerHelper;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
@@ -38,7 +36,6 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.player.StackedContents;
 import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.inventory.ChestMenu;
 import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.inventory.StackedContentsCompatible;
 import net.minecraft.world.item.ItemStack;
@@ -638,7 +635,7 @@ public class StasisChamberBlockEntity extends BaseContainerBlockEntity implement
          * Opens the chamber door.
          * Requires: Chamber door is closed, and the chamber is drained.
          */
-        OPEN(StasisChamberBlockEntity::isClosedAndDrained, blockEntity -> {
+        OPEN("open", StasisChamberBlockEntity::isClosedAndDrained, blockEntity -> {
             if (blockEntity.getBlockState().getBlock() instanceof StasisChamber chamber) {
                 chamber.openDoor(blockEntity.getBlockState(), blockEntity.getLevel(), blockEntity.getBlockPos());
             }
@@ -649,7 +646,7 @@ public class StasisChamberBlockEntity extends BaseContainerBlockEntity implement
          * Waits until only one entity is inside the chamber to close the door.
          * Requires: Chamber door is open.
          */
-        CAPTURE_ENTITY(StasisChamberBlockEntity::isOpen, blockEntity -> {
+        CAPTURE_ENTITY("capture_entity", StasisChamberBlockEntity::isOpen, blockEntity -> {
             var entities = blockEntity.getEntitiesWithin();
             if (entities.size() != 1)
                 return true; // Execute again
@@ -665,7 +662,7 @@ public class StasisChamberBlockEntity extends BaseContainerBlockEntity implement
          * Closes the chamber door.
          * Requires: Chamber door is open.
          */
-        CLOSE(StasisChamberBlockEntity::isOpen, blockEntity -> {
+        CLOSE("close", StasisChamberBlockEntity::isOpen, blockEntity -> {
             if (blockEntity.getBlockState().getBlock() instanceof StasisChamber chamber) {
                 chamber.closeDoor(blockEntity.getBlockState(), blockEntity.getLevel(), blockEntity.getBlockPos());
             }
@@ -676,7 +673,7 @@ public class StasisChamberBlockEntity extends BaseContainerBlockEntity implement
          * Fills the chamber with the configured fluid.
          * Requires: Chamber door is closed, the chamber is not full, and a fluid is configured.
          */
-        FILL(StasisChamberBlockEntity::isClosedAndNotFullAndHasFluid, blockEntity -> {
+        FILL("fill", StasisChamberBlockEntity::isClosedAndNotFullAndHasFluid, blockEntity -> {
             blockEntity.fluidLevelO = blockEntity.fluidLevel;
             blockEntity.fluidLevel += (0.05f / 12.0f); // Take 12 seconds to fill
 
@@ -695,7 +692,7 @@ public class StasisChamberBlockEntity extends BaseContainerBlockEntity implement
          * Sets the chamber in stasis mode. Treats chambered entity as "sleeping", and freezes their AI.
          * Requires: Chamber is filled and an entity is chambered.
          */
-        STABILIZE_ENTITY(StasisChamberBlockEntity::isFilledAndHasEntity, blockEntity -> {
+        STABILIZE_ENTITY("stabilize_entity", StasisChamberBlockEntity::isFilledAndHasEntity, blockEntity -> {
             if (!blockEntity.ensureCapturedIsStillInside())
                 return false;
 
@@ -713,7 +710,7 @@ public class StasisChamberBlockEntity extends BaseContainerBlockEntity implement
          * If the chambered latex is part of a gendered pair: switches to the opposite gender.
          * Requires: Chamber is filled and a latex entity (or player) is chambered.
          */
-        MODIFY_ENTITY(StasisChamberBlockEntity::isFilledAndHasLatex, blockEntity -> {
+        MODIFY_ENTITY("modify_entity", StasisChamberBlockEntity::isFilledAndHasLatex, blockEntity -> {
             if (!blockEntity.ensureCapturedIsStillInside())
                 return false;
 
@@ -757,7 +754,7 @@ public class StasisChamberBlockEntity extends BaseContainerBlockEntity implement
          * If the process killed the chambered entity, automatically switches to the new npc entity.
          * Requires: Chamber is filled, a transfur variant is configured, and a non-latex entity is chambered.
          */
-        TRANSFUR_ENTITY(blockEntity -> {
+        TRANSFUR_ENTITY("transfur_entity", blockEntity -> {
             return blockEntity.findVariantFromSlots() != null && blockEntity.isFilledAndHasEntity() && !blockEntity.isFilledAndHasLatex();
         }, blockEntity -> {
             if (!blockEntity.ensureCapturedIsStillInside())
@@ -783,7 +780,7 @@ public class StasisChamberBlockEntity extends BaseContainerBlockEntity implement
          * Creates a new CustomLatex entity to modify, release, and/or discard.
          * Requires: Chamber is filled and the chamber has no entity within.
          */
-        CREATE_ENTITY(StasisChamberBlockEntity::isFilledAndHasNoEntity, blockEntity -> {
+        CREATE_ENTITY("create_entity", StasisChamberBlockEntity::isFilledAndHasNoEntity, blockEntity -> {
             ChangedEntity newEntity = ChangedEntities.CUSTOM_LATEX.get().create(blockEntity.level);
             newEntity.finalizeSpawn((ServerLevelAccessor) blockEntity.level, blockEntity.level.getCurrentDifficultyAt(newEntity.blockPosition()), MobSpawnType.MOB_SUMMONED, null,
                     null);
@@ -800,7 +797,7 @@ public class StasisChamberBlockEntity extends BaseContainerBlockEntity implement
          * If the latex entity is actually a player, nothing happens.
          * Requires: Chamber is filled and a latex entity (or player) is chambered.
          */
-        DISCARD_ENTITY(StasisChamberBlockEntity::isFilledAndHasLatex, blockEntity -> {
+        DISCARD_ENTITY("discard_entity", StasisChamberBlockEntity::isFilledAndHasLatex, blockEntity -> {
             var entity = blockEntity.getChamberedEntity().orElse(null);
             if (entity == null || entity instanceof Player)
                 return false;
@@ -814,7 +811,7 @@ public class StasisChamberBlockEntity extends BaseContainerBlockEntity implement
          * Drains the chamber of fluid, and exits stasis mode.
          * Requires: Chamber is not empty.
          */
-        DRAIN(StasisChamberBlockEntity::isPartiallyFilled, blockEntity -> {
+        DRAIN("drain", StasisChamberBlockEntity::isPartiallyFilled, blockEntity -> {
             blockEntity.fluidLevelO = blockEntity.fluidLevel;
             blockEntity.fluidLevel -= (0.05f / 8f); // Take 8 seconds to drain
 
@@ -846,7 +843,7 @@ public class StasisChamberBlockEntity extends BaseContainerBlockEntity implement
          * Opens the chamber door if there are entities within the chamber.
          * Requires: Chamber door is closed and the chamber is drained.
          */
-        RELEASE(StasisChamberBlockEntity::isClosedAndDrained, blockEntity -> {
+        RELEASE("release", StasisChamberBlockEntity::isClosedAndDrained, blockEntity -> {
             if (blockEntity.getEntitiesWithin().isEmpty())
                 return false; // No entities inside, no need to open
             if (blockEntity.getBlockState().getBlock() instanceof StasisChamber chamber) {
@@ -858,7 +855,7 @@ public class StasisChamberBlockEntity extends BaseContainerBlockEntity implement
          * Closes the chamber door if there are no entities within the chamber.
          * Requires: Chamber door is open.
          */
-        CLOSE_WHEN_EMPTY(StasisChamberBlockEntity::isOpen, blockEntity -> {
+        CLOSE_WHEN_EMPTY("close_when_empty", StasisChamberBlockEntity::isOpen, blockEntity -> {
             if (!blockEntity.getEntitiesWithin().isEmpty())
                 return true;
             if (blockEntity.getBlockState().getBlock() instanceof StasisChamber chamber) {
@@ -870,16 +867,18 @@ public class StasisChamberBlockEntity extends BaseContainerBlockEntity implement
         /**
          * Waits the configured amount of ticks before proceeding to the next command.
          */
-        WAIT(blockEntity -> true, blockEntity -> {
+        WAIT("wait", blockEntity -> true, blockEntity -> {
             blockEntity.waitDuration--;
             blockEntity.markUpdated();
             return blockEntity.waitDuration > 0;
         });
 
+        private final String serialName;
         private final Predicate<StasisChamberBlockEntity> predicateCanStart;
         private final Function<StasisChamberBlockEntity, Boolean> functionTick;
 
-        ScheduledCommand(Predicate<StasisChamberBlockEntity> predicateCanStart, Function<StasisChamberBlockEntity, Boolean> functionTick) {
+        ScheduledCommand(String serialName, Predicate<StasisChamberBlockEntity> predicateCanStart, Function<StasisChamberBlockEntity, Boolean> functionTick) {
+            this.serialName = serialName;
             this.predicateCanStart = predicateCanStart;
             this.functionTick = functionTick;
         }
@@ -893,7 +892,7 @@ public class StasisChamberBlockEntity extends BaseContainerBlockEntity implement
         }
 
         public TranslatableComponent getDisplayText() {
-            return new TranslatableComponent("changed.stasis.command." + name().toLowerCase());
+            return new TranslatableComponent("changed.stasis.command." + serialName);
         }
 
         public TranslatableComponent getActiveDisplayText() {
