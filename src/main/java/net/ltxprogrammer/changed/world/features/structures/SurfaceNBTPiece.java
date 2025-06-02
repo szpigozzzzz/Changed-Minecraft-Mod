@@ -3,6 +3,9 @@ package net.ltxprogrammer.changed.world.features.structures;
 import net.ltxprogrammer.changed.block.ConnectedFloorBlock;
 import net.ltxprogrammer.changed.init.ChangedStructurePieceTypes;
 import net.ltxprogrammer.changed.util.TagUtil;
+import net.minecraft.CrashReport;
+import net.minecraft.CrashReportCategory;
+import net.minecraft.ReportedException;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -99,6 +102,18 @@ public class SurfaceNBTPiece extends StructurePiece {
         if (lootTable != null)
             settings.addProcessor(ChestLootTableProcessor.of(lootTable));
         template.placeInWorld(level, generationPosition, generationPosition, settings, random, 2);
+
+        try {
+            template.placeInWorld(level, generationPosition, generationPosition, settings, random, 2);
+        } catch (Exception e) {
+            CrashReport report = CrashReport.forThrowable(e, "Placing NBT Piece");
+            CrashReportCategory category = report.addCategory("Structure piece being placed");
+            category.setDetail("Generation Position", generationPosition);
+            category.setDetail("Template Name", templateName);
+            category.setDetail("Loot Table", lootTable);
+            throw new ReportedException(report);
+        }
+
         BoundingBox intersect = new BoundingBox(
                 Math.max(this.boundingBox.minX(), bb.minX()),
                 Math.max(this.boundingBox.minY(), bb.minY()),
