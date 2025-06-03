@@ -11,6 +11,9 @@ import net.ltxprogrammer.changed.client.tfanimations.TransfurAnimator;
 import net.ltxprogrammer.changed.entity.ChangedEntity;
 import net.ltxprogrammer.changed.extension.ChangedCompatibility;
 import net.ltxprogrammer.changed.process.ProcessTransfur;
+import net.minecraft.CrashReport;
+import net.minecraft.CrashReportCategory;
+import net.minecraft.ReportedException;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.player.AbstractClientPlayer;
@@ -47,7 +50,16 @@ public abstract class FormRenderHandler {
 
                 ChangedCompatibility.forceIsFirstPersonRenderingToFrozen();
 
-                TransfurAnimator.renderTransfurringPlayer(player, variant, stack, buffer, light, partialTick);
+                try {
+                    TransfurAnimator.renderTransfurringPlayer(player, variant, stack, buffer, light, partialTick);
+                } catch (Exception e) {
+                    CrashReport report = CrashReport.forThrowable(e, "Rendering transfurred form");
+                    CrashReportCategory category = report.addCategory("Transfur details");
+                    category.setDetail("Transfur Variant", variant.getFormId());
+                    category.setDetail("Transfur Progress", variant.getTransfurProgression(partialTick));
+                    category.setDetail("Transfur Morph Progress", variant.getMorphProgression(partialTick));
+                    throw new ReportedException(report);
+                }
             } else {
                 if (!RenderOverride.renderOverrides(player, variant, stack, buffer, light, partialTick))
                     renderLiving(variant.getChangedEntity(), stack, buffer, light, partialTick);

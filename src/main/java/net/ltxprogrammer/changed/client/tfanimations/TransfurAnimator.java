@@ -20,6 +20,9 @@ import net.ltxprogrammer.changed.entity.variant.TransfurVariantInstance;
 import net.ltxprogrammer.changed.extension.ChangedCompatibility;
 import net.ltxprogrammer.changed.util.Color3;
 import net.ltxprogrammer.changed.util.Transition;
+import net.minecraft.CrashReport;
+import net.minecraft.CrashReportCategory;
+import net.minecraft.ReportedException;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.HumanoidModel;
@@ -434,7 +437,14 @@ public abstract class TransfurAnimator {
             if (ChangedCompatibility.isFirstPersonRendering() && entity.isSwimming() && limb == Limb.TORSO)
                 return;
 
-            renderMorphedLimb(entity, limb, beforeModel, afterModel, morphProgress, color, alpha, stack, buffer, light, texture, listenToAfterVisible);
+            try {
+                renderMorphedLimb(entity, limb, beforeModel, afterModel, morphProgress, color, alpha, stack, buffer, light, texture, listenToAfterVisible);
+            } catch (Exception e) {
+                CrashReport report = CrashReport.forThrowable(e, "Rendering transfurring entity's limb");
+                CrashReportCategory category = report.addCategory("Limb being renderered");
+                category.setDetail("Limb Name", limb.getSerializedName());
+                throw new ReportedException(report);
+            }
         });
     }
 
@@ -574,8 +584,13 @@ public abstract class TransfurAnimator {
 
         if (morphAlpha > 0f) {
             final var colors = variant.getTransfurColor();
-            renderMorphedEntity(player, playerHumanoidModel, latexHumanoidRenderer.getModel(variant.getChangedEntity()),
-                    morphProgress, colors, morphAlpha, stack, buffer, light, null, false);
+            try {
+                renderMorphedEntity(player, playerHumanoidModel, latexHumanoidRenderer.getModel(variant.getChangedEntity()),
+                        morphProgress, colors, morphAlpha, stack, buffer, light, null, false);
+            } catch (Exception e) {
+                CrashReport report = CrashReport.forThrowable(e, "Rendering entity partially transfurred");
+                throw new ReportedException(report);
+            }
         }
 
         if (coverProgress >= 1f) {
@@ -592,13 +607,21 @@ public abstract class TransfurAnimator {
                     var model = armorLayer.getArmorModel(armorSlot);
                     ((HumanoidArmorLayer) armorLayer).setPartVisibility((HumanoidModel) model, armorSlot);
                     var afterModel = latexHumanoidRenderer.getArmorLayer().getArmorModel(variant.getChangedEntity(), armorSlot);
-                    afterModel.prepareVisibility(armorSlot, item);
-                    renderMorphedEntity(player,
-                            model,
-                            afterModel,
-                            morphProgress, Color3.WHITE, 1f, stack, buffer, light,
-                            texture, true);
-                    afterModel.unprepareVisibility(armorSlot, item);
+                    try {
+                        afterModel.prepareVisibility(armorSlot, item);
+                        renderMorphedEntity(player,
+                                model,
+                                afterModel,
+                                morphProgress, Color3.WHITE, 1f, stack, buffer, light,
+                                texture, true);
+                        afterModel.unprepareVisibility(armorSlot, item);
+                    } catch (Exception e) {
+                        CrashReport report = CrashReport.forThrowable(e, "Rendering transfurring entity's armor");
+                        CrashReportCategory category = report.addCategory("Armor being rendered");
+                        category.setDetail("Armor Item", item);
+                        category.setDetail("Armor Slot", armorSlot);
+                        throw new ReportedException(report);
+                    }
                 });
             });
 
@@ -621,12 +644,19 @@ public abstract class TransfurAnimator {
                                     return;
 
                                 transitionalAccessory.getAfterModels(slotContextPlayer, latexHumanoidRenderer).forEach(after -> {
-
-                                    renderMorphedEntity(player,
-                                            before.get(),
-                                            after,
-                                            morphProgress, Color3.WHITE, 1f, stack, buffer, light,
-                                            texture.get(), true);
+                                    try {
+                                        renderMorphedEntity(player,
+                                                before.get(),
+                                                after,
+                                                morphProgress, Color3.WHITE, 1f, stack, buffer, light,
+                                                texture.get(), true);
+                                    } catch (Exception e) {
+                                        CrashReport report = CrashReport.forThrowable(e, "Rendering transfurring entity's accessories");
+                                        CrashReportCategory category = report.addCategory("Accessory being rendered");
+                                        category.setDetail("Accessory Item", itemStack);
+                                        category.setDetail("Accessory Slot", slotType.getRegistryName());
+                                        throw new ReportedException(report);
+                                    }
                                 });
                             }
                         });
@@ -681,8 +711,15 @@ public abstract class TransfurAnimator {
             return; // Don't bother rendering
 
         final var color = variant.getTransfurColor();
-        renderMorphedLimb(player, limb, playerHumanoidModel, latexHumanoidRenderer.getModel(variant.getChangedEntity()),
-                morphProgress, color, morphAlpha, stack, buffer, light, texture, false);
+        try {
+            renderMorphedLimb(player, limb, playerHumanoidModel, latexHumanoidRenderer.getModel(variant.getChangedEntity()),
+                    morphProgress, color, morphAlpha, stack, buffer, light, texture, false);
+        } catch (Exception e) {
+            CrashReport report = CrashReport.forThrowable(e, "Rendering transfurring entity's arm");
+            CrashReportCategory category = report.addCategory("Limb being rendered");
+            category.setDetail("Limb Name", limb.getSerializedName());
+            throw new ReportedException(report);
+        }
     }
 
     private static boolean capturingPose = false;
