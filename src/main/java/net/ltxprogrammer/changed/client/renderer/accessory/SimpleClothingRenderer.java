@@ -11,6 +11,7 @@ import net.ltxprogrammer.changed.client.renderer.model.armor.LatexHumanoidArmorM
 import net.ltxprogrammer.changed.data.AccessorySlotContext;
 import net.ltxprogrammer.changed.entity.ChangedEntity;
 import net.ltxprogrammer.changed.item.Clothing;
+import net.ltxprogrammer.changed.util.EntityUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.HumanoidModel;
@@ -49,7 +50,7 @@ public class SimpleClothingRenderer implements AccessoryRenderer, TransitionalAc
 
     @Override
     public Stream<AdvancedHumanoidModel<?>> getAfterModels(AccessorySlotContext<?> slotContext, RenderLayerParent<?,?> renderLayerParent) {
-        if (renderLayerParent instanceof AdvancedHumanoidRenderer advancedHumanoidRenderer && slotContext.wearer() instanceof ChangedEntity wearer) {
+        if (renderLayerParent instanceof AdvancedHumanoidRenderer advancedHumanoidRenderer && EntityUtil.maybeGetOverlaying(slotContext.wearer()) instanceof ChangedEntity wearer) {
             final LatexHumanoidArmorLayer layer = advancedHumanoidRenderer.getArmorLayer();
             return components.stream().map(component -> Optional.of((LatexHumanoidArmorModel<?,?>) layer.modelPicker.getModelSetForSlot(wearer, component.renderAs)
                     .get(component.armorModel))).filter(Optional::isPresent).map(Optional::get);
