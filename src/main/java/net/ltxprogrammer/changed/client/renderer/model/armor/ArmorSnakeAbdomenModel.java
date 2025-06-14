@@ -25,6 +25,7 @@ public class ArmorSnakeAbdomenModel<T extends ChangedEntity> extends LatexHumano
     private final ModelPart Abdomen;
     private final ModelPart LowerAbdomen;
     private final ModelPart Tail;
+    private final ModelPart TailPrimary;
     private final HumanoidAnimator<T, ArmorSnakeAbdomenModel<T>> animator;
 
     public ArmorSnakeAbdomenModel(ModelPart modelPart, ArmorModel model) {
@@ -33,32 +34,31 @@ public class ArmorSnakeAbdomenModel<T extends ChangedEntity> extends LatexHumano
         this.LowerAbdomen = Abdomen.getChild("LowerAbdomen");
         this.Tail = LowerAbdomen.getChild("Tail");
 
-        var tailPrimary = Tail.getChild("TailPrimary");
-        var tailSecondary = tailPrimary.getChild("TailSecondary");
+        this.TailPrimary = Tail.getChild("TailPrimary");
+        var tailSecondary = TailPrimary.getChild("TailSecondary");
         var tailTertiary = tailSecondary.getChild("TailTertiary");
 
         animator = HumanoidAnimator.of(this).hipOffset(-1.5f).torsoLength(9.0f).legLength(9.5f)
                 .addPreset(AnimatorPresets.snakeAbdomenArmor(
                         Abdomen, LowerAbdomen,
-                        Tail, List.of(tailPrimary, tailSecondary, tailTertiary)));
+                        Tail, List.of(TailPrimary, tailSecondary, tailTertiary)));
     }
 
     public static LayerDefinition createArmorLayer(ArmorModel layer) {
-        final float deformationOffset = -0.25F;
         MeshDefinition meshdefinition = new MeshDefinition();
         PartDefinition partdefinition = meshdefinition.getRoot();
 
-        PartDefinition Abdomen = partdefinition.addOrReplaceChild("Abdomen", CubeListBuilder.create().texOffs(40, 7).addBox(-4.0F, 0.5F, -2.0F, 8.0F, 4.0F, 4.0F, layer.deformation.extend(0.05F)), PartPose.offset(0.0F, 8.0F, 0.0F));
+        PartDefinition Abdomen = partdefinition.addOrReplaceChild("Abdomen", CubeListBuilder.create().texOffs(0, 0).addBox(-4.0F, 1F, -2.5F, 8.0F, 2.0F, 5.0F, layer.deformation.extend(-0.2F)), PartPose.offset(0.0F, 8.0F, 0.0F));
 
-        PartDefinition LowerAbdomen = Abdomen.addOrReplaceChild("LowerAbdomen", CubeListBuilder.create().texOffs(0, 20).mirror().addBox(-4.0F, 0.75F, -2.5F, 8.0F, 6.0F, 4.0F, layer.deformation.extend(0.14F)), PartPose.offset(0.0F, 2.75F, 0.5F));
+        PartDefinition LowerAbdomen = Abdomen.addOrReplaceChild("LowerAbdomen", CubeListBuilder.create().texOffs(0, 8).addBox(-4.5F, 0.0F, -3.0F, 9.0F, 6.0F, 5.0F, layer.deformation), PartPose.offset(0.0F, 2.75F, 0.5F));
 
-        PartDefinition Tail = LowerAbdomen.addOrReplaceChild("Tail", CubeListBuilder.create().texOffs(0, 20).addBox(-4.0F, 0.25F, -3.0F, 8.0F, 6.0F, 4.0F, layer.altDeformation.extend(0.21F)), PartPose.offset(0.0F, 5.5F, 0.5F));
+        PartDefinition Tail = LowerAbdomen.addOrReplaceChild("Tail", CubeListBuilder.create().texOffs(0, 20).addBox(-4.0F, 0.25F, -3.0F, 8.0F, 6.0F, 4.0F, layer.dualDeformation.extend(0.25F)), PartPose.offset(0.0F, 5.5F, 0.5F));
 
-        PartDefinition TailPrimary = Tail.addOrReplaceChild("TailPrimary", CubeListBuilder.create().texOffs(40, 21).addBox(-3.5F, 0.25F, -3.0F, 7.0F, 5.0F, 4.0F, layer.altDeformation.extend(0.07F)), PartPose.offset(0.0F, 6.0F, 0.0F));
+        PartDefinition TailPrimary = Tail.addOrReplaceChild("TailPrimary", CubeListBuilder.create().texOffs(40, 21).addBox(-3.5F, 0.25F, -3.0F, 7.0F, 5.0F, 4.0F, layer.altDeformation.extend(0.15F)), PartPose.offset(0.0F, 6.0F, 0.0F));
 
-        PartDefinition TailSecondary = TailPrimary.addOrReplaceChild("TailSecondary", CubeListBuilder.create().texOffs(24, 16).addBox(-3.0F, 0.25F, -3.0F, 6.0F, 5.0F, 4.0F, layer.altDeformation.extend(-0.05F)), PartPose.offset(0.0F, 5.0F, 0.0F));
+        PartDefinition TailSecondary = TailPrimary.addOrReplaceChild("TailSecondary", CubeListBuilder.create().texOffs(24, 16).addBox(-3.0F, 0.25F, -3.0F, 6.0F, 5.0F, 4.0F, layer.altDeformation), PartPose.offset(0.0F, 5.0F, 0.0F));
 
-        PartDefinition TailTertiary = TailSecondary.addOrReplaceChild("TailTertiary", CubeListBuilder.create().texOffs(1, 23).addBox(-2.0F, 0.25F, -2.5F, 4.0F, 5.0F, 3.0F, layer.altDeformation.extend(0.03F)), PartPose.offset(0.0F, 5.0F, 0.0F));
+        PartDefinition TailTertiary = TailSecondary.addOrReplaceChild("TailTertiary", CubeListBuilder.create().texOffs(44, 0).addBox(-2.0F, 0.25F, -2.5F, 4.0F, 3.0F, 3.0F, layer.altDeformation.extend(0.25F)), PartPose.offset(0.0F, 5.0F, 0.0F));
 
         return LayerDefinition.create(meshdefinition, 64, 32);
     }
@@ -72,7 +72,7 @@ public class ArmorSnakeAbdomenModel<T extends ChangedEntity> extends LatexHumano
     public void prepareVisibility(EquipmentSlot armorSlot, ItemStack item) {
         super.prepareVisibility(armorSlot, item);
         if (armorSlot == EquipmentSlot.LEGS) {
-            setAllPartsVisibility(Tail, false);
+            setAllPartsVisibility(TailPrimary, false);
         }
     }
 
@@ -80,7 +80,7 @@ public class ArmorSnakeAbdomenModel<T extends ChangedEntity> extends LatexHumano
     public void unprepareVisibility(EquipmentSlot armorSlot, ItemStack item) {
         super.unprepareVisibility(armorSlot, item);
         if (armorSlot == EquipmentSlot.LEGS) {
-            setAllPartsVisibility(Tail, true);
+            setAllPartsVisibility(TailPrimary, true);
         }
     }
 

@@ -27,6 +27,7 @@ public class ArmorFemaleMantaRayAbdomenModel<T extends ChangedEntity> extends La
     private final ModelPart Abdomen;
     private final ModelPart LowerAbdomen;
     private final ModelPart Tail;
+    private final ModelPart TailPrimary;
     private final HumanoidAnimator<T, ArmorFemaleMantaRayAbdomenModel<T>> animator;
 
     public ArmorFemaleMantaRayAbdomenModel(ModelPart modelPart, ArmorModel model) {
@@ -35,15 +36,15 @@ public class ArmorFemaleMantaRayAbdomenModel<T extends ChangedEntity> extends La
         this.LowerAbdomen = Abdomen.getChild("LowerAbdomen");
         this.Tail = LowerAbdomen.getChild("Tail");
 
-        var tailPrimary = Tail.getChild("TailPrimary");
-        var tailSecondary = tailPrimary.getChild("TailSecondary");
+        this.TailPrimary = Tail.getChild("TailPrimary");
+        var tailSecondary = TailPrimary.getChild("TailSecondary");
         var tailTertiary = tailSecondary.getChild("TailTertiary");
         var tailQuaternary = tailTertiary.getChild("TailQuaternary");
 
         animator = HumanoidAnimator.of(this).hipOffset(-1.5f).torsoLength(9.0f).legLength(9.5f)
                 .addPreset(AnimatorPresets.leglessMantaRayAbdomenArmor(
                         Abdomen, LowerAbdomen,
-                        Tail, List.of(tailPrimary, tailSecondary, tailTertiary, tailQuaternary)));
+                        Tail, List.of(TailPrimary, tailSecondary, tailTertiary, tailQuaternary)));
     }
 
     public static LayerDefinition createArmorLayer(ArmorModel layer) {
@@ -54,7 +55,7 @@ public class ArmorFemaleMantaRayAbdomenModel<T extends ChangedEntity> extends La
 
         PartDefinition LowerAbdomen = Abdomen.addOrReplaceChild("LowerAbdomen", CubeListBuilder.create().texOffs(0, 8).addBox(-4.5F, -1.0F, -1.75F, 9.0F, 7.0F, 5.0F, layer.deformation), PartPose.offset(0.0F, 4.5F, -0.6F));
 
-        PartDefinition Tail = LowerAbdomen.addOrReplaceChild("Tail", CubeListBuilder.create().texOffs(0, 20).addBox(-4.0F, -0.75F, -2.0F, 8.0F, 6.0F, 4.0F, layer.altDeformation.extend(0.65F)), PartPose.offset(0.0F, 6.0F, 0.5F));
+        PartDefinition Tail = LowerAbdomen.addOrReplaceChild("Tail", CubeListBuilder.create().texOffs(0, 20).addBox(-4.0F, -0.75F, -2.0F, 8.0F, 6.0F, 4.0F, layer.dualDeformation.extend(0.65F)), PartPose.offset(0.0F, 6.0F, 0.5F));
 
         PartDefinition TailPrimary = Tail.addOrReplaceChild("TailPrimary", CubeListBuilder.create().texOffs(40, 21).addBox(-3.5F, -0.25F, -2.0F, 7.0F, 5.0F, 4.0F, layer.altDeformation.extend(0.26F)), PartPose.offset(0.0F, 4.75F, 0.0F));
 
@@ -76,7 +77,7 @@ public class ArmorFemaleMantaRayAbdomenModel<T extends ChangedEntity> extends La
     public void prepareVisibility(EquipmentSlot armorSlot, ItemStack item) {
         super.prepareVisibility(armorSlot, item);
         if (armorSlot == EquipmentSlot.LEGS) {
-            setAllPartsVisibility(Tail, false);
+            setAllPartsVisibility(TailPrimary, false);
         }
     }
 
@@ -84,7 +85,7 @@ public class ArmorFemaleMantaRayAbdomenModel<T extends ChangedEntity> extends La
     public void unprepareVisibility(EquipmentSlot armorSlot, ItemStack item) {
         super.unprepareVisibility(armorSlot, item);
         if (armorSlot == EquipmentSlot.LEGS) {
-            setAllPartsVisibility(Tail, true);
+            setAllPartsVisibility(TailPrimary, true);
         }
     }
 
