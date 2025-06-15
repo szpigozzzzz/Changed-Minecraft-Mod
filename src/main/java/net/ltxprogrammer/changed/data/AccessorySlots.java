@@ -153,6 +153,15 @@ public class AccessorySlots implements Container {
                     return ItemStack.EMPTY;
                 }));
 
+        items.entrySet().stream().filter(entry -> !entry.getKey().canHoldItem(entry.getValue(), this.owner))
+                .filter(entry -> !entry.getValue().isEmpty())
+                .map(Map.Entry::getKey)
+                .forEach(slotType -> {
+                    removed.accept(items.get(slotType));
+                    items.put(slotType, ItemStack.EMPTY);
+                    stateChanged.set(true);
+                });
+
         orderedSlots.clear();
         return stateChanged.getAcquire();
     }

@@ -4,7 +4,9 @@ import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Multimap;
 import net.ltxprogrammer.changed.data.AccessorySlotType;
 import net.ltxprogrammer.changed.entity.robot.AbstractRobot;
+import net.ltxprogrammer.changed.entity.variant.TransfurVariantInstance;
 import net.ltxprogrammer.changed.init.ChangedTags;
+import net.ltxprogrammer.changed.process.ProcessTransfur;
 import net.ltxprogrammer.changed.util.Cacheable;
 import net.ltxprogrammer.changed.util.EntityUtil;
 import net.minecraft.world.entity.EntityType;
@@ -43,7 +45,10 @@ public class ExoskeletonItem<T extends AbstractRobot> extends PlaceableEntity<T>
 
     @Override
     public boolean allowedInSlot(ItemStack itemStack, LivingEntity wearer, AccessorySlotType slot) {
-        return EntityUtil.maybeGetOverlaying(wearer).getType().is(ChangedTags.EntityTypes.CAN_WEAR_EXOSKELETON);
+        boolean isTransfurring = ProcessTransfur.getPlayerTransfurVariantSafe(EntityUtil.playerOrNull(wearer)).map(variant -> variant.transfurProgression)
+                .map(progress -> progress < 1f).orElse(false);
+
+        return !isTransfurring && EntityUtil.maybeGetOverlaying(wearer).getType().is(ChangedTags.EntityTypes.CAN_WEAR_EXOSKELETON);
     }
 
     // TODO: extend functionality to allow custom values

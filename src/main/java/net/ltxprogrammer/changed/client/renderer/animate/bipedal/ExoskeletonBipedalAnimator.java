@@ -34,8 +34,8 @@ public class ExoskeletonBipedalAnimator<T extends ChangedEntity, M extends Advan
 
         rightLegLower.xRot = Mth.DEG_TO_RAD * 25.0f;
         leftLegLower.xRot = Mth.DEG_TO_RAD * 25.0f;
-        rightFoot.xRot = Mth.DEG_TO_RAD * 32.5f;
-        leftFoot.xRot = Mth.DEG_TO_RAD * 32.5f;
+        rightFoot.xRot = 0f;
+        leftFoot.xRot = 0f;
 
         rightPad.xRot = Mth.DEG_TO_RAD * 20f;
         rightPad.zRot = 0f;

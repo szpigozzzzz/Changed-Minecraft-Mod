@@ -3,11 +3,15 @@ package net.ltxprogrammer.changed.mixin.render;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.ltxprogrammer.changed.client.ClientLivingEntityExtender;
 import net.ltxprogrammer.changed.client.LivingEntityRendererExtender;
+import net.ltxprogrammer.changed.client.renderer.accessory.WornExoskeletonRenderer;
+import net.ltxprogrammer.changed.client.renderer.layers.AccessoryLayer;
 import net.ltxprogrammer.changed.client.tfanimations.TransfurAnimator;
+import net.ltxprogrammer.changed.entity.robot.Exoskeleton;
 import net.ltxprogrammer.changed.util.EntityUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.HumanoidModel;
+import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
@@ -105,5 +109,16 @@ public abstract class LivingEntityRendererMixin<T extends LivingEntity, M extend
             at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/vertex/PoseStack;popPose()V"))
     public void afterRender(T entity, float yRot, float partialTicks, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight, CallbackInfo ci) {
         this.unprepareLayers(entity);
+    }
+
+    @Inject(method = "setupRotations", at = @At("HEAD"))
+    protected void setupModdedPose(T entity, PoseStack poseStack, float p_115319_, float p_115320_, float p_115321_, CallbackInfo ci) {
+        Exoskeleton.getEntityExoskeleton(entity).ifPresent(pair -> {
+            AccessoryLayer.getRenderer(pair.getSecond()).ifPresent(renderer -> {
+                if (renderer instanceof WornExoskeletonRenderer exoRenderer) {
+                    exoRenderer.getModel().animateWearerPose(entity, this.model, poseStack, pair.getFirst());
+                }
+            });
+        });
     }
 }

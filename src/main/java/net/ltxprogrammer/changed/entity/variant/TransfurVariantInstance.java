@@ -72,6 +72,8 @@ public abstract class TransfurVariantInstance<T extends ChangedEntity> {
     public TransfurMode transfurMode;
     public VisionType visionType;
     public MiningStrength miningStrength;
+    public UseItemMode itemUseMode;
+    public float jumpStrength;
     public int ageAsVariant = 0;
     protected int air = -100;
     protected int jumpCharges = 0;
@@ -221,6 +223,8 @@ public abstract class TransfurVariantInstance<T extends ChangedEntity> {
         this.transfurMode = parent.transfurMode;
         this.visionType = parent.visionType;
         this.miningStrength = parent.miningStrength;
+        this.itemUseMode = parent.itemUseMode;
+        this.jumpStrength = parent.jumpStrength;
 
         var builder = new ImmutableMap.Builder<AbstractAbility<?>, AbstractAbilityInstance>();
         parent.abilities.forEach(abilityFunction -> {
@@ -911,7 +915,7 @@ public abstract class TransfurVariantInstance<T extends ChangedEntity> {
             host.maxUpStep = parent.stepSize;
 
         // Effects
-        if (parent.visionType == VisionType.BLIND) {
+        if (visionType == VisionType.BLIND) {
             host.addEffect(new MobEffectInstance(MobEffects.BLINDNESS, 20, 1, false, false, false));
         }
 
@@ -1011,7 +1015,7 @@ public abstract class TransfurVariantInstance<T extends ChangedEntity> {
         if (instance != null && instance.shouldAnimateArms())
             return UseItemMode.NONE;
         else
-            return parent.itemUseMode;
+            return itemUseMode;
     }
 
     public float getSwimEfficiency() {

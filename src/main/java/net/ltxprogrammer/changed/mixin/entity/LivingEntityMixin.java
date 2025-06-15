@@ -3,6 +3,7 @@ package net.ltxprogrammer.changed.mixin.entity;
 import net.ltxprogrammer.changed.Changed;
 import net.ltxprogrammer.changed.ability.AbstractAbility;
 import net.ltxprogrammer.changed.ability.GrabEntityAbility;
+import net.ltxprogrammer.changed.ability.IAbstractChangedEntity;
 import net.ltxprogrammer.changed.block.StasisChamber;
 import net.ltxprogrammer.changed.block.ThreeXThreeSection;
 import net.ltxprogrammer.changed.block.WearableBlock;
@@ -124,7 +125,15 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityDa
 
     @Inject(method = "getJumpPower", at = @At("RETURN"), cancellable = true)
     public void getJumpPower(CallbackInfoReturnable<Float> callback) {
-        ProcessTransfur.getEntityVariant((LivingEntity)(Object)this).map(variant -> callback.getReturnValue() * variant.jumpStrength).ifPresent(callback::setReturnValue);
+        var instance = IAbstractChangedEntity.forEitherSafe((LivingEntity)(Object)this).map(IAbstractChangedEntity::getTransfurVariantInstance).orElse(null);
+        if (instance != null) {
+            callback.setReturnValue(callback.getReturnValue() * instance.jumpStrength);
+        }
+
+        else {
+            ProcessTransfur.getEntityVariant((LivingEntity)(Object)this).map(variant -> callback.getReturnValue() * variant.jumpStrength).ifPresent(callback::setReturnValue);
+        }
+
         Exoskeleton.getEntityExoskeleton((LivingEntity)(Object)this)
                         .ifPresent(pair -> {
                             callback.setReturnValue(callback.getReturnValue() * pair.getSecond().getJumpStrengthMultiplier(pair.getFirst()));

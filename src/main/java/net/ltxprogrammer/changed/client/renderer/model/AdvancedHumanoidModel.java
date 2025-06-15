@@ -5,6 +5,8 @@ import net.ltxprogrammer.changed.client.ClientLivingEntityExtender;
 import net.ltxprogrammer.changed.client.ModelPartStem;
 import net.ltxprogrammer.changed.client.PoseStackExtender;
 import net.ltxprogrammer.changed.client.renderer.ExoskeletonRenderer;
+import net.ltxprogrammer.changed.client.renderer.accessory.WornExoskeletonRenderer;
+import net.ltxprogrammer.changed.client.renderer.layers.AccessoryLayer;
 import net.ltxprogrammer.changed.client.tfanimations.HelperModel;
 import net.ltxprogrammer.changed.client.animations.Limb;
 import net.ltxprogrammer.changed.client.renderer.animate.HumanoidAnimator;
@@ -91,6 +93,14 @@ public abstract class AdvancedHumanoidModel<T extends ChangedEntity> extends Pla
     public void setupAnim(T entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
         ((ClientLivingEntityExtender)entity.maybeGetUnderlying()).getOrderedAnimations().forEach(instance -> {
             instance.animate(this, Mth.positiveModulo(ageInTicks, 1.0f));
+        });
+
+        Exoskeleton.getEntityExoskeleton(entity).ifPresent(pair -> {
+            AccessoryLayer.getRenderer(pair.getSecond()).ifPresent(renderer -> {
+                if (renderer instanceof WornExoskeletonRenderer exoRenderer) {
+                    exoRenderer.getModel().animateWearerLimbs(this, pair.getFirst());
+                }
+            });
         });
 
         this.syncPropertyModel(entity);

@@ -52,8 +52,7 @@ public class UpperBodyAttackAnimator<T extends ChangedEntity, M extends Advanced
     }
 
     protected void setupAttackAnimation(T entity, float ageInTicks) {
-        var self = entity.getSelfVariant();
-        if (self.itemUseMode != UseItemMode.NORMAL)
+        if (entity.getItemUseMode() != UseItemMode.NORMAL)
             return;
 
         var entityContext = core.entityContextOf(entity, ageInTicks - entity.tickCount);
