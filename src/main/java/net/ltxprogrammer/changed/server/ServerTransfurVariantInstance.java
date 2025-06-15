@@ -81,7 +81,7 @@ public class ServerTransfurVariantInstance<T extends ChangedEntity> extends Tran
     protected void tickBreathing() {
         super.tickBreathing();
 
-        if (host.isAlive() && parent.breatheMode.canBreatheWater() && shouldApplyAbilities() && host.isEyeInFluid(FluidTags.WATER)) {
+        if (host.isAlive() && breatheMode.canBreatheWater() && shouldApplyAbilities() && host.isEyeInFluid(FluidTags.WATER)) {
             ChangedCriteriaTriggers.AQUATIC_BREATHE.trigger(host, this.ticksBreathingUnderwater);
         }
     }

@@ -28,7 +28,7 @@ public abstract class EnchantmentHelperMixin {
     @Inject(method = "hasAquaAffinity", at = @At("HEAD"), cancellable = true)
     private static void hasAquaAffinity(LivingEntity le, CallbackInfoReturnable<Boolean> callback) {
         ProcessTransfur.ifPlayerTransfurred(EntityUtil.playerOrNull(le), variant -> {
-            if (variant.getParent().breatheMode.hasAquaAffinity())
+            if (variant.breatheMode.hasAquaAffinity())
                 callback.setReturnValue(true);
         });
     }
@@ -36,7 +36,7 @@ public abstract class EnchantmentHelperMixin {
     @Inject(method = "getRespiration", at = @At("RETURN"), cancellable = true)
     private static void getRespirationOrIfStrong(LivingEntity le, CallbackInfoReturnable<Integer> callback) {
         ProcessTransfur.ifPlayerTransfurred(EntityUtil.playerOrNull(le), variant -> {
-            if (variant.getParent().breatheMode == TransfurVariant.BreatheMode.STRONG)
+            if (variant.breatheMode == TransfurVariant.BreatheMode.STRONG)
                 callback.setReturnValue(Math.max(callback.getReturnValue(), 4));
         });
     }

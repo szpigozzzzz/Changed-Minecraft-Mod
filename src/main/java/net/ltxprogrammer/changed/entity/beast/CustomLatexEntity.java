@@ -6,6 +6,7 @@ import net.ltxprogrammer.changed.entity.ChangedEntity;
 import net.ltxprogrammer.changed.entity.LatexType;
 import net.ltxprogrammer.changed.entity.TransfurMode;
 import net.ltxprogrammer.changed.entity.variant.EntityShape;
+import net.ltxprogrammer.changed.entity.variant.TransfurVariant;
 import net.ltxprogrammer.changed.process.ProcessTransfur;
 import net.ltxprogrammer.changed.util.Color3;
 import net.minecraft.nbt.CompoundTag;
@@ -195,14 +196,27 @@ public class CustomLatexEntity extends ChangedEntity {
     // 0000 0000 0000 0000 0000 0000 0000 0000
     // 8 Fields can be serialized, each having 16 different possible values
     public static final EntityDataAccessor<Integer> DATA_FORM_FLAGS = SynchedEntityData.defineId(CustomLatexEntity.class, EntityDataSerializers.INT);
+    private int formFlagsLast = -1;
 
     public void updateShape() {
         this.setAttributes(getAttributes());
         this.refreshDimensions();
 
         ProcessTransfur.ifPlayerTransfurred(this.getUnderlyingPlayer(), variant -> {
+            variant.jumpStrength = this.getTailType() == TailType.CAT ? 1.25f : 1.0f;
+            variant.breatheMode = switch (this.getTailType()) {
+                case CAT -> TransfurVariant.BreatheMode.WEAK;
+                case SHARK -> TransfurVariant.BreatheMode.ANY;
+                default -> TransfurVariant.BreatheMode.NORMAL;
+            };
+
+            if (this.getLegType() == LegType.MERMAID)
+                variant.breatheMode = TransfurVariant.BreatheMode.ANY;
+
             variant.refreshAttributes();
         });
+
+        this.formFlagsLast = this.getRawFormFlags();
     }
 
     protected EntityDimensions getDimensionsForForm() {
@@ -440,6 +454,15 @@ public class CustomLatexEntity extends ChangedEntity {
                     default -> AttributePresets.playerLike(attributes);
                 }
             }
+        }
+    }
+
+    @Override
+    public void variantTick(Level level) {
+        super.variantTick(level);
+
+        if (this.getRawFormFlags() != formFlagsLast) {
+            this.updateShape();
         }
     }
 }

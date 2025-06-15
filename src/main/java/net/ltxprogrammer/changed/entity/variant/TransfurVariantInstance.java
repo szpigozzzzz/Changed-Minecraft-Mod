@@ -70,6 +70,7 @@ public abstract class TransfurVariantInstance<T extends ChangedEntity> {
     public AbstractAbility<?> menuAbility = null;
     public boolean abilityKeyState = false;
     public TransfurMode transfurMode;
+    public TransfurVariant.BreatheMode breatheMode;
     public VisionType visionType;
     public MiningStrength miningStrength;
     public UseItemMode itemUseMode;
@@ -221,6 +222,7 @@ public abstract class TransfurVariantInstance<T extends ChangedEntity> {
         this.host = host;
 
         this.transfurMode = parent.transfurMode;
+        this.breatheMode = parent.breatheMode;
         this.visionType = parent.visionType;
         this.miningStrength = parent.miningStrength;
         this.itemUseMode = parent.itemUseMode;
@@ -764,7 +766,7 @@ public abstract class TransfurVariantInstance<T extends ChangedEntity> {
     }
 
     protected void tickBreathing() {
-        if (host.isAlive() && parent.breatheMode.canBreatheWater() && shouldApplyAbilities()) {
+        if (host.isAlive() && breatheMode.canBreatheWater() && shouldApplyAbilities()) {
             if (air == -100) {
                 air = host.getAirSupply();
             }
@@ -778,7 +780,7 @@ public abstract class TransfurVariantInstance<T extends ChangedEntity> {
             }
 
             //if the player is on land and the entity suffocates
-            else if (!parent.breatheMode.canBreatheAir()) {
+            else if (!breatheMode.canBreatheAir()) {
                 //taken from decreaseAirSupply in Living Entity
                 int i = EnchantmentHelper.getRespiration(host);
                 air = i > 0 && host.getRandom().nextInt(i + 1) > 0 ? air : air - 1;
@@ -798,7 +800,7 @@ public abstract class TransfurVariantInstance<T extends ChangedEntity> {
             }
         }
 
-        else if (host.isAlive() && !parent.breatheMode.canBreatheWater() && parent.breatheMode == TransfurVariant.BreatheMode.WEAK && shouldApplyAbilities()) {
+        else if (host.isAlive() && !breatheMode.canBreatheWater() && breatheMode == TransfurVariant.BreatheMode.WEAK && shouldApplyAbilities()) {
             //if the player is in water, remove more air
             if (host.isEyeInFluid(FluidTags.WATER)) {
                 int air = host.getAirSupply();
@@ -809,7 +811,7 @@ public abstract class TransfurVariantInstance<T extends ChangedEntity> {
         }
 
         // Air is fixed, doesn't increase or decrease
-        else if (host.isAlive() && parent.breatheMode == TransfurVariant.BreatheMode.NONE && shouldApplyAbilities()) {
+        else if (host.isAlive() && breatheMode == TransfurVariant.BreatheMode.NONE && shouldApplyAbilities()) {
             if (air == -100) {
                 air = host.getAirSupply();
             }
