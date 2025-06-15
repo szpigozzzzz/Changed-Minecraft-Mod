@@ -17,8 +17,8 @@ import net.minecraftforge.common.ForgeMod;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class LatexHyenaTaur extends WhiteLatexKnight implements LatexTaur<LatexHyenaTaur> {
-    public LatexHyenaTaur(EntityType<? extends LatexHyenaTaur> p_19870_, Level p_19871_) {
+public class LatexGnollTaur extends WhiteLatexKnight implements LatexTaur<LatexGnollTaur> {
+    public LatexGnollTaur(EntityType<? extends LatexGnollTaur> p_19870_, Level p_19871_) {
         super(p_19870_, p_19871_);
     }
 
@@ -43,7 +43,7 @@ public class LatexHyenaTaur extends WhiteLatexKnight implements LatexTaur<LatexH
 
     @Override
     public TransfurVariant<?> getTransfurVariant() {
-        return ChangedTransfurVariants.LATEX_HYENA_TAUR.get();
+        return ChangedTransfurVariants.LATEX_GNOLL_TAUR.get();
     }
 
     @Override

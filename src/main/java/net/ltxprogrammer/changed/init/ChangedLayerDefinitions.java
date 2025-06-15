@@ -1,13 +1,11 @@
 package net.ltxprogrammer.changed.init;
 
-import net.ltxprogrammer.changed.Changed;
 import net.ltxprogrammer.changed.client.renderer.blockentity.LatexContainerRenderer;
 import net.ltxprogrammer.changed.client.renderer.blockentity.PillowRenderer;
 import net.ltxprogrammer.changed.client.renderer.layers.CustomEyesLayer;
 import net.ltxprogrammer.changed.client.renderer.layers.TransfurCapeLayer;
 import net.ltxprogrammer.changed.client.renderer.model.*;
 import net.ltxprogrammer.changed.client.renderer.model.armor.*;
-import net.ltxprogrammer.changed.client.renderer.model.hair.HairRemodel;
 import net.ltxprogrammer.changed.client.tfanimations.TransfurHelper;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.EntityRenderersEvent;
@@ -18,8 +16,6 @@ import net.minecraftforge.fml.common.Mod;
 public class ChangedLayerDefinitions {
     @SubscribeEvent
     public static void registerLayerDefinitions(EntityRenderersEvent.RegisterLayerDefinitions event) {
-        final boolean useNewModels = Changed.config.client.useNewModels.get();
-
         event.registerLayerDefinition(CustomEyesLayer.HEAD, CustomEyesLayer::createHead);
         event.registerLayerDefinition(DarkLatexMaskModel.LAYER_LOCATION, DarkLatexMaskModel::createMask);
         event.registerLayerDefinition(TransfurCapeLayer.LAYER_LOCATION, TransfurCapeLayer::createCape);
@@ -109,7 +105,7 @@ public class ChangedLayerDefinitions {
         event.registerLayerDefinition(LatexWhiteTigerModel.LAYER_LOCATION, LatexWhiteTigerModel::createBodyLayer);
         event.registerLayerDefinition(LatexYuinModel.LAYER_LOCATION, LatexYuinModel::createBodyLayer);
         event.registerLayerDefinition(WhiteLatexCentaurModel.LAYER_LOCATION, WhiteLatexCentaurModel::createBodyLayer);
-        event.registerLayerDefinition(LatexHyenaTaurModel.LAYER_LOCATION, LatexHyenaTaurModel::createBodyLayer);
+        event.registerLayerDefinition(LatexGnollTaurModel.LAYER_LOCATION, LatexGnollTaurModel::createBodyLayer);
         event.registerLayerDefinition(WhiteLatexKnightModel.LAYER_LOCATION, WhiteLatexKnightModel::createBodyLayer);
         event.registerLayerDefinition(WhiteLatexKnightFusionModel.LAYER_LOCATION, WhiteLatexKnightFusionModel::createBodyLayer);
         event.registerLayerDefinition(WhiteLatexWolfFemaleModel.LAYER_LOCATION, WhiteLatexWolfFemaleModel::createBodyLayer);
@@ -165,10 +161,9 @@ public class ChangedLayerDefinitions {
         ArmorLatexStigerModel.MODEL_SET.registerDefinitions(event::registerLayerDefinition);
         ArmorPooltoyWolfModel.MODEL_SET.registerDefinitions(event::registerLayerDefinition);
 
-        if (useNewModels) {
-            event.registerLayerDefinition(HairRemodel.RIG_UPPER_LOCATION, HairRemodel::createUpperHair);
-            event.registerLayerDefinition(HairRemodel.RIG_LOWER_LOCATION, HairRemodel::createLowerHair);
-        }
+        // TODO maybe revisit custom hair in the future
+        /*event.registerLayerDefinition(HairRemodel.RIG_UPPER_LOCATION, HairRemodel::createUpperHair);
+        event.registerLayerDefinition(HairRemodel.RIG_LOWER_LOCATION, HairRemodel::createLowerHair);*/
 
         event.registerLayerDefinition(RoombaModel.LAYER_LOCATION, RoombaModel::createBodyLayer);
         event.registerLayerDefinition(ExoskeletonModel.LAYER_LOCATION_SUIT, ExoskeletonModel::createSuitLayer);

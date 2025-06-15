@@ -113,9 +113,9 @@ public class ChangedEntities {
     public static final RegistryObject<EntityType<WhiteLatexCentaur>> WHITE_LATEX_CENTAUR = registerSpawning("white_latex_centaur", 0xFFFFFF, 0x1E1E1E,
             EntityType.Builder.of(WhiteLatexCentaur::new, ChangedMobCategories.CHANGED).clientTrackingRange(10).sized(1.1F, 2.0F),
             ChangedEntities::overworldOnly, SpawnPlacements.Type.ON_GROUND, WhiteLatexCentaur::checkEntitySpawnRules);
-    public static final RegistryObject<EntityType<LatexHyenaTaur>> LATEX_HYENA_TAUR = registerSpawning("latex_hyena_taur", 0xffbf75, 0xc0604d,
-            EntityType.Builder.of(LatexHyenaTaur::new, MobCategory.MONSTER).clientTrackingRange(10).sized(1.1F, 2.0F),
-            ChangedEntities::overworldOnly, SpawnPlacements.Type.ON_GROUND, LatexHyenaTaur::checkEntitySpawnRules);
+    public static final RegistryObject<EntityType<LatexGnollTaur>> LATEX_GNOLL_TAUR = registerSpawning("latex_gnoll_taur", 0xffbf75, 0xc0604d,
+            EntityType.Builder.of(LatexGnollTaur::new, MobCategory.MONSTER).clientTrackingRange(10).sized(1.1F, 2.0F),
+            ChangedEntities::overworldOnly, SpawnPlacements.Type.ON_GROUND, LatexGnollTaur::checkEntitySpawnRules);
     public static final RegistryObject<EntityType<HeadlessKnight>> HEADLESS_KNIGHT = registerSpawning("headless_knight", 0xFFFFFF, 0x1E1E1E,
             EntityType.Builder.of(HeadlessKnight::new, ChangedMobCategories.CHANGED).clientTrackingRange(10).sized(1.1F, 1.1F),
             ChangedEntities::overworldOnly, SpawnPlacements.Type.ON_GROUND, HeadlessKnight::checkEntitySpawnRules);
@@ -533,7 +533,7 @@ public class ChangedEntities {
             if (event.getCategory() == Biome.BiomeCategory.SAVANNA) {
                 ChangedBiomeInterface.addSpawn(spawns, ChangedMobCategories.CHANGED, LATEX_HYPNO_CAT, 60, 1, 3, 0.7, 0.15);
                 ChangedBiomeInterface.addSpawn(spawns, ChangedMobCategories.CHANGED, LATEX_MEDUSA_CAT, 40, 1, 3, 0.7, 0.15);
-                ChangedBiomeInterface.addSpawn(spawns, ChangedMobCategories.CHANGED, LATEX_HYENA_TAUR, 40, 1, 3, 0.7, 0.15);
+                ChangedBiomeInterface.addSpawn(spawns, ChangedMobCategories.CHANGED, LATEX_GNOLL_TAUR, 40, 1, 3, 0.7, 0.15);
                 ChangedBiomeInterface.addSpawn(spawns, ChangedMobCategories.CHANGED, GREEN_LIZARD, 20, 1, 2, 0.7, 0.15);
                 ChangedBiomeInterface.addSpawn(spawns, ChangedMobCategories.CHANGED, LATEX_GOLDEN_DRAGON, 10, 1, 3, 0.7, 0.15);
             }

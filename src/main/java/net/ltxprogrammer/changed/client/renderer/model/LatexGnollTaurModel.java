@@ -9,7 +9,7 @@ import net.ltxprogrammer.changed.client.renderer.animate.tail.WolfTailInitAnimat
 import net.ltxprogrammer.changed.client.tfanimations.HelperModel;
 import net.ltxprogrammer.changed.client.animations.Limb;
 import net.ltxprogrammer.changed.client.tfanimations.TransfurHelper;
-import net.ltxprogrammer.changed.entity.beast.LatexHyenaTaur;
+import net.ltxprogrammer.changed.entity.beast.LatexGnollTaur;
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
@@ -19,9 +19,9 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
-public class LatexHyenaTaurModel extends AdvancedHumanoidModel<LatexHyenaTaur> implements AdvancedHumanoidModelInterface<LatexHyenaTaur, LatexHyenaTaurModel>, LowerTorsoedModel {
+public class LatexGnollTaurModel extends AdvancedHumanoidModel<LatexGnollTaur> implements AdvancedHumanoidModelInterface<LatexGnollTaur, LatexGnollTaurModel>, LowerTorsoedModel {
     // This layer location should be baked with EntityRendererProvider.Context in the entity renderer and passed into this model's constructor
-    public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(Changed.modResource("latex_hyena_taur"), "main");
+    public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(Changed.modResource("latex_gnoll_taur"), "main");
     private final ModelPart FrontRightLeg;
     private final ModelPart FrontLeftLeg;
     private final ModelPart BackRightLeg;
@@ -33,9 +33,9 @@ public class LatexHyenaTaurModel extends AdvancedHumanoidModel<LatexHyenaTaur> i
     private final ModelPart LowerTorso;
     private final ModelPart Saddle;
     private final ModelPart Tail;
-    private final HumanoidAnimator<LatexHyenaTaur, LatexHyenaTaurModel> animator;
+    private final HumanoidAnimator<LatexGnollTaur, LatexGnollTaurModel> animator;
 
-    public LatexHyenaTaurModel(ModelPart root) {
+    public LatexGnollTaurModel(ModelPart root) {
         super(root);
         this.Head = root.getChild("Head");
         this.Torso = root.getChild("Torso");
@@ -179,16 +179,16 @@ public class LatexHyenaTaurModel extends AdvancedHumanoidModel<LatexHyenaTaur> i
     }
 
     @Override
-    public void prepareMobModel(LatexHyenaTaur p_102861_, float p_102862_, float p_102863_, float p_102864_) {
+    public void prepareMobModel(LatexGnollTaur p_102861_, float p_102862_, float p_102863_, float p_102864_) {
         this.prepareMobModel(animator, p_102861_, p_102862_, p_102863_, p_102864_);
     }
 
-    public void setupHand(LatexHyenaTaur entity) {
+    public void setupHand(LatexGnollTaur entity) {
         animator.setupHand();
     }
 
     @Override
-    public void setupAnim(@NotNull LatexHyenaTaur entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
+    public void setupAnim(@NotNull LatexGnollTaur entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
         animator.setupAnim(entity, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch);
         super.setupAnim(entity, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch);
     }
@@ -244,7 +244,7 @@ public class LatexHyenaTaurModel extends AdvancedHumanoidModel<LatexHyenaTaur> i
     }
 
     @Override
-    public HumanoidAnimator<LatexHyenaTaur, LatexHyenaTaurModel> getAnimator(LatexHyenaTaur entity) {
+    public HumanoidAnimator<LatexGnollTaur, LatexGnollTaurModel> getAnimator(LatexGnollTaur entity) {
         return animator;
     }
 
