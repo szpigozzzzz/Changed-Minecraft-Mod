@@ -102,6 +102,8 @@ public abstract class ChangedEntity extends Monster {
     }
 
     final Map<SpringType.Direction, EnumMap<SpringType, SpringType.Simulator>> simulatedSprings;
+    protected int blinkFatigue = 0;
+    protected int blinkDuration = 0;
 
     public BasicPlayerInfo getBasicPlayerInfo() {
         if (underlyingPlayer instanceof PlayerDataExtension ext) {
@@ -991,6 +993,38 @@ public abstract class ChangedEntity extends Monster {
                 simulator.tick(deltaVelocity);
             });
         });
+
+        this.tickBlink();
+    }
+
+    private static final int BLINK_MIN = 80;
+    private static final int BLINK_MAX = 160;
+    protected void tickBlink() {
+        if (this.isSleeping()) {
+            blinkDuration = 5;
+        }
+
+        if (blinkDuration <= 0)
+            blinkFatigue++;
+        else {
+            blinkFatigue = 0;
+            blinkDuration--;
+        }
+
+        if (blinkFatigue > BLINK_MIN) {
+            if (blinkFatigue > BLINK_MAX)
+                blink();
+            else if (random.nextInt(0, BLINK_MAX - BLINK_MIN) < blinkFatigue - BLINK_MIN)
+                blink();
+        }
+    }
+
+    public void blink() {
+        blinkDuration = 3;
+    }
+
+    public boolean isBlinking() {
+        return blinkDuration > 0;
     }
 
     public float getVerticalSpringOffset() {

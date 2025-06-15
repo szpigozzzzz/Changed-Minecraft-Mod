@@ -2,13 +2,12 @@ package net.ltxprogrammer.changed.client.renderer.layers;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.mojang.math.Vector3f;
-import com.mojang.math.Vector4f;
 import net.ltxprogrammer.changed.Changed;
 import net.ltxprogrammer.changed.client.renderer.model.AdvancedHumanoidModel;
 import net.ltxprogrammer.changed.client.renderer.model.AdvancedHumanoidModelInterface;
 import net.ltxprogrammer.changed.entity.BasicPlayerInfo;
 import net.ltxprogrammer.changed.entity.ChangedEntity;
+import net.ltxprogrammer.changed.entity.EyeStyle;
 import net.ltxprogrammer.changed.extension.ChangedCompatibility;
 import net.ltxprogrammer.changed.util.Color3;
 import net.minecraft.client.Minecraft;
@@ -121,6 +120,8 @@ public class CustomEyesLayer<M extends AdvancedHumanoidModel<T>, T extends Chang
     private final ColorFunction<T> irisColorRightFn;
     private final ColorFunction<T> eyeBrowsColorFn;
     private final ColorFunction<T> eyeLashesColorFn;
+
+    private static final ColorData BLINK_COLOR = ColorData.ofColor(Color3.fromInt(0x6d6d6d));
 
     private HeadShape headShape = HeadShape.NORMAL;
 
@@ -263,21 +264,30 @@ public class CustomEyesLayer<M extends AdvancedHumanoidModel<T>, T extends Chang
             modelInterface.scaleForHead(pose);
 
         pose.scale(zFightOffset + 1.0f, zFightOffset + 1.0f, zFightOffset + 1.0f);
-        scleraColorFn.getColorSafe(entity, info).ifPresent(data -> {
-            renderHead(pose, bufferSource.getBuffer(data.getRenderType(style.getSclera())), packedLight, overlay, data.color, data.alpha);
-        });
-        irisColorLeftFn.getColorSafe(entity, info).ifPresent(data -> {
-            renderHead(pose, bufferSource.getBuffer(data.getRenderType(style.getLeftIris())), packedLight, overlay, data.color, data.alpha);
-        });
-        irisColorRightFn.getColorSafe(entity, info).ifPresent(data -> {
-            renderHead(pose, bufferSource.getBuffer(data.getRenderType(style.getRightIris())), packedLight, overlay, data.color, data.alpha);
-        });
-        eyeBrowsColorFn.getColorSafe(entity, info).ifPresent(data -> {
-            renderHead(pose, bufferSource.getBuffer(data.getRenderType(style.getEyeBrows())), packedLight, overlay, data.color, data.alpha);
-        });
-        eyeLashesColorFn.getColorSafe(entity, info).ifPresent(data -> {
-            renderHead(pose, bufferSource.getBuffer(data.getRenderType(style.getEyeLashes())), packedLight, overlay, data.color, data.alpha);
-        });
+
+        if (Changed.config.client.useBlinkingEyes.get() && entity.isBlinking()) {
+            renderHead(pose, bufferSource.getBuffer(BLINK_COLOR.getRenderType(EyeStyle.V2.getSclera())), packedLight, overlay, BLINK_COLOR.color, BLINK_COLOR.alpha);
+            renderHead(pose, bufferSource.getBuffer(BLINK_COLOR.getRenderType(EyeStyle.V2.getLeftIris())), packedLight, overlay, BLINK_COLOR.color, BLINK_COLOR.alpha);
+            renderHead(pose, bufferSource.getBuffer(BLINK_COLOR.getRenderType(EyeStyle.V2.getRightIris())), packedLight, overlay, BLINK_COLOR.color, BLINK_COLOR.alpha);
+        }
+
+        else {
+            scleraColorFn.getColorSafe(entity, info).ifPresent(data -> {
+                renderHead(pose, bufferSource.getBuffer(data.getRenderType(style.getSclera())), packedLight, overlay, data.color, data.alpha);
+            });
+            irisColorLeftFn.getColorSafe(entity, info).ifPresent(data -> {
+                renderHead(pose, bufferSource.getBuffer(data.getRenderType(style.getLeftIris())), packedLight, overlay, data.color, data.alpha);
+            });
+            irisColorRightFn.getColorSafe(entity, info).ifPresent(data -> {
+                renderHead(pose, bufferSource.getBuffer(data.getRenderType(style.getRightIris())), packedLight, overlay, data.color, data.alpha);
+            });
+            eyeBrowsColorFn.getColorSafe(entity, info).ifPresent(data -> {
+                renderHead(pose, bufferSource.getBuffer(data.getRenderType(style.getEyeBrows())), packedLight, overlay, data.color, data.alpha);
+            });
+            eyeLashesColorFn.getColorSafe(entity, info).ifPresent(data -> {
+                renderHead(pose, bufferSource.getBuffer(data.getRenderType(style.getEyeLashes())), packedLight, overlay, data.color, data.alpha);
+            });
+        }
 
         pose.popPose();
     }
