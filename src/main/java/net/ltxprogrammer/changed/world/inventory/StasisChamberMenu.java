@@ -12,6 +12,7 @@ import net.ltxprogrammer.changed.item.FluidCanister;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
@@ -408,7 +409,7 @@ public class StasisChamberMenu extends AbstractContainerMenu implements Updateab
     }
 
     @Override
-    public void update(CompoundTag payload, LogicalSide receiver) {
+    public void update(CompoundTag payload, LogicalSide receiver, @Nullable ServerPlayer controller) {
         if (receiver.isServer() && blockEntity != null) {
             String control = payload.getString("control");
             if ("command".equals(control)) {
@@ -418,13 +419,13 @@ public class StasisChamberMenu extends AbstractContainerMenu implements Updateab
                 Command.values()[commandId].handle(this);
             } else if ("program".equals(control)) {
                 String program = payload.getString("program");
-                blockEntity.inputProgram(program);
+                blockEntity.inputProgram(program, controller);
             } else if ("config".equals(control)) {
                 if (payload.contains("customLatex"))
                     blockEntity.setConfiguredCustomLatex(payload.getInt("customLatex"));
             } else if ("waitDuration".equals(control)) {
                 if (payload.contains("waitDuration"))
-                    blockEntity.setWaitDuration(payload.getInt("waitDuration"));
+                    blockEntity.setWaitDuration(payload.getInt("waitDuration"), controller);
             }
         }
     }

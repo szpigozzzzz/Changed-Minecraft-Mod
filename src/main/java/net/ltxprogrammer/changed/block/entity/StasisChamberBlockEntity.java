@@ -26,6 +26,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.CompoundContainer;
 import net.minecraft.world.ContainerHelper;
@@ -447,6 +448,13 @@ public class StasisChamberBlockEntity extends BaseContainerBlockEntity implement
         return list;
     }
 
+    public List<Player> getPlayersWithin() {
+        return getEntitiesWithin().stream()
+                .filter(entity -> entity instanceof Player)
+                .map(entity -> (Player)entity)
+                .toList();
+    }
+
     public boolean ensureCapturedIsStillInside() {
         var entities = getEntitiesWithin();
 
@@ -464,6 +472,17 @@ public class StasisChamberBlockEntity extends BaseContainerBlockEntity implement
         }
 
         return cachedEntity != null;
+    }
+
+    // This method is to prevent griefing from locking a player in a chamber indefinitely.
+    public boolean isPlayerAllowedToConfigure(@Nullable Player controller) {
+        if (controller == null)
+            return true; // Unknown packet origin (shouldn't be possible on server-side)
+        var players = getPlayersWithin();
+        if (players.isEmpty())
+            return true; // No players within the chamber
+
+        return players.contains(controller); // Controller is inside the chamber
     }
 
     public int getConfiguredCustomLatex() {
@@ -494,7 +513,12 @@ public class StasisChamberBlockEntity extends BaseContainerBlockEntity implement
         return waitDuration;
     }
 
-    public void setWaitDuration(int waitDuration) {
+    public void setWaitDuration(int waitDuration, @Nullable ServerPlayer controller) {
+        waitDuration = Mth.clamp(waitDuration, 0, StasisChamberMenu.MAX_WAIT_DURATION);
+
+        if (waitDuration > this.waitDuration && !this.isPlayerAllowedToConfigure(controller))
+            return;
+
         this.waitDuration = waitDuration;
         markUpdated();
     }
@@ -521,7 +545,7 @@ public class StasisChamberBlockEntity extends BaseContainerBlockEntity implement
         }
     }
 
-    public void inputProgram(String program) {
+    public void inputProgram(String program, @Nullable ServerPlayer controller) {
         if ("transfur".equals(program) && !scheduledCommands.contains(ScheduledCommand.TRANSFUR_ENTITY)) {
             trimSchedule();
 
@@ -556,7 +580,7 @@ public class StasisChamberBlockEntity extends BaseContainerBlockEntity implement
             scheduledCommands.add(ScheduledCommand.OPEN);
             scheduledCommands.add(ScheduledCommand.CAPTURE_ENTITY);
             scheduledCommands.add(ScheduledCommand.WAIT);
-            if (waitDuration < 200)
+            if (waitDuration < 200 && this.isPlayerAllowedToConfigure(controller))
                 waitDuration = 200; // Default 10 seconds
 
             scheduledCommands.add(ScheduledCommand.DRAIN);
@@ -569,10 +593,15 @@ public class StasisChamberBlockEntity extends BaseContainerBlockEntity implement
             if (stabilized || scheduledCommands.contains(ScheduledCommand.STABILIZE_ENTITY) || currentCommand == ScheduledCommand.STABILIZE_ENTITY) {
                 trimSchedule();
 
-                currentCommand = ScheduledCommand.DRAIN;
-                scheduledCommands.clear();
+                currentCommand = ScheduledCommand.WAKE_ENTITY;
+                scheduledCommands.add(ScheduledCommand.WAIT);
+                if (waitDuration < 400 && this.isPlayerAllowedToConfigure(controller))
+                    waitDuration = 400; // Default 20 seconds
+
+                scheduledCommands.add(ScheduledCommand.DRAIN);
                 scheduledCommands.add(ScheduledCommand.RELEASE);
                 scheduledCommands.add(ScheduledCommand.CLOSE_WHEN_EMPTY);
+                markUpdated();
 
                 markUpdated();
             } else {
@@ -583,7 +612,7 @@ public class StasisChamberBlockEntity extends BaseContainerBlockEntity implement
                 scheduledCommands.add(ScheduledCommand.FILL);
                 scheduledCommands.add(ScheduledCommand.STABILIZE_ENTITY);
                 scheduledCommands.add(ScheduledCommand.WAIT);
-                if (waitDuration < 400)
+                if (waitDuration < 400 && this.isPlayerAllowedToConfigure(controller))
                     waitDuration = 400; // Default 20 seconds
 
                 scheduledCommands.add(ScheduledCommand.DRAIN);
@@ -599,8 +628,9 @@ public class StasisChamberBlockEntity extends BaseContainerBlockEntity implement
             scheduledCommands.add(ScheduledCommand.CLOSE_WHEN_EMPTY);
             scheduledCommands.add(ScheduledCommand.FILL);
             scheduledCommands.add(ScheduledCommand.CREATE_ENTITY);
+            scheduledCommands.add(ScheduledCommand.STABILIZE_ENTITY);
             scheduledCommands.add(ScheduledCommand.WAIT);
-            if (waitDuration < 600)
+            if (waitDuration < 600 && this.isPlayerAllowedToConfigure(controller))
                 waitDuration = 600; // Default 30 seconds
 
             scheduledCommands.add(ScheduledCommand.DRAIN);
@@ -697,6 +727,22 @@ public class StasisChamberBlockEntity extends BaseContainerBlockEntity implement
                 return false;
 
             blockEntity.stabilized = true;
+            blockEntity.getChamberedEntity().map(EntityUtil::playerOrNull).map(Player::getLevel).ifPresent(level -> {
+                if (level instanceof ServerLevel serverLevel)
+                    serverLevel.updateSleepingPlayerList();
+            });
+
+            return false;
+        }),
+        /**
+         * Sets the chamber out of stasis mode. "Wakes" the entity.
+         * Requires: Chamber is filled, an entity is chambered, and the chamber is in stasis mode.
+         */
+        WAKE_ENTITY("wake_entity", blockEntity -> blockEntity.isFilledAndHasEntity() && blockEntity.stabilized, blockEntity -> {
+            if (!blockEntity.ensureCapturedIsStillInside())
+                return false;
+
+            blockEntity.stabilized = false;
             blockEntity.getChamberedEntity().map(EntityUtil::playerOrNull).map(Player::getLevel).ifPresent(level -> {
                 if (level instanceof ServerLevel serverLevel)
                     serverLevel.updateSleepingPlayerList();

@@ -45,7 +45,7 @@ public class MenuUpdatePacket implements ChangedPacket {
         if (context.getDirection().getReceptionSide().isServer()) {
             for (ServerPlayer player : ServerLifecycleHooks.getCurrentServer().getPlayerList().getPlayers()) {
                 if (player.containerMenu instanceof UpdateableMenu updateableMenu && player.containerMenu.containerId == containerId) {
-                    updateableMenu.update(payload, context.getDirection().getReceptionSide());
+                    updateableMenu.update(payload, context.getDirection().getReceptionSide(), context.getSender());
                     context.setPacketHandled(true);
                     return;
                 }
@@ -57,7 +57,7 @@ public class MenuUpdatePacket implements ChangedPacket {
             if (player.containerMenu == null || player.containerMenu.containerId != containerId)
                 return;
             if (player.containerMenu instanceof UpdateableMenu updateableMenu) {
-                updateableMenu.update(payload, context.getDirection().getReceptionSide());
+                updateableMenu.update(payload, context.getDirection().getReceptionSide(), null);
                 context.setPacketHandled(true);
             }
         }
