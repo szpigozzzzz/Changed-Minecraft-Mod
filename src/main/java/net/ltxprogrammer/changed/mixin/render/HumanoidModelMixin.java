@@ -1,20 +1,19 @@
 package net.ltxprogrammer.changed.mixin.render;
 
 import net.ltxprogrammer.changed.client.ClientLivingEntityExtender;
-import net.ltxprogrammer.changed.client.FormRenderHandler;
 import net.ltxprogrammer.changed.client.renderer.AdvancedHumanoidRenderer;
-import net.ltxprogrammer.changed.client.animations.AnimationInstance;
 import net.ltxprogrammer.changed.client.animations.Limb;
-import net.ltxprogrammer.changed.client.tfanimations.TransfurAnimations;
+import net.ltxprogrammer.changed.client.renderer.ExoskeletonRenderer;
+import net.ltxprogrammer.changed.client.renderer.accessory.WornExoskeletonRenderer;
+import net.ltxprogrammer.changed.client.renderer.layers.AccessoryLayer;
 import net.ltxprogrammer.changed.client.tfanimations.TransfurAnimator;
+import net.ltxprogrammer.changed.entity.robot.Exoskeleton;
+import net.ltxprogrammer.changed.init.ChangedAccessoryRenderers;
 import net.ltxprogrammer.changed.item.SpecializedAnimations;
 import net.ltxprogrammer.changed.process.ProcessTransfur;
 import net.ltxprogrammer.changed.util.EntityUtil;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.model.AgeableListModel;
-import net.minecraft.client.model.ArmedModel;
-import net.minecraft.client.model.HeadedModel;
-import net.minecraft.client.model.HumanoidModel;
+import net.minecraft.client.model.*;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.util.Mth;
@@ -22,7 +21,9 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.LivingEntity;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -35,6 +36,10 @@ import java.util.Objects;
 
 @Mixin(HumanoidModel.class)
 public abstract class HumanoidModelMixin<T extends LivingEntity> extends AgeableListModel<T> implements ArmedModel, HeadedModel {
+    @Shadow @Final public ModelPart leftLeg;
+
+    @Shadow @Final public ModelPart rightLeg;
+
     @Unique
     protected SpecializedAnimations.AnimationHandler.EntityStateContext entityContextOf(T entity, float partialTicks) {
         return new SpecializedAnimations.AnimationHandler.EntityStateContext(entity, this.attackTime, partialTicks) {
@@ -101,6 +106,21 @@ public abstract class HumanoidModelMixin<T extends LivingEntity> extends Ageable
                     helper.transitionOriginal((HumanoidModel<?>)(Object)this, TransfurAnimator.getPreMorphProgression(variant.getTransfurProgression(ageInTicks)));
                 });
             }
+        });
+
+        Exoskeleton.getEntityExoskeleton(entity).ifPresent(pair -> {
+            this.leftLeg.visible = false;
+            this.rightLeg.visible = false;
+            if ((Object)this instanceof PlayerModel<?> playerModel) {
+                playerModel.leftPants.visible = false;
+                playerModel.rightPants.visible = false;
+            }
+
+            AccessoryLayer.getRenderer(pair.getSecond()).ifPresent(renderer -> {
+                if (renderer instanceof WornExoskeletonRenderer exoRenderer) {
+                    exoRenderer.getModel().animateWearerLimbs(this, pair.getFirst());
+                }
+            });
         });
     }
 }

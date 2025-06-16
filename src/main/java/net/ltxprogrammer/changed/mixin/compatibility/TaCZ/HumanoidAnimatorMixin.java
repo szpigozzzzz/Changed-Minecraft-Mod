@@ -24,7 +24,7 @@ public abstract class HumanoidAnimatorMixin<T extends ChangedEntity, M extends A
     @Inject(method = "setupAnim", at = @At("RETURN"))
     public void setupAnimEND(@NotNull T entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch, CallbackInfo info) {
         HumanoidModel<?> model = this.entityModel;
-        this.entityModel.syncPropertyModel();
+        this.entityModel.syncPropertyModel(entity);
         InnerThirdPersonManager.setRotationAnglesHead(entity.maybeGetUnderlying(), model.rightArm, model.leftArm, model.body, model.head, limbSwingAmount);
         this.applyPropertyModel(model);
     }

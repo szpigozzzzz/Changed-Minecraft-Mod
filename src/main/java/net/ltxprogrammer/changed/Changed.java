@@ -8,6 +8,7 @@ import net.ltxprogrammer.changed.data.BuiltinRepositorySource;
 import net.ltxprogrammer.changed.entity.HairStyle;
 import net.ltxprogrammer.changed.entity.PlayerMover;
 import net.ltxprogrammer.changed.extension.ChangedCompatibility;
+import net.ltxprogrammer.changed.entity.AccessoryEntities;
 import net.ltxprogrammer.changed.init.*;
 import net.ltxprogrammer.changed.network.ChangedPackets;
 import net.ltxprogrammer.changed.network.packet.ChangedPacket;
@@ -80,11 +81,8 @@ public class Changed {
 
         instance = this;
 
-        // Initialize (Note ModEventBus is a stack; first in - last out)
-
         final IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
 
-        //    vvv Last to process vvv
         HairStyle.REGISTRY.register(modEventBus);
         ChangedAbilities.REGISTRY.register(modEventBus);
         PlayerMover.REGISTRY.register(modEventBus);
@@ -102,10 +100,12 @@ public class Changed {
         ChangedBlockEntities.REGISTRY.register(modEventBus);
         ChangedFluids.REGISTRY.register(modEventBus);
         ChangedItems.REGISTRY.register(modEventBus);
+        ChangedBlockStateProviders.REGISTRY.register(modEventBus);
         ChangedBlocks.REGISTRY.register(modEventBus);
         ChangedTransfurVariants.REGISTRY.register(modEventBus);
         ChangedEntities.REGISTRY.register(modEventBus);
-        //    ^^^ First to process ^^^
+        ChangedAnimationEvents.REGISTRY.register(modEventBus);
+        ChangedAccessorySlots.REGISTRY.register(modEventBus);
 
         // Our DFU references the above registries, so they need to be initialized before the DFU is created
         dataFixer = new ChangedDataFixer();
@@ -113,6 +113,11 @@ public class Changed {
 
     private void commonSetup(final FMLCommonSetupEvent event) {
         event.enqueueWork(() -> {
+            if (!config.common.downloadPatreonContent.get()) {
+                Changed.LOGGER.info("Patreon benefits is disabled on this client. Patrons will not receive benefits visible to this client.");
+                return;
+            }
+
             try {
                 PatreonBenefits.loadBenefits();
                 PatreonBenefits.UPDATE_CHECKER.start();
@@ -138,6 +143,7 @@ public class Changed {
 
     private void dataListeners(final AddReloadListenerEvent event) {
         event.addListener(ChangedFusions.INSTANCE);
+        event.addListener(AccessoryEntities.INSTANCE);
         ChangedCompatibility.addDataListeners(event);
     }
 
@@ -176,7 +182,7 @@ public class Changed {
     public static <T extends Event & IModBusEvent> boolean postModLoadingEvent(T event) {
         return FMLJavaModLoadingContext.get().getModEventBus().post(event);
     }
-    
+
     public static <T extends Event & IModBusEvent> boolean postModLoadingEvent(T event, IEventBusInvokeDispatcher dispatcher) {
         return FMLJavaModLoadingContext.get().getModEventBus().post(event, dispatcher);
     }
@@ -188,7 +194,7 @@ public class Changed {
     public static <T extends Event> boolean postModEvent(T event) {
         return MinecraftForge.EVENT_BUS.post(event);
     }
-    
+
     public static <T extends Event> boolean postModEvent(T event, IEventBusInvokeDispatcher dispatcher) {
         return MinecraftForge.EVENT_BUS.post(event, dispatcher);
     }

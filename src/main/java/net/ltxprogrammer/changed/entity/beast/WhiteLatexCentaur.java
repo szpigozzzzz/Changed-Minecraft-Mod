@@ -1,9 +1,8 @@
 package net.ltxprogrammer.changed.entity.beast;
 
-import net.ltxprogrammer.changed.entity.HairStyle;
 import net.ltxprogrammer.changed.entity.LatexType;
 import net.ltxprogrammer.changed.entity.TransfurMode;
-import net.ltxprogrammer.changed.util.Color3;
+import net.ltxprogrammer.changed.entity.variant.EntityShape;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -13,9 +12,8 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.common.ForgeMod;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.List;
 
 public class WhiteLatexCentaur extends WhiteLatexKnight implements LatexTaur<WhiteLatexCentaur> {
     public WhiteLatexCentaur(EntityType<? extends WhiteLatexCentaur> p_19870_, Level p_19871_) {
@@ -38,25 +36,6 @@ public class WhiteLatexCentaur extends WhiteLatexKnight implements LatexTaur<Whi
     @Override
     public TransfurMode getTransfurMode() {
         return TransfurMode.REPLICATION;
-    }
-
-    @Override
-    public Color3 getDripColor() {
-        return Color3.WHITE;
-    }
-
-    @Override
-    public HairStyle getDefaultHairStyle() {
-        return HairStyle.BALD.get();
-    }
-
-    public @Nullable List<HairStyle> getValidHairStyles() {
-        return HairStyle.Collection.MALE.getStyles();
-    }
-
-    @Override
-    public Color3 getHairColor(int layer) {
-        return Color3.WHITE;
     }
 
     @Override
@@ -92,7 +71,7 @@ public class WhiteLatexCentaur extends WhiteLatexKnight implements LatexTaur<Whi
     }
 
     @Override
-    public boolean isAllowedToSwim() {
-        return true;
+    public @NotNull EntityShape getEntityShape() {
+        return EntityShape.TAUR;
     }
 }

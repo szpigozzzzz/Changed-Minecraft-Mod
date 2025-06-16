@@ -21,10 +21,11 @@ import org.jetbrains.annotations.NotNull;
 import java.util.function.Supplier;
 
 public enum LatexType implements StringRepresentable, IExtensibleEnum {
-    NEUTRAL(),
-    DARK_LATEX(ChangedItems.DARK_LATEX_GOO, ChangedItems.DARK_LATEX_BUCKET, ChangedBlocks.DARK_LATEX_BLOCK, ChangedEntities.DARK_LATEX_WOLF_PUP, Color3.DARK, MaterialColor.COLOR_GRAY),
-    WHITE_LATEX(ChangedItems.WHITE_LATEX_GOO, ChangedItems.WHITE_LATEX_BUCKET, ChangedBlocks.WHITE_LATEX_BLOCK, () -> null /* null for now */, Color3.WHITE, MaterialColor.QUARTZ);
+    NEUTRAL("neutral"),
+    DARK_LATEX("dark_latex", ChangedItems.DARK_LATEX_GOO, ChangedItems.DARK_LATEX_BUCKET, ChangedBlocks.DARK_LATEX_BLOCK, ChangedEntities.DARK_LATEX_WOLF_PUP, Color3.DARK, MaterialColor.COLOR_GRAY),
+    WHITE_LATEX("white_latex", ChangedItems.WHITE_LATEX_GOO, ChangedItems.WHITE_LATEX_BUCKET, ChangedBlocks.WHITE_LATEX_BLOCK, () -> null /* null for now */, Color3.WHITE, MaterialColor.QUARTZ);
 
+    private final String serialName;
     public final Supplier<? extends AbstractLatexItem> goo;
     public final Supplier<? extends AbstractLatexBucket> gooBucket;
     public final Supplier<? extends Block> block;
@@ -32,7 +33,8 @@ public enum LatexType implements StringRepresentable, IExtensibleEnum {
     public final Color3 color;
     public final MaterialColor materialColor;
 
-    LatexType() {
+    LatexType(String serialName) {
+        this.serialName = serialName;
         this.goo = () -> null;
         this.gooBucket = () -> null;
         this.block = () -> null;
@@ -40,8 +42,9 @@ public enum LatexType implements StringRepresentable, IExtensibleEnum {
         this.color = Color3.WHITE;
         this.materialColor = MaterialColor.WOOL;
     }
-    LatexType(Supplier<? extends AbstractLatexItem> goo, Supplier<? extends AbstractLatexBucket> gooBucket, Supplier<? extends Block> block, Supplier<? extends EntityType<?>> pup, Color3 color,
+    LatexType(String serialName, Supplier<? extends AbstractLatexItem> goo, Supplier<? extends AbstractLatexBucket> gooBucket, Supplier<? extends Block> block, Supplier<? extends EntityType<?>> pup, Color3 color,
               MaterialColor materialColor) {
+        this.serialName = serialName;
         this.goo = goo;
         this.gooBucket = gooBucket;
         this.block = block;
@@ -87,10 +90,10 @@ public enum LatexType implements StringRepresentable, IExtensibleEnum {
 
     @Override
     public String getSerializedName() {
-        return toString().toLowerCase();
+        return serialName;
     }
 
-    public static LatexType create(String name, Supplier<? extends Item> goo, Supplier<? extends Item> gooBucket, Supplier<Block> block, Supplier<? extends EntityType<?>> pup, Color3 color, MaterialColor materialColor)
+    public static LatexType create(String name, String serialName, Supplier<? extends Item> goo, Supplier<? extends Item> gooBucket, Supplier<Block> block, Supplier<? extends EntityType<?>> pup, Color3 color, MaterialColor materialColor)
     {
         throw new IllegalStateException("Enum not extended");
     }

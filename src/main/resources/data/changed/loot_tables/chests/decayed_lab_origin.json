@@ -21,6 +21,16 @@
         },
         {
           "type": "minecraft:item",
+          "weight": 8,
+          "name": "changed:sports_bra"
+        },
+        {
+          "type": "minecraft:item",
+          "weight": 8,
+          "name": "changed:black_tshirt"
+        },
+        {
+          "type": "minecraft:item",
           "weight": 2,
           "name": "changed:puro_the_black_goo_record"
         },

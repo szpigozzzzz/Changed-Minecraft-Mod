@@ -9,7 +9,9 @@ import javax.annotation.Nullable;
 import java.util.List;
 
 public interface CubeListBuilderExtender {
-    CubeListBuilder removeLastFaces(Direction... directions);
+    CubeListBuilderExtender removeLastFaces(Direction... directions);
+    CubeListBuilderExtender copyLastFaceUVStart(Direction from, Direction to);
+    CubeListBuilder finish();
 
     void addTriangle(String comment, Vector3f p1, UVPair uv1,
                      Vector3f p2, UVPair uv2,

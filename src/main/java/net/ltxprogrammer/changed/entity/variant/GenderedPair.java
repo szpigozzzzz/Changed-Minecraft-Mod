@@ -25,4 +25,8 @@ public class GenderedPair<M extends ChangedEntity, F extends ChangedEntity> {
     public TransfurVariant<?> getRandomVariant(Random random) {
         return random.nextBoolean() ? getFemaleVariant() : getMaleVariant();
     }
+
+    public boolean contains(TransfurVariant<?> variant) {
+        return maleVariant.get() == variant || femaleVariant.get() == variant;
+    }
 }

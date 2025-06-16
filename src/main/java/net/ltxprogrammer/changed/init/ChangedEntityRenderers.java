@@ -71,12 +71,16 @@ public class ChangedEntityRenderers {
         event.registerEntityRenderer(ChangedEntities.BEHEMOTH_HAND_LEFT.get(), BehemothHandLeftRenderer::new);
         event.registerEntityRenderer(ChangedEntities.BEHEMOTH_HAND_RIGHT.get(), BehemothHandRightRenderer::new);
 
+        registerHumanoid(event, ChangedEntities.GAS_SKUNK.get(), GasSkunkRenderer::new);
+        registerHumanoid(event, ChangedEntities.GAS_TIGER.get(), GasTigerRenderer::new);
         registerHumanoid(event, ChangedEntities.GAS_WOLF.get(), GasWolfRenderer::new);
+        registerHumanoid(event, ChangedEntities.POOLTOY_WOLF.get(), PooltoyWolfRenderer::new);
         registerHumanoid(event, ChangedEntities.DARK_DRAGON.get(), DarkLatexDragonRenderer::new);
         registerHumanoid(event, ChangedEntities.DARK_LATEX_WOLF_FEMALE.get(), DarkLatexWolfFemaleRenderer::new);
         registerHumanoid(event, ChangedEntities.DARK_LATEX_WOLF_MALE.get(), DarkLatexWolfMaleRenderer::new);
         registerHumanoid(event, ChangedEntities.DARK_LATEX_WOLF_PUP.get(), DarkLatexWolfPupRenderer::new);
         registerHumanoid(event, ChangedEntities.DARK_LATEX_YUFENG.get(), DarkLatexYufengRenderer::new);
+        registerHumanoid(event, ChangedEntities.DARK_LATEX_DOUBLE_YUFENG.get(), DarkLatexDoubleYufengRenderer::new);
         registerHumanoid(event, ChangedEntities.PHAGE_LATEX_WOLF_FEMALE.get(), PhageLatexWolfFemaleRenderer::new);
         registerHumanoid(event, ChangedEntities.PHAGE_LATEX_WOLF_MALE.get(), PhageLatexWolfMaleRenderer::new);
         registerHumanoid(event, ChangedEntities.HEADLESS_KNIGHT.get(), HeadlessKnightRenderer::new);
@@ -91,9 +95,11 @@ public class ChangedEntityRenderers {
         registerHumanoid(event, ChangedEntities.CRYSTAL_WOLF_HORNED.get(), LatexCrystalWolfHornedRenderer::new);
         registerHumanoid(event, ChangedEntities.LATEX_DEER.get(), LatexDeerRenderer::new);
         registerHumanoid(event, ChangedEntities.LATEX_FENNEC_FOX.get(), LatexFennecFoxRenderer::new);
+        registerHumanoid(event, ChangedEntities.LATEX_GOLDEN_DRAGON.get(), LatexGoldenDragonRenderer::new);
         registerHumanoid(event, ChangedEntities.GREEN_LIZARD.get(), GreenLizardRenderer::new);
         registerHumanoid(event, ChangedEntities.LATEX_HYPNO_CAT.get(), LatexHypnoCatRenderer::new);
         registerHumanoid(event, ChangedEntities.LATEX_KEON_WOLF.get(), LatexKeonWolfRenderer::new);
+        registerHumanoid(event, ChangedEntities.LATEX_KOBOLD.get(), LatexKoboldRenderer::new);
         registerHumanoid(event, ChangedEntities.LATEX_LEAF.get(), LatexLeafRenderer::new);
         registerHumanoid(event, ChangedEntities.LATEX_MANTA_RAY_FEMALE.get(), LatexMantaRayFemaleRenderer::new);
         registerHumanoid(event, ChangedEntities.LATEX_MANTA_RAY_MALE.get(), LatexMantaRayMaleRenderer::new);
@@ -115,6 +121,7 @@ public class ChangedEntityRenderers {
         registerHumanoid(event, ChangedEntities.LATEX_SHARK.get(), LatexSharkRenderer::new);
         registerHumanoid(event, ChangedEntities.LATEX_SHARK_FEMALE.get(), BuffLatexSharkFemaleRenderer::new);
         registerHumanoid(event, ChangedEntities.LATEX_SHARK_MALE.get(), BuffLatexSharkMaleRenderer::new);
+        registerHumanoid(event, ChangedEntities.LATEX_SIAMESE_CAT.get(), LatexSiameseCatRenderer::new);
         registerHumanoid(event, ChangedEntities.LATEX_SIREN.get(), LatexSirenRenderer::new);
         registerHumanoid(event, ChangedEntities.LATEX_SNAKE.get(), LatexSnakeRenderer::new);
         registerHumanoid(event, ChangedEntities.SNIPER_DOG.get(), LatexSniperDogRenderer::new);
@@ -131,6 +138,7 @@ public class ChangedEntityRenderers {
         registerHumanoid(event, ChangedEntities.LATEX_WHITE_TIGER.get(), LatexWhiteTigerRenderer::new);
         registerHumanoid(event, ChangedEntities.LATEX_YUIN.get(), LatexYuinRenderer::new);
         registerHumanoid(event, ChangedEntities.WHITE_LATEX_CENTAUR.get(), WhiteLatexCentaurRenderer::new);
+        registerHumanoid(event, ChangedEntities.LATEX_GNOLL_TAUR.get(), LatexGnollTaurRenderer::new);
         registerHumanoid(event, ChangedEntities.WHITE_LATEX_KNIGHT.get(), WhiteLatexKnightRenderer::new);
         registerHumanoid(event, ChangedEntities.WHITE_LATEX_KNIGHT_FUSION.get(), WhiteLatexKnightFusionRenderer::new);
         registerHumanoid(event, ChangedEntities.WHITE_LATEX_WOLF_FEMALE.get(), WhiteLatexWolfFemaleRenderer::new);
@@ -138,6 +146,9 @@ public class ChangedEntityRenderers {
         registerHumanoid(event, ChangedEntities.WHITE_WOLF_MALE.get(), WhiteWolfMaleRenderer::new);
         registerHumanoid(event, ChangedEntities.WHITE_WOLF_FEMALE.get(), WhiteWolfFemaleRenderer::new);
         registerHumanoid(event, ChangedEntities.PURE_WHITE_LATEX_WOLF.get(), PureWhiteLatexWolfRenderer::new);
+        registerHumanoid(event, ChangedEntities.PURE_WHITE_LATEX_WOLF_PUP.get(), PureWhiteLatexWolfPupRenderer::new);
+
+        registerHumanoid(event, ChangedEntities.CUSTOM_LATEX.get(), CustomLatexRenderer::new);
 
         event.registerEntityRenderer(ChangedEntities.MILK_PUDDING.get(), MilkPuddingRenderer::new);
         event.registerEntityRenderer(ChangedEntities.SHARK.get(), SharkRenderer::new);
@@ -145,6 +156,7 @@ public class ChangedEntityRenderers {
         event.registerEntityRenderer(ChangedEntities.SPECIAL_LATEX.get(), SpecialLatexRenderer::new);
 
         event.registerEntityRenderer(ChangedEntities.ROOMBA.get(), RoombaRenderer::new);
+        event.registerEntityRenderer(ChangedEntities.EXOSKELETON.get(), ExoskeletonRenderer::new);
 
         event.registerEntityRenderer(ChangedEntities.SEAT_ENTITY.get(), SeatEntityRenderer::new);
 

@@ -327,6 +327,8 @@ public class PatreonBenefits {
     private static final Map<Dist, AtomicBoolean> UPDATE_FLAG = new HashMap<>();
     private static final AtomicBoolean UPDATE_PLAYER_JOIN_FLAG = new AtomicBoolean(false);
     public static final Thread UPDATE_CHECKER = new Thread(() -> {
+        if (!Changed.config.common.downloadPatreonContent.get()) return;
+
         LOGGER.info("Update checker started");
 
         HttpClient client = HttpClient.newHttpClient();
@@ -378,6 +380,8 @@ public class PatreonBenefits {
     }
 
     public static void loadSpecialForms(HttpClient client) throws IOException, InterruptedException {
+        if (!Changed.config.common.downloadPatreonContent.get()) return;
+
         HttpRequest request = HttpRequest.newBuilder(URI.create(FORMS_DOCUMENT)).GET().build();
         JsonElement json = JsonParser.parseString(client.send(request, HttpResponse.BodyHandlers.ofString()).body());
         JsonArray formLocations = json.getAsJsonObject().get("forms").getAsJsonArray();
@@ -419,6 +423,8 @@ public class PatreonBenefits {
     }
 
     public static boolean checkForUpdates() throws IOException, InterruptedException {
+        if (!Changed.config.common.downloadPatreonContent.get()) return false;
+
         if (UPDATE_FLAG.computeIfAbsent(FMLEnvironment.dist, dist -> new AtomicBoolean(false)).get()) {
             UPDATE_FLAG.get(FMLEnvironment.dist).set(false); // Consume update flag
             updatePathStrings();
@@ -446,6 +452,8 @@ public class PatreonBenefits {
     }
 
     public static void loadBenefits() throws IOException, InterruptedException {
+        if (!Changed.config.common.downloadPatreonContent.get()) return;
+
         updatePathStrings();
 
         // Load levels

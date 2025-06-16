@@ -1,5 +1,6 @@
 package net.ltxprogrammer.changed.mixin.render;
 
+import com.mojang.datafixers.util.Pair;
 import com.mojang.math.Vector3f;
 import net.ltxprogrammer.changed.Changed;
 import net.ltxprogrammer.changed.client.CubeExtender;
@@ -74,13 +75,43 @@ public abstract class CubeMixin implements CubeExtender {
     @Unique
     private static final ModelPart.Vertex NULL_VERTEX = new ModelPart.Vertex(0, 0, 0, 0, 0);
 
+    @Unique
+    private ModelPart.Polygon getFaceFromDirection(Direction dir) {
+        Vector3f step = dir.getAxis() == Direction.Axis.Y ? dir.getOpposite().step() : dir.step();
+        for (ModelPart.Polygon polygon : polygons) {
+            if (polygon.normal.dot(step) >= 0.95f)
+                return polygon;
+        }
+        return null;
+    }
+
     @Override
     public void removeSides(Set<Direction> directions) {
         for (var dir : directions) {
-            Vector3f step = dir.getAxis() == Direction.Axis.Y ? dir.getOpposite().step() : dir.step();
-            for (ModelPart.Polygon polygon : polygons)
-                if (polygon.normal.equals(step))
-                    Arrays.fill(polygon.vertices, NULL_VERTEX);
+            var polygon = getFaceFromDirection(dir);
+            if (polygon != null)
+                Arrays.fill(polygon.vertices, NULL_VERTEX);
+        }
+    }
+
+    @Override
+    public void copyUVStarts(Set<Pair<Direction, Direction>> directions) {
+        for (var copy : directions) {
+            Direction fromDir = copy.getFirst();
+            Direction toDir = copy.getSecond();
+
+            ModelPart.Polygon from = getFaceFromDirection(fromDir);
+            ModelPart.Polygon to = getFaceFromDirection(toDir);
+
+            if (from == to || from == null || to == null)
+                continue;
+
+            for (int i = 0; i < from.vertices.length && i < to.vertices.length; ++i) {
+                var fromVtx = from.vertices[i];
+                var toVtx = to.vertices[i];
+
+                to.vertices[i] = new ModelPart.Vertex(toVtx.pos, fromVtx.u, fromVtx.v);
+            }
         }
     }
 

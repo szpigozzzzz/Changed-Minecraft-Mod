@@ -49,12 +49,18 @@ public class BeehiveBed extends AbstractCustomShapeBlock {
     public static final VoxelShape SHAPE_WHOLE_OFFSET = Block.box(1.0D, 7.0D, 1.0D, 15.0D, 12.0D, 15.0D);
 
     public enum BeehiveState implements StringRepresentable {
-        NORMAL,
-        OFFSET;
+        NORMAL("normal"),
+        OFFSET("offset");
+
+        private final String serialName;
+
+        BeehiveState(String serialName) {
+            this.serialName = serialName;
+        }
 
         @Override
         public String getSerializedName() {
-            return this.name().toLowerCase(Locale.ROOT);
+            return serialName;
         }
 
         public BeehiveState getOpposite() {

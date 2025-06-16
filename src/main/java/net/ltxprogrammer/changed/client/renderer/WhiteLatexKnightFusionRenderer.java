@@ -11,8 +11,7 @@ import net.minecraft.resources.ResourceLocation;
 
 public class WhiteLatexKnightFusionRenderer extends AdvancedHumanoidRenderer<WhiteLatexKnightFusion, WhiteLatexKnightFusionModel, ArmorLatexMaleWolfModel<WhiteLatexKnightFusion>> {
     public WhiteLatexKnightFusionRenderer(EntityRendererProvider.Context context) {
-        super(context, new WhiteLatexKnightFusionModel(context.bakeLayer(WhiteLatexKnightFusionModel.LAYER_LOCATION)),
-                ArmorLatexMaleWolfModel::new, ArmorLatexMaleWolfModel.INNER_ARMOR, ArmorLatexMaleWolfModel.OUTER_ARMOR, 0.5f);
+        super(context, new WhiteLatexKnightFusionModel(context.bakeLayer(WhiteLatexKnightFusionModel.LAYER_LOCATION)), ArmorLatexMaleWolfModel.MODEL_SET, 0.5f);
         this.addLayer(new LatexParticlesLayer<>(this, getModel()));
         this.addLayer(TransfurCapeLayer.normalCape(this, context.getModelSet()));
         this.addLayer(CustomEyesLayer.builder(this, context.getModelSet())

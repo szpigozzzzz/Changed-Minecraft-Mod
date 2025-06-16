@@ -2,19 +2,15 @@ package net.ltxprogrammer.changed.process;
 
 import com.mojang.logging.LogUtils;
 import net.ltxprogrammer.changed.Changed;
-import net.ltxprogrammer.changed.ability.AbstractAbility;
-import net.ltxprogrammer.changed.ability.GrabEntityAbilityInstance;
 import net.ltxprogrammer.changed.ability.IAbstractChangedEntity;
 import net.ltxprogrammer.changed.entity.*;
 import net.ltxprogrammer.changed.entity.beast.SpecialLatex;
 import net.ltxprogrammer.changed.entity.variant.TransfurVariant;
 import net.ltxprogrammer.changed.entity.variant.TransfurVariantInstance;
 import net.ltxprogrammer.changed.extension.ChangedCompatibility;
+import net.ltxprogrammer.changed.entity.AccessoryEntities;
 import net.ltxprogrammer.changed.init.*;
-import net.ltxprogrammer.changed.network.packet.BasicPlayerInfoPacket;
-import net.ltxprogrammer.changed.network.packet.CheckForUpdatesPacket;
-import net.ltxprogrammer.changed.network.packet.SyncTransfurPacket;
-import net.ltxprogrammer.changed.network.packet.SyncTransfurProgressPacket;
+import net.ltxprogrammer.changed.network.packet.*;
 import net.ltxprogrammer.changed.util.EntityUtil;
 import net.ltxprogrammer.changed.util.PatreonBenefits;
 import net.ltxprogrammer.changed.world.enchantments.LatexProtectionEnchantment;
@@ -25,12 +21,14 @@ import net.minecraft.stats.Stats;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.EntityDamageSource;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.goal.WrappedGoal;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.food.Foods;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.living.LivingAttackEvent;
 import net.minecraftforge.event.entity.living.LivingDamageEvent;
@@ -40,7 +38,6 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.network.PacketDistributor;
 import net.minecraftforge.server.ServerLifecycleHooks;
-import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 
@@ -57,6 +54,33 @@ import static net.ltxprogrammer.changed.init.ChangedGameRules.RULE_KEEP_BRAIN;
 @Mod.EventBusSubscriber(modid = Changed.MODID)
 public class ProcessTransfur {
     private static final Logger LOGGER = LogUtils.getLogger();
+
+    // Intended to apply statuses on the source entity
+    public static void onAbsorbEntity(IAbstractChangedEntity source) {
+        source.getEntity().heal(14.0f); // Heal 7 hearts
+        if (source.getEntity() instanceof Player player) {
+            player.getFoodData().eat(Foods.COOKED_BEEF.getNutrition(), Foods.COOKED_BEEF.getSaturationModifier()); // Equivalent to eating one Cooked beef
+        }
+        source.getEntity().addEffect(new MobEffectInstance(MobEffects.DAMAGE_BOOST, 30 * 20, 0)); // 30s Strength I
+
+        // TODO: maybe make transfurring a necessity for latexes? A boost to their traits that decays over time since transfurring others.
+    }
+
+    // Intended to apply statuses on the source entity
+    public static void onReplicateEntity(IAbstractChangedEntity source) {
+        source.getEntity().heal(4.0f); // Heal 2 hearts
+        if (source.getEntity() instanceof Player player) {
+            player.getFoodData().eat(Foods.COOKIE.getNutrition(), Foods.COOKIE.getSaturationModifier()); // Equivalent to eating one Cookie
+        }
+    }
+
+    public static void onNewlyTransfurred(IAbstractChangedEntity entity) {
+        forceNearbyToRetarget(entity.getLevel(), entity.getEntity());
+        entity.getEntity().heal(10.0f); // Heal 5 hearts
+        if (entity.getEntity() instanceof Player player) {
+            player.getFoodData().eat(10, 1f); // Not really equivalent to anything, but more than cooked meat
+        }
+    }
 
     public static void setPlayerTransfurProgress(Player player, float progress) {
         if (!(player instanceof PlayerDataExtension ext))
@@ -108,7 +132,7 @@ public class ProcessTransfur {
         return amount;
     }
 
-    public static boolean progressPlayerTransfur(Player player, float amount, TransfurVariant<?> transfurVariant, TransfurContext context) {
+    protected static boolean progressPlayerTransfur(Player player, float amount, TransfurVariant<?> transfurVariant, TransfurContext context) {
         if (player.isCreative() || player.isSpectator() || ProcessTransfur.isPlayerPermTransfurred(player))
             return false;
         if (player.isDeadOrDying() || player.isRemoved())
@@ -450,6 +474,7 @@ public class ProcessTransfur {
             ChangedFunctionTags.ON_TRANSFUR.execute(ServerLifecycleHooks.getCurrentServer(), player);
         }
 
+        AccessoryEntities.INSTANCE.forceReloadAccessories(player);
         if (player instanceof ServerPlayer serverPlayer)
             Changed.PACKET_HANDLER.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> serverPlayer), SyncTransfurPacket.Builder.of(player));
         return instance;
@@ -735,8 +760,10 @@ public class ProcessTransfur {
             return;
 
         final BiConsumer<IAbstractChangedEntity, TransfurVariant<?>> onReplicate = (iAbstractLatex, variant1) -> {
-            if (context.source != null)
+            if (context.source != null) {
+                onReplicateEntity(context.source);
                 context.source.getChangedEntity().onReplicateOther(iAbstractLatex, variant1);
+            }
         };
 
         if (!LatexType.hasLatexType(entity)) {
@@ -746,12 +773,12 @@ public class ProcessTransfur {
                 if (instance == null)
                     return; // Event canceled
 
+                ChangedAnimationEvents.broadcastTransfurAnimation(player, instance.getParent(), context);
+
                 instance.willSurviveTransfur = keepConscious;
                 instance.transfurContext = context;
 
-                forceNearbyToRetarget(level, player);
-
-                player.heal(10.0F);
+                onNewlyTransfurred(IAbstractChangedEntity.forPlayer(player));
 
                 onReplicate.accept(IAbstractChangedEntity.forPlayer(player), variant);
             }
@@ -782,20 +809,7 @@ public class ProcessTransfur {
             if (entity instanceof ServerPlayer player) {
                 setPlayerTransfurVariant(player, fusion, context);
 
-                // Force retargeting
-                for (ChangedEntity changedEntity : level.getEntitiesOfClass(ChangedEntity.class, player.getBoundingBox().inflate(64))) {
-                    if (changedEntity.getLastHurtByMob() == player) {
-                        changedEntity.setLastHurtByMob(null);
-                    }
-
-                    if (changedEntity.getTarget() == player) {
-                        changedEntity.setTarget(null);
-                        changedEntity.targetSelector.tick();
-                        changedEntity.targetSelector.getRunningGoals().forEach(WrappedGoal::stop);
-                    }
-                }
-
-                player.heal(10.0F);
+                onNewlyTransfurred(IAbstractChangedEntity.forPlayer(player));
 
                 LOGGER.info("Fused " + entity + " with " + variant);
             }

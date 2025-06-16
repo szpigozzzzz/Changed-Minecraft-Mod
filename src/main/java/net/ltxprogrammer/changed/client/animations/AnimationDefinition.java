@@ -4,9 +4,9 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.ltxprogrammer.changed.client.renderer.model.AdvancedHumanoidModel;
-import net.minecraft.client.model.HumanoidModel;
+import net.ltxprogrammer.changed.entity.animation.AnimationParameters;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.LivingEntity;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -19,6 +19,7 @@ public class AnimationDefinition {
     public final ImmutableMap<Limb, List<AnimationChannel>> channels;
     public final ImmutableList<ResourceLocation> entityProps;
     public final ImmutableList<AnimationChannel> itemProps;
+    public final ImmutableList<TimedSoundEffect> soundEffects;
 
     public static final Codec<AnimationDefinition> CODEC = RecordCodecBuilder.create(builder -> builder.group(
             Codec.FLOAT.fieldOf("length").forGetter(definition -> definition.length),
@@ -28,34 +29,29 @@ public class AnimationDefinition {
                     Codec.list(AnimationChannel.CODEC)
             ).fieldOf("channels").forGetter(definition -> definition.channels),
             Codec.list(ResourceLocation.CODEC).fieldOf("entities").orElse(List.of()).forGetter(definition -> definition.entityProps),
-            Codec.list(AnimationChannel.CODEC).fieldOf("items").orElse(List.of()).forGetter(definition -> definition.itemProps)
+            Codec.list(AnimationChannel.CODEC).fieldOf("items").orElse(List.of()).forGetter(definition -> definition.itemProps),
+            Codec.list(TimedSoundEffect.CODEC).fieldOf("soundEffects").orElse(List.of()).forGetter(definition -> definition.soundEffects)
     ).apply(builder, AnimationDefinition::new));
 
     public AnimationDefinition(float length, float transitionDuration,
                                Map<Limb, List<AnimationChannel>> channels,
                                List<ResourceLocation> entities,
-                               List<AnimationChannel> items) {
+                               List<AnimationChannel> items,
+                               List<TimedSoundEffect> soundEffects) {
         this.length = length;
         this.transitionDuration = transitionDuration;
         this.channels = ImmutableMap.copyOf(channels);
         this.entityProps = ImmutableList.copyOf(entities);
         this.itemProps = ImmutableList.copyOf(items);
-    }
-
-    public AnimationInstance createInstance(HumanoidModel<?> model) {
-        final var instance = new AnimationInstance(this);
-        instance.captureBaseline(model);
-        return instance;
-    }
-
-    public AnimationInstance createInstance(AdvancedHumanoidModel<?> model) {
-        final var instance = new AnimationInstance(this);
-        instance.captureBaseline(model);
-        return instance;
+        this.soundEffects = ImmutableList.copyOf(soundEffects);
     }
 
     public float getLength() {
         return length;
+    }
+
+    public AnimationInstance createInstance(LivingEntity entity, AnimationParameters parameters) {
+        return new AnimationInstance(this, entity, parameters);
     }
 
     public static class Builder {
@@ -63,6 +59,7 @@ public class AnimationDefinition {
         private final Map<Limb, List<AnimationChannel>> animations = new HashMap<>();
         private final List<ResourceLocation> entities = new ArrayList<>();
         private final List<AnimationChannel> items = new ArrayList<>();
+        private final List<TimedSoundEffect> soundEffects = new ArrayList<>();
 
         private float transitionDuration = 1.25f;
 
@@ -94,8 +91,13 @@ public class AnimationDefinition {
             return this;
         }
 
+        public Builder addSoundEffect(TimedSoundEffect soundEffect) {
+            soundEffects.add(soundEffect);
+            return this;
+        }
+
         public AnimationDefinition build() {
-            return new AnimationDefinition(length, transitionDuration, animations, entities, items);
+            return new AnimationDefinition(length, transitionDuration, animations, entities, items, soundEffects);
         }
     }
 }

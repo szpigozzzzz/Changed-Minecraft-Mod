@@ -1,0 +1,8 @@
+{
+	"type": "minecraft:stonecutting",
+	"ingredient": {
+		"item": "changed:tiles_grayblue_bolted"
+	},
+	"result": "changed:tiles_grayblue_bolted_slab",
+	"count": 2
+}

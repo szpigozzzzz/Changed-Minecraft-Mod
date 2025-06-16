@@ -65,7 +65,7 @@ public abstract class HumanoidAnimatorMixin<T extends ChangedEntity, M extends A
         // Our equivalent of ^^^
         this.setupAnimStage(HumanoidAnimator.AnimateStage.INIT, entity, 0f, 0f, 0f, 0f, 0f);
         this.setupAnimStage(HumanoidAnimator.AnimateStage.STAND, entity, 0f, 0f, 0f, 0f, 0f);
-        this.entityModel.syncPropertyModel();
+        this.entityModel.syncPropertyModel(entity);
 
         Animation animation = Animation.get(player);
         if (animation == null) return;
@@ -97,7 +97,7 @@ public abstract class HumanoidAnimatorMixin<T extends ChangedEntity, M extends A
         }
 
         if (parCool$transformer != null) {
-            this.entityModel.syncPropertyModel();
+            this.entityModel.syncPropertyModel(entity);
             animation.animatePost(player, parCool$transformer);
             parCool$transformer.copyFromBodyToWear();
             parCool$transformer = null;

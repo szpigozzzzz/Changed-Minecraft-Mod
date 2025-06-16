@@ -262,10 +262,6 @@ public abstract class AbstractAbility<Instance extends AbstractAbilityInstance> 
     public void saveData(CompoundTag tag, IAbstractChangedEntity entity) {}
     public void readData(CompoundTag tag, IAbstractChangedEntity entity) {}
 
-    public ResourceLocation getTexture(IAbstractChangedEntity entity) {
-        return new ResourceLocation(getRegistryName().getNamespace(), "textures/abilities/" + getRegistryName().getPath() + ".png");
-    }
-
     // Broadcast changes to clients
     public final void setDirty(IAbstractChangedEntity entity) {
         CompoundTag data = new CompoundTag();
@@ -276,17 +272,6 @@ public abstract class AbstractAbility<Instance extends AbstractAbilityInstance> 
             Changed.PACKET_HANDLER.sendToServer(new SyncVariantAbilityPacket(id, data));
         else
             Changed.PACKET_HANDLER.send(PacketDistributor.ALL.noArg(), new SyncVariantAbilityPacket(id, data, entity.getUUID()));
-    }
-
-    public final void setDirty(AccessSaddleAbilityInstance instance) {
-        CompoundTag data = new CompoundTag();
-        instance.saveData(data);
-
-        int id = ChangedRegistry.ABILITY.get().getID(this);
-        if (instance.entity.getLevel().isClientSide)
-            Changed.PACKET_HANDLER.sendToServer(new SyncVariantAbilityPacket(id, data));
-        else
-            Changed.PACKET_HANDLER.send(PacketDistributor.ALL.noArg(), new SyncVariantAbilityPacket(id, data, instance.entity.getUUID()));
     }
 
     @Nullable

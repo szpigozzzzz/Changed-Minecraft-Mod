@@ -11,7 +11,6 @@ import net.minecraftforge.registries.RegistryObject;
 public class ChangedAbilities {
     public static final DeferredRegister<AbstractAbility<?>> REGISTRY = ChangedRegistry.ABILITY.createDeferred(Changed.MODID);
 
-    public static RegistryObject<AccessSaddleAbility> ACCESS_SADDLE = REGISTRY.register("access_saddle", AccessSaddleAbility::new);
     public static RegistryObject<SwitchTransfurModeAbility> SWITCH_TRANSFUR_MODE = REGISTRY.register("switch_transfur_mode", SwitchTransfurModeAbility::new);
     public static RegistryObject<SimpleCreateItemAbility> CREATE_COBWEB = REGISTRY.register("create_cobweb",
             () -> new SimpleCreateItemAbility(() -> new ItemStack(Items.COBWEB), 5.0f, 6.0f));
@@ -29,6 +28,8 @@ public class ChangedAbilities {
     public static RegistryObject<SirenSingAbility> SIREN_SING = REGISTRY.register("siren_sing", SirenSingAbility::new);
     public static RegistryObject<PuddleAbility> PUDDLE = REGISTRY.register("puddle", PuddleAbility::new);
     public static RegistryObject<GrabEntityAbility> GRAB_ENTITY_ABILITY = REGISTRY.register("grab_entity", GrabEntityAbility::new);
+    public static RegistryObject<ToggleNightVisionAbility> TOGGLE_NIGHT_VISION = REGISTRY.register("toggle_night_vision", ToggleNightVisionAbility::new);
+    public static RegistryObject<ToggleWaveVisionAbility> TOGGLE_WAVE_VISION = REGISTRY.register("toggle_wave_vision", ToggleWaveVisionAbility::new);
 
     public static RegistryObject<SelectSpecialStateAbility> SELECT_SPECIAL_STATE = REGISTRY.register("select_special_state", SelectSpecialStateAbility::new);
 

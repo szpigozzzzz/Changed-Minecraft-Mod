@@ -1,6 +1,7 @@
 package net.ltxprogrammer.changed.block;
 
 import net.ltxprogrammer.changed.entity.LatexType;
+import net.ltxprogrammer.changed.entity.beast.WhiteLatexEntity;
 import net.ltxprogrammer.changed.entity.variant.TransfurVariant;
 import net.ltxprogrammer.changed.entity.variant.TransfurVariantInstance;
 import net.ltxprogrammer.changed.init.*;
@@ -141,7 +142,9 @@ public class WhiteLatexBlock extends AbstractLatexBlock implements WhiteLatexTra
 
         BlockPos above = position.above();
         if (level.getBlockState(above).is(Blocks.AIR) && level.getBlockState(above.above()).is(Blocks.AIR)) {
-            ChangedEntities.PURE_WHITE_LATEX_WOLF.get().spawn(level, null, null, null, above, MobSpawnType.NATURAL, true, true);
+            if (level.getEntitiesOfClass(WhiteLatexEntity.class, new AABB(above).inflate(8)).size() < 8) {
+                ChangedEntities.PURE_WHITE_LATEX_WOLF.get().spawn(level, null, null, null, above, MobSpawnType.NATURAL, true, true);
+            }
         }
     }
 

@@ -68,7 +68,7 @@ public class ChangedDataFixer {
     });
 
     private final HashMap<ResourceLocation, ResourceLocation> BLOCK_ID_REMAP = Util.make(new HashMap<>(), map -> {
-
+        
     });
 
     // IDs that both blocks and items share
@@ -81,6 +81,7 @@ public class ChangedDataFixer {
         map.put(Changed.modResource("latex_wolf_crystal_small"), ChangedBlocks.WOLF_CRYSTAL_SMALL.getId());
         map.put(Changed.modResource("light_latex_puddle_female"), ChangedBlocks.WHITE_LATEX_PUDDLE_FEMALE.getId());
         map.put(Changed.modResource("light_latex_puddle_male"), ChangedBlocks.WHITE_LATEX_PUDDLE_MALE.getId());
+        map.put(Changed.modResource("tiles_darkblue"), ChangedBlocks.TILES_TEAL.getId());
     });
 
     private final HashMap<ResourceLocation, ResourceLocation> VARIANT_ID_REMAP = Util.make(new HashMap<>(), map -> {
@@ -156,6 +157,9 @@ public class ChangedDataFixer {
         updateID(ENTITY_ID_REMAP, entityTag, "id");
 
         updateName(ENUM_REMAP, entityTag, "LatexType");
+
+        updateID(BLOCK_ID_REMAP, entityTag, "final_state");
+        updateID(BLOCK_ITEM_ID_REMAP, entityTag, "final_state");
     }
 
     private void updateBlock(@NotNull CompoundTag blockTag) {

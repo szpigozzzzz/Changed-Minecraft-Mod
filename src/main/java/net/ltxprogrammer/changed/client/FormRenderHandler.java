@@ -11,6 +11,9 @@ import net.ltxprogrammer.changed.client.tfanimations.TransfurAnimator;
 import net.ltxprogrammer.changed.entity.ChangedEntity;
 import net.ltxprogrammer.changed.extension.ChangedCompatibility;
 import net.ltxprogrammer.changed.process.ProcessTransfur;
+import net.minecraft.CrashReport;
+import net.minecraft.CrashReportCategory;
+import net.minecraft.ReportedException;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.player.AbstractClientPlayer;
@@ -47,7 +50,16 @@ public abstract class FormRenderHandler {
 
                 ChangedCompatibility.forceIsFirstPersonRenderingToFrozen();
 
-                TransfurAnimator.renderTransfurringPlayer(player, variant, stack, buffer, light, partialTick);
+                try {
+                    TransfurAnimator.renderTransfurringPlayer(player, variant, stack, buffer, light, partialTick);
+                } catch (Exception e) {
+                    CrashReport report = CrashReport.forThrowable(e, "Rendering transfurred form");
+                    CrashReportCategory category = report.addCategory("Transfur details");
+                    category.setDetail("Transfur Variant", variant.getFormId());
+                    category.setDetail("Transfur Progress", variant.getTransfurProgression(partialTick));
+                    category.setDetail("Transfur Morph Progress", variant.getMorphProgression(partialTick));
+                    throw new ReportedException(report);
+                }
             } else {
                 if (!RenderOverride.renderOverrides(player, variant, stack, buffer, light, partialTick))
                     renderLiving(variant.getChangedEntity(), stack, buffer, light, partialTick);
@@ -92,14 +104,14 @@ public abstract class FormRenderHandler {
             renderingHand = true;
 
             AdvancedHumanoidModel entModel = advRenderer.getModel(changedEntity);
-            var modelInterface = (AdvancedHumanoidModelInterface<?,?>)entModel;
+            var modelInterface = (AdvancedHumanoidModelInterface)entModel;
 
-            var controller = modelInterface.getAnimator();
+            var controller = modelInterface.getAnimator(changedEntity);
 
             controller.resetVariables();
             ModelPart handPart = entModel.getArm(arm);
             entModel.setupAnim(changedEntity, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F);
-            modelInterface.setupHand();
+            modelInterface.setupHand(changedEntity);
 
             PoseStack stackCorrector = modelInterface.getPlacementCorrectors(CorrectorType.fromArm(arm));
             ResourceLocation texture = entRenderer.getTextureLocation(changedEntity);
@@ -181,6 +193,30 @@ public abstract class FormRenderHandler {
         part.zRot = prevZ;
     }
 
+    public static void renderVanillaModelPartWithTexture(ModelPart part, PoseStack stackCorrector, PoseStack stack, VertexConsumer buffer, int light, float alpha) {
+        if(part == null) return;
+
+        float prevX = part.xRot;
+        part.xRot = 0F;
+        float prevY = part.yRot;
+        part.yRot = 0F;
+        float prevZ = part.zRot;
+        part.zRot = 0.1F;
+
+        //taken from ModelRenderer.render
+        if(part.visible) {
+            stack.pushPose();
+
+            part.render(stack, buffer, light, OverlayTexture.NO_OVERLAY, 1F, 1F, 1F, alpha);
+
+            stack.popPose();
+        }
+
+        part.xRot = prevX;
+        part.yRot = prevY;
+        part.zRot = prevZ;
+    }
+
     public static void renderModelPartWithTexture(ModelPart part, PoseStack stackCorrector, PoseStack stack, VertexConsumer buffer, int light, float red, float green, float blue, float alpha) {
         if(part == null) return;
 
@@ -198,6 +234,30 @@ public abstract class FormRenderHandler {
             part.translateAndRotate(stack);
 
             stack.mulPoseMatrix(stackCorrector.last().pose());
+
+            part.render(stack, buffer, light, OverlayTexture.NO_OVERLAY, red, green, blue, alpha);
+
+            stack.popPose();
+        }
+
+        part.xRot = prevX;
+        part.yRot = prevY;
+        part.zRot = prevZ;
+    }
+
+    public static void renderVanillaModelPartWithTexture(ModelPart part, PoseStack stackCorrector, PoseStack stack, VertexConsumer buffer, int light, float red, float green, float blue, float alpha) {
+        if(part == null) return;
+
+        float prevX = part.xRot;
+        part.xRot = 0F;
+        float prevY = part.yRot;
+        part.yRot = 0F;
+        float prevZ = part.zRot;
+        part.zRot = 0.1F;
+
+        //taken from ModelRenderer.render
+        if(part.visible) {
+            stack.pushPose();
 
             part.render(stack, buffer, light, OverlayTexture.NO_OVERLAY, red, green, blue, alpha);
 

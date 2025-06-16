@@ -3,11 +3,13 @@ package net.ltxprogrammer.changed.mixin.render;
 import com.mojang.math.Vector3f;
 import net.ltxprogrammer.changed.ability.GrabEntityAbility;
 import net.ltxprogrammer.changed.ability.IAbstractChangedEntity;
+import net.ltxprogrammer.changed.block.SeatableBlock;
 import net.ltxprogrammer.changed.client.CameraExtender;
 import net.ltxprogrammer.changed.client.renderer.AdvancedHumanoidRenderer;
 import net.ltxprogrammer.changed.client.renderer.model.AdvancedHumanoidModelInterface;
 import net.ltxprogrammer.changed.entity.ChangedEntity;
 import net.ltxprogrammer.changed.entity.LivingEntityDataExtension;
+import net.ltxprogrammer.changed.entity.SeatEntity;
 import net.ltxprogrammer.changed.extension.ChangedCompatibility;
 import net.ltxprogrammer.changed.process.ProcessTransfur;
 import net.ltxprogrammer.changed.util.CameraUtil;
@@ -44,15 +46,19 @@ public abstract class CameraMixin implements CameraExtender {
 
     @Shadow @Final private Vector3f up;
 
+    @Shadow public abstract void setup(BlockGetter p_90576_, Entity p_90577_, boolean p_90578_, boolean p_90579_, float p_90580_);
+
+    @Shadow protected abstract void move(double p_90569_, double p_90570_, double p_90571_);
+
     @Unique
-    private <T extends ChangedEntity> void adjustAnimForEntity(T ChangedEntity, float partialTicks) {
-        if (Minecraft.getInstance().getEntityRenderDispatcher().getRenderer(ChangedEntity) instanceof AdvancedHumanoidRenderer<?,?,?> latexHumanoid &&
-                latexHumanoid.getModel(ChangedEntity) instanceof AdvancedHumanoidModelInterface AdvancedHumanoidModel) {
-            boolean shouldSit = ChangedEntity.isPassenger() && (ChangedEntity.getVehicle() != null && ChangedEntity.getVehicle().shouldRiderSit());
-            float f = Mth.rotLerp(partialTicks, ChangedEntity.yBodyRotO, ChangedEntity.yBodyRot);
-            float f1 = Mth.rotLerp(partialTicks, ChangedEntity.yHeadRotO, ChangedEntity.yHeadRot);
+    private <T extends ChangedEntity> void adjustAnimForEntity(T changedEntity, float partialTicks) {
+        if (Minecraft.getInstance().getEntityRenderDispatcher().getRenderer(changedEntity) instanceof AdvancedHumanoidRenderer<?,?,?> latexHumanoid &&
+                latexHumanoid.getModel(changedEntity) instanceof AdvancedHumanoidModelInterface AdvancedHumanoidModel) {
+            boolean shouldSit = changedEntity.isPassenger() && (changedEntity.getVehicle() != null && changedEntity.getVehicle().shouldRiderSit());
+            float f = Mth.rotLerp(partialTicks, changedEntity.yBodyRotO, changedEntity.yBodyRot);
+            float f1 = Mth.rotLerp(partialTicks, changedEntity.yHeadRotO, changedEntity.yHeadRot);
             float netHeadYaw = f1 - f;
-            if (shouldSit && ChangedEntity.getVehicle() instanceof LivingEntity livingentity) {
+            if (shouldSit && changedEntity.getVehicle() instanceof LivingEntity livingentity) {
                 f = Mth.rotLerp(partialTicks, livingentity.yBodyRotO, livingentity.yBodyRot);
                 netHeadYaw = f1 - f;
                 float f3 = Mth.wrapDegrees(netHeadYaw);
@@ -72,18 +78,18 @@ public abstract class CameraMixin implements CameraExtender {
                 netHeadYaw = f1 - f;
             }
 
-            float headPitch = Mth.lerp(partialTicks, ChangedEntity.xRotO, ChangedEntity.getXRot());
-            if (LivingEntityRenderer.isEntityUpsideDown(ChangedEntity)) {
+            float headPitch = Mth.lerp(partialTicks, changedEntity.xRotO, changedEntity.getXRot());
+            if (LivingEntityRenderer.isEntityUpsideDown(changedEntity)) {
                 headPitch *= -1.0F;
                 netHeadYaw *= -1.0F;
             }
 
             float limbSwingAmount = 0.0F;
             float limbSwing = 0.0F;
-            if (!shouldSit && ChangedEntity.isAlive()) {
-                limbSwingAmount = Mth.lerp(partialTicks, ChangedEntity.animationSpeedOld, ChangedEntity.animationSpeed);
-                limbSwing = ChangedEntity.animationPosition - ChangedEntity.animationSpeed * (1.0F - partialTicks);
-                if (ChangedEntity.isBaby()) {
+            if (!shouldSit && changedEntity.isAlive()) {
+                limbSwingAmount = Mth.lerp(partialTicks, changedEntity.animationSpeedOld, changedEntity.animationSpeed);
+                limbSwing = changedEntity.animationPosition - changedEntity.animationSpeed * (1.0F - partialTicks);
+                if (changedEntity.isBaby()) {
                     limbSwing *= 3.0F;
                 }
 
@@ -92,12 +98,12 @@ public abstract class CameraMixin implements CameraExtender {
                 }
             }
 
-            var animator = AdvancedHumanoidModel.getAnimator();
-            animator.setupVariables(ChangedEntity, partialTicks);
-            animator.setupCameraAnim(this, ChangedEntity,
+            var animator = AdvancedHumanoidModel.getAnimator(changedEntity);
+            animator.setupVariables(changedEntity, partialTicks);
+            animator.setupCameraAnim(this, changedEntity,
                     limbSwing,
                     limbSwingAmount,
-                    ChangedEntity.tickCount + partialTicks,
+                    changedEntity.tickCount + partialTicks,
                     netHeadYaw,
                     headPitch
             );
@@ -115,10 +121,29 @@ public abstract class CameraMixin implements CameraExtender {
                 adjustAnimForEntity(variant.getChangedEntity(), partialTicks);
             });
         }
+
+        if (entity.getVehicle() instanceof SeatEntity seatEntity) {
+            seatEntity.getAttachedBlockState().ifPresent(state -> {
+                if (!(state.getBlock() instanceof SeatableBlock seatable)) return;
+                var offset = seatable.getSleepOffset(level, state, seatEntity.getAttachedBlockPos());
+
+                this.move(offset.x, offset.y, offset.z);
+            });
+        }
     }
 
-    @Inject(method = "setup", at = @At("HEAD"))
+    @Inject(method = "setup", at = @At("HEAD"), cancellable = true)
     public void setupWithTug(BlockGetter level, Entity entity, boolean firstPerson, boolean mirrored, float partialTicks, CallbackInfo ci) {
+        if (!(entity instanceof LivingEntity livingEntity))
+            return;
+
+        LivingEntity controlling = GrabEntityAbility.getControllingEntity(livingEntity);
+        if (controlling != livingEntity) {
+            this.setup(level, controlling, firstPerson, mirrored, partialTicks);
+            ci.cancel();
+            return;
+        }
+
         if (!(entity instanceof Player player))
             return;
 

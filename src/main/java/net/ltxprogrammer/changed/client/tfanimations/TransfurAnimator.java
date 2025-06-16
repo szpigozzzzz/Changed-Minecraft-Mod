@@ -8,13 +8,21 @@ import net.ltxprogrammer.changed.client.FormRenderHandler;
 import net.ltxprogrammer.changed.client.PoseStackExtender;
 import net.ltxprogrammer.changed.client.animations.Limb;
 import net.ltxprogrammer.changed.client.renderer.AdvancedHumanoidRenderer;
+import net.ltxprogrammer.changed.client.renderer.accessory.TransitionalAccessory;
+import net.ltxprogrammer.changed.client.renderer.layers.AccessoryLayer;
 import net.ltxprogrammer.changed.client.renderer.layers.LatexHumanoidArmorLayer;
 import net.ltxprogrammer.changed.client.renderer.model.AdvancedHumanoidModel;
+import net.ltxprogrammer.changed.data.AccessorySlotContext;
+import net.ltxprogrammer.changed.data.AccessorySlots;
+import net.ltxprogrammer.changed.entity.AccessoryEntities;
 import net.ltxprogrammer.changed.entity.LimbCoverTransition;
 import net.ltxprogrammer.changed.entity.variant.TransfurVariantInstance;
 import net.ltxprogrammer.changed.extension.ChangedCompatibility;
 import net.ltxprogrammer.changed.util.Color3;
 import net.ltxprogrammer.changed.util.Transition;
+import net.minecraft.CrashReport;
+import net.minecraft.CrashReportCategory;
+import net.minecraft.ReportedException;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.HumanoidModel;
@@ -113,9 +121,9 @@ public abstract class TransfurAnimator {
         return copied;
     }
 
-    private static ModelPart.Cube clampCube(ModelPart.Cube a, @Nullable ModelPart.Cube clampBy) {
+    private static ModelPart.Cube clampCube(ModelPart.Cube a, ModelPart.Cube clampBy) {
         if (clampBy == null)
-            clampBy = a;
+            return a;
 
         float minX = Mth.clamp(a.minX, clampBy.minX, clampBy.maxX);
         float minY = Mth.clamp(a.minY, clampBy.minY, clampBy.maxY);
@@ -388,6 +396,7 @@ public abstract class TransfurAnimator {
 
         ModelPose beforePose = CAPTURED_MODELS.getOrDefault(before, NULL_POSE);
         final ModelPose afterPose = CAPTURED_MODELS.getOrDefault(after, NULL_POSE);
+        if (afterPose == NULL_POSE) return;
 
         {
             var helper = maybeReplaceWithHelper(afterModel, limb);
@@ -428,7 +437,14 @@ public abstract class TransfurAnimator {
             if (ChangedCompatibility.isFirstPersonRendering() && entity.isSwimming() && limb == Limb.TORSO)
                 return;
 
-            renderMorphedLimb(entity, limb, beforeModel, afterModel, morphProgress, color, alpha, stack, buffer, light, texture, listenToAfterVisible);
+            try {
+                renderMorphedLimb(entity, limb, beforeModel, afterModel, morphProgress, color, alpha, stack, buffer, light, texture, listenToAfterVisible);
+            } catch (Exception e) {
+                CrashReport report = CrashReport.forThrowable(e, "Rendering transfurring entity's limb");
+                CrashReportCategory category = report.addCategory("Limb being renderered");
+                category.setDetail("Limb Name", limb.getSerializedName());
+                throw new ReportedException(report);
+            }
         });
     }
 
@@ -511,6 +527,13 @@ public abstract class TransfurAnimator {
         return Optional.empty();
     }
 
+    private static Optional<AccessoryLayer<?,?>> findAccessoryLayer(LivingEntityRenderer<?,?> renderer) {
+        for (var layer : renderer.layers)
+            if (layer instanceof AccessoryLayer<?,?> accessoryLayer)
+                return Optional.of(accessoryLayer);
+        return Optional.empty();
+    }
+
     public static void renderTransfurringPlayer(Player player, TransfurVariantInstance<?> variant, PoseStack stack, MultiBufferSource buffer, int light, float partialTick) {
         final Minecraft minecraft = Minecraft.getInstance();
         final EntityRenderDispatcher dispatcher = minecraft.getEntityRenderDispatcher();
@@ -520,7 +543,7 @@ public abstract class TransfurAnimator {
         if (!(playerRenderer instanceof LivingEntityRenderer<?,?> livingPlayerRenderer)) return;
         if (!(livingPlayerRenderer.getModel() instanceof HumanoidModel<?> playerHumanoidModel)) return;
 
-        if (!(latexRenderer instanceof AdvancedHumanoidRenderer<?,?,?> latexHumanoidRenderer)) return;
+        if (!(latexRenderer instanceof AdvancedHumanoidRenderer latexHumanoidRenderer)) return;
 
         final float transfurProgression = variant.getTransfurProgression(partialTick);
         final float coverProgress = getCoverProgression(transfurProgression);
@@ -561,8 +584,13 @@ public abstract class TransfurAnimator {
 
         if (morphAlpha > 0f) {
             final var colors = variant.getTransfurColor();
-            renderMorphedEntity(player, playerHumanoidModel, latexHumanoidRenderer.getModel(variant.getChangedEntity()),
-                    morphProgress, colors, morphAlpha, stack, buffer, light, null, false);
+            try {
+                renderMorphedEntity(player, playerHumanoidModel, latexHumanoidRenderer.getModel(variant.getChangedEntity()),
+                        morphProgress, colors, morphAlpha, stack, buffer, light, null, false);
+            } catch (Exception e) {
+                CrashReport report = CrashReport.forThrowable(e, "Rendering entity partially transfurred");
+                throw new ReportedException(report);
+            }
         }
 
         if (coverProgress >= 1f) {
@@ -578,16 +606,61 @@ public abstract class TransfurAnimator {
 
                     var model = armorLayer.getArmorModel(armorSlot);
                     ((HumanoidArmorLayer) armorLayer).setPartVisibility((HumanoidModel) model, armorSlot);
-                    var afterModel = latexHumanoidRenderer.getArmorLayer().getArmorModel(armorSlot);
-                    afterModel.prepareVisibility(armorSlot, item);
-                    renderMorphedEntity(player,
-                            model,
-                            afterModel,
-                            morphProgress, Color3.WHITE, 1f, stack, buffer, light,
-                            texture, true);
-                    afterModel.unprepareVisibility(armorSlot, item);
+                    var afterModel = latexHumanoidRenderer.getArmorLayer().getArmorModel(variant.getChangedEntity(), armorSlot);
+                    try {
+                        afterModel.prepareVisibility(armorSlot, item);
+                        renderMorphedEntity(player,
+                                model,
+                                afterModel,
+                                morphProgress, Color3.WHITE, 1f, stack, buffer, light,
+                                texture, true);
+                        afterModel.unprepareVisibility(armorSlot, item);
+                    } catch (Exception e) {
+                        CrashReport report = CrashReport.forThrowable(e, "Rendering transfurring entity's armor");
+                        CrashReportCategory category = report.addCategory("Armor being rendered");
+                        category.setDetail("Armor Item", item);
+                        category.setDetail("Armor Slot", armorSlot);
+                        throw new ReportedException(report);
+                    }
                 });
             });
+
+            final var slotTypePredicate = AccessoryEntities.INSTANCE.canEntityTypeUseSlot(variant.getChangedEntity().getType());
+            findAccessoryLayer(livingPlayerRenderer).flatMap(accessoryLayer -> AccessorySlots.getForEntity(player))
+                    .ifPresent(slots -> slots.forEachSlot((slotType, itemStack) -> {
+                        if (itemStack.isEmpty())
+                            return;
+                        if (!slotTypePredicate.test(slotType) || !slotType.canHoldItem(itemStack, player))
+                            return; // Ensure lag doesn't crash with an invalid slot
+
+                        var slotContextPlayer = new AccessorySlotContext<>(player, slotType, itemStack);
+                        var slotContextVariant = new AccessorySlotContext<>(variant.getChangedEntity(), slotType, itemStack);
+
+                        AccessoryLayer.getRenderer(itemStack.getItem()).ifPresent(renderer -> {
+                            if (renderer instanceof TransitionalAccessory transitionalAccessory) {
+                                final var texture = transitionalAccessory.getModelTexture(slotContextVariant);
+                                final var before = transitionalAccessory.getBeforeModel(slotContextPlayer, livingPlayerRenderer);
+                                if (texture.isEmpty() || before.isEmpty())
+                                    return;
+
+                                transitionalAccessory.getAfterModels(slotContextPlayer, latexHumanoidRenderer).forEach(after -> {
+                                    try {
+                                        renderMorphedEntity(player,
+                                                before.get(),
+                                                after,
+                                                morphProgress, Color3.WHITE, 1f, stack, buffer, light,
+                                                texture.get(), true);
+                                    } catch (Exception e) {
+                                        CrashReport report = CrashReport.forThrowable(e, "Rendering transfurring entity's accessories");
+                                        CrashReportCategory category = report.addCategory("Accessory being rendered");
+                                        category.setDetail("Accessory Item", itemStack);
+                                        category.setDetail("Accessory Slot", slotType.getRegistryName());
+                                        throw new ReportedException(report);
+                                    }
+                                });
+                            }
+                        });
+            }));
         }
     }
 
@@ -638,8 +711,15 @@ public abstract class TransfurAnimator {
             return; // Don't bother rendering
 
         final var color = variant.getTransfurColor();
-        renderMorphedLimb(player, limb, playerHumanoidModel, latexHumanoidRenderer.getModel(variant.getChangedEntity()),
-                morphProgress, color, morphAlpha, stack, buffer, light, texture, false);
+        try {
+            renderMorphedLimb(player, limb, playerHumanoidModel, latexHumanoidRenderer.getModel(variant.getChangedEntity()),
+                    morphProgress, color, morphAlpha, stack, buffer, light, texture, false);
+        } catch (Exception e) {
+            CrashReport report = CrashReport.forThrowable(e, "Rendering transfurring entity's arm");
+            CrashReportCategory category = report.addCategory("Limb being rendered");
+            category.setDetail("Limb Name", limb.getSerializedName());
+            throw new ReportedException(report);
+        }
     }
 
     private static boolean capturingPose = false;
@@ -677,6 +757,8 @@ public abstract class TransfurAnimator {
         if (layer instanceof HumanoidArmorLayer<?,?,?>)
             return true;
         if (layer instanceof LatexHumanoidArmorLayer<?,?,?>)
+            return true;
+        if (layer instanceof AccessoryLayer<?,?>)
             return true;
         return false;
     }

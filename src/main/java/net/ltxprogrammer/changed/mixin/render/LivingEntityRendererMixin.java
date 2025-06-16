@@ -1,15 +1,22 @@
 package net.ltxprogrammer.changed.mixin.render;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import llamalad7.mixinextras.injector.WrapWithCondition;
+import net.ltxprogrammer.changed.client.ClientLivingEntityExtender;
 import net.ltxprogrammer.changed.client.LivingEntityRendererExtender;
+import net.ltxprogrammer.changed.client.renderer.accessory.WornExoskeletonRenderer;
+import net.ltxprogrammer.changed.client.renderer.layers.AccessoryLayer;
 import net.ltxprogrammer.changed.client.tfanimations.TransfurAnimator;
+import net.ltxprogrammer.changed.entity.robot.Exoskeleton;
+import net.ltxprogrammer.changed.util.EntityUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.EntityModel;
+import net.minecraft.client.model.HumanoidModel;
+import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import org.spongepowered.asm.mixin.Final;
@@ -44,7 +51,7 @@ public abstract class LivingEntityRendererMixin<T extends LivingEntity, M extend
     @Unique private final List<RenderLayer<T, M>> backupLayers = new ArrayList<>();
 
     @Unique
-    private void prepareLayers() {
+    private void prepareLayers(T entity) {
         if (!TransfurAnimator.isCapturing())
             return;
 
@@ -54,7 +61,11 @@ public abstract class LivingEntityRendererMixin<T extends LivingEntity, M extend
     }
 
     @Unique
-    private void unprepareLayers() {
+    private void unprepareLayers(T entity) {
+        ((ClientLivingEntityExtender)EntityUtil.maybeGetUnderlying(entity)).getOrderedAnimations().forEach(instance -> {
+            instance.resetToBaseline(this.model);
+        });
+
         if (!TransfurAnimator.isCapturing())
             return;
 
@@ -65,7 +76,7 @@ public abstract class LivingEntityRendererMixin<T extends LivingEntity, M extend
 
     @Override
     public void directRender(T entity, float yRot, float partialTicks, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight) {
-        this.prepareLayers();
+        this.prepareLayers(entity);
 
         this.model.attackTime = this.getAttackAnim(entity, partialTicks);
         this.model.riding = false;
@@ -85,16 +96,29 @@ public abstract class LivingEntityRendererMixin<T extends LivingEntity, M extend
             layer.render(poseStack, bufferSource, packedLight, entity, 0.0f, 0.0f, partialTicks, 0.0f, 0.0f, 0.0f);
         }
 
-        this.unprepareLayers();
+        this.unprepareLayers(entity);
     }
 
-    @Inject(method = "render(Lnet/minecraft/world/entity/LivingEntity;FFLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;I)V", at = @At("HEAD"))
+    @Inject(method = "render(Lnet/minecraft/world/entity/LivingEntity;FFLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;I)V",
+            at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/vertex/PoseStack;pushPose()V"))
     public void beforeRender(T entity, float yRot, float partialTicks, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight, CallbackInfo ci) {
-        this.prepareLayers();
+        this.prepareLayers(entity);
     }
 
-    @Inject(method = "render(Lnet/minecraft/world/entity/LivingEntity;FFLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;I)V", at = @At("RETURN"))
+    @Inject(method = "render(Lnet/minecraft/world/entity/LivingEntity;FFLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;I)V",
+            at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/vertex/PoseStack;popPose()V"))
     public void afterRender(T entity, float yRot, float partialTicks, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight, CallbackInfo ci) {
-        this.unprepareLayers();
+        this.unprepareLayers(entity);
+    }
+
+    @Inject(method = "setupRotations", at = @At("HEAD"))
+    protected void setupModdedPose(T entity, PoseStack poseStack, float p_115319_, float p_115320_, float p_115321_, CallbackInfo ci) {
+        Exoskeleton.getEntityExoskeleton(entity).ifPresent(pair -> {
+            AccessoryLayer.getRenderer(pair.getSecond()).ifPresent(renderer -> {
+                if (renderer instanceof WornExoskeletonRenderer exoRenderer) {
+                    exoRenderer.getModel().animateWearerPose(entity, this.model, poseStack, pair.getFirst());
+                }
+            });
+        });
     }
 }

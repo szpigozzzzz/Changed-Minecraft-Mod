@@ -39,39 +39,43 @@ public class ChangedConfig {
     static final Marker CONFIG = MarkerManager.getMarker("CONFIG");
 
     public static class Common {
+        public final ForgeConfigSpec.ConfigValue<Boolean> downloadPatreonContent;
         public final ForgeConfigSpec.ConfigValue<String> githubDomain;
         public final ForgeConfigSpec.ConfigValue<Boolean> displayPatronage;
 
         public Common(ForgeConfigSpec.Builder builder) {
-            builder.comment("Choose your domain. Let's you specify a mirror domain if your ISP blocks github (for whatever reason)");
+            builder.comment("Choose whether this instance will download patreon content. If disabled: this instance will not recognize patrons' rank or special form.");
+            downloadPatreonContent = builder.define("downloadPatreonContent", true);
+            builder.comment("Choose your domain. Let's you specify a mirror domain if your ISP blocks github (for whatever reason).");
             githubDomain = builder.define("githubDomain", "raw.githubusercontent.com");
-            builder.comment("Compatibility is weird, you can disable displaying player's patronage to Changed:MC here");
+            builder.comment("Compatibility is weird, you can disable displaying player's patronage to Changed:MC here.");
             displayPatronage = builder.define("displayPatronage", true);
         }
     }
 
     public static class Client implements AdditionalData {
         public final ForgeConfigSpec.ConfigValue<Boolean> showContentWarning;
-        public final ForgeConfigSpec.ConfigValue<Boolean> useNewModels;
         public final ForgeConfigSpec.ConfigValue<Boolean> useGoopyInventory;
         public final ForgeConfigSpec.ConfigValue<Boolean> useGoopyHearts;
+        public final ForgeConfigSpec.ConfigValue<Boolean> useBlinkingEyes;
         public final ForgeConfigSpec.ConfigValue<Boolean> cacheGeneratedTextures;
         public final ForgeConfigSpec.ConfigValue<Boolean> memCacheBaseImages;
         public final ForgeConfigSpec.ConfigValue<Boolean> generateUniqueTexturesForAllBlocks;
         public final ForgeConfigSpec.ConfigValue<Boolean> fastAndCheapLatexBlocks;
         public final ForgeConfigSpec.ConfigValue<TransfurProgressOverlay.Position> transfurMeterPosition;
+        public final ForgeConfigSpec.ConfigValue<Boolean> renderDripParticlesWithNormal;
 
         public final BasicPlayerInfo basicPlayerInfo = new BasicPlayerInfo();
 
         public Client(ForgeConfigSpec.Builder builder) {
             builder.comment("Show content warning on launch (Disables automatically)");
             showContentWarning = builder.define("showContentWarning", true);
-            builder.comment("While some like the new models, you may not. Here's your chance to opt-out (Requires restart)");
-            useNewModels = builder.define("useNewModels", true);
             builder.comment("Enable/disable the gooey inventory");
             useGoopyInventory = builder.define("useGooeyInventory", true);
             builder.comment("Enable/disable the gooey hearts");
             useGoopyHearts = builder.define("useGoopyHearts", true);
+            builder.comment("Enable/disable compatible models to blink intermittently");
+            useBlinkingEyes = builder.define("useBlinkingEyes", false);
             builder.comment("Caching generated latex covering textures will decrease load time, but will disable recreating the cache if you change resource packs. This cache is stored on your disk. It's recommended to enable this while loading large modpacks");
             cacheGeneratedTextures = builder.define("cacheGeneratedTextures", true);
             builder.comment("While generating textures, the generator will store all used block textures in memory until all textures are generated. It's recommended to disable this while loading large modpacks");
@@ -82,6 +86,8 @@ public class ChangedConfig {
             fastAndCheapLatexBlocks = builder.define("fastAndCheapLatexBlocks", false);
             builder.comment("Specify the location of the transfur meter");
             transfurMeterPosition = builder.defineEnum("transfurMeterPosition", TransfurProgressOverlay.Position.BOTTOM_LEFT);
+            builder.comment("Disable this to test fix for black drip particles (https://github.com/LtxProgrammer/Changed-Minecraft-Mod/issues/1291)");
+            renderDripParticlesWithNormal = builder.define("renderDripParticlesWithNormal", true);
         }
 
         @Override

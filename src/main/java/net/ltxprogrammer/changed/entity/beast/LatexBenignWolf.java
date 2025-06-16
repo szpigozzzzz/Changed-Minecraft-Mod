@@ -1,19 +1,19 @@
 package net.ltxprogrammer.changed.entity.beast;
 
-import net.ltxprogrammer.changed.entity.HairStyle;
-import net.ltxprogrammer.changed.entity.TransfurCause;
-import net.ltxprogrammer.changed.entity.TransfurMode;
+import net.ltxprogrammer.changed.ability.IAbstractChangedEntity;
+import net.ltxprogrammer.changed.entity.*;
+import net.ltxprogrammer.changed.entity.robot.Exoskeleton;
+import net.ltxprogrammer.changed.process.ProcessTransfur;
 import net.ltxprogrammer.changed.util.Color3;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.ai.attributes.AttributeMap;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.common.ForgeMod;
-import org.jetbrains.annotations.Nullable;
-
-import java.util.List;
 
 public class LatexBenignWolf extends AbstractLatexWolf {
+    private boolean hasExoLast = false;
+
     public LatexBenignWolf(EntityType<? extends LatexBenignWolf> p_19870_, Level p_19871_) {
         super(p_19870_, p_19871_);
     }
@@ -27,26 +27,40 @@ public class LatexBenignWolf extends AbstractLatexWolf {
     }
 
     @Override
+    public void variantTick(Level level) {
+        super.variantTick(level);
+
+        boolean hasExo = Exoskeleton.getEntityExoskeleton(this.maybeGetUnderlying()).isPresent();
+        if (hasExoLast != hasExo) {
+            var attributes = this.getAttributes();
+
+            if (hasExo) {
+                attributes.getInstance(Attributes.MOVEMENT_SPEED).setBaseValue(1.075);
+                attributes.getInstance(ForgeMod.SWIM_SPEED.get()).setBaseValue(0.95);
+            }
+
+            else {
+                attributes.getInstance(Attributes.MOVEMENT_SPEED).setBaseValue(0.15);
+                attributes.getInstance(ForgeMod.SWIM_SPEED.get()).setBaseValue(0.2);
+            }
+
+            hasExoLast = hasExo;
+
+            var instance = IAbstractChangedEntity.forEitherSafe(this.maybeGetUnderlying()).map(IAbstractChangedEntity::getTransfurVariantInstance).orElse(null);
+            if (instance != null) {
+                instance.visionType = hasExo ? VisionType.NORMAL : VisionType.BLIND;
+                instance.itemUseMode = hasExo ? UseItemMode.NORMAL : UseItemMode.NONE;
+                instance.jumpStrength = hasExo ? 1.0f : 0.5f;
+                instance.miningStrength = hasExo ? MiningStrength.NORMAL : MiningStrength.WEAK;
+
+                instance.refreshAttributes();
+            }
+        }
+    }
+
+    @Override
     public TransfurMode getTransfurMode() {
         return TransfurMode.ABSORPTION;
-    }
-
-    @Override
-    public HairStyle getDefaultHairStyle() {
-        return HairStyle.BALD.get();
-    }
-
-    public @Nullable List<HairStyle> getValidHairStyles() {
-        return HairStyle.Collection.getAll();
-    }
-
-    @Override
-    public Color3 getHairColor(int layer) {
-        return Color3.getColor("#282828");
-    }
-
-    public Color3 getDripColor() {
-        return Color3.getColor("#282828");
     }
 
     public Color3 getTransfurColor(TransfurCause cause) {

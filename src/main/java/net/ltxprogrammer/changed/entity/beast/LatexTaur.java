@@ -5,6 +5,7 @@ import net.ltxprogrammer.changed.entity.ChangedEntity;
 import net.ltxprogrammer.changed.init.ChangedAbilities;
 import net.ltxprogrammer.changed.network.packet.MountTransfurPacket;
 import net.ltxprogrammer.changed.process.ProcessTransfur;
+import net.ltxprogrammer.changed.util.ItemUtil;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
@@ -29,17 +30,12 @@ public interface LatexTaur<T extends ChangedEntity> extends Saddleable {
     }
 
     default boolean isSaddled(T self) {
-        return ProcessTransfur.ifPlayerTransfurred(self.getUnderlyingPlayer(), variant -> {
-            var ability = variant.getAbilityInstance(ChangedAbilities.ACCESS_SADDLE.get());
-            if (ability != null)
-                return ability.saddle != null && !ability.saddle.isEmpty();
-            else
-                return false;
-        }, () -> self.getPersistentData().contains(SADDLE_LOCATION));
+        return ItemUtil.isWearingItem(self, Items.SADDLE).isPresent() ||
+                self.getPersistentData().contains(SADDLE_LOCATION);
     }
 
     default void doPlayerRide(T self, Player player) {
-        if (!self.level.isClientSide) {
+        if (!self.level.isClientSide && player.getFirstPassenger() == null) {
             player.setYRot(self.getYRot());
             player.setXRot(self.getXRot());
             Player underlying = self.getUnderlyingPlayer();

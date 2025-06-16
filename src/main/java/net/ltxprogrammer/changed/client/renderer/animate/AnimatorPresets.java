@@ -6,6 +6,7 @@ import net.ltxprogrammer.changed.client.renderer.animate.bipedal.*;
 import net.ltxprogrammer.changed.client.renderer.animate.camera.DragonCameraCreativeFlyAnimator;
 import net.ltxprogrammer.changed.client.renderer.animate.camera.OrcaCameraSwimAnimator;
 import net.ltxprogrammer.changed.client.renderer.animate.camera.SharkCameraSwimAnimator;
+import net.ltxprogrammer.changed.client.renderer.animate.camera.TaurCameraJumpAnimator;
 import net.ltxprogrammer.changed.client.renderer.animate.ears.BeeAntennaeInitAnimator;
 import net.ltxprogrammer.changed.client.renderer.animate.ears.CatEarsInitAnimator;
 import net.ltxprogrammer.changed.client.renderer.animate.ears.WolfEarsInitAnimator;
@@ -56,7 +57,8 @@ public class AnimatorPresets {
                     .addAnimator(new WolfBipedalInitAnimator<>(leftLeg, leftLegLower, leftFoot, leftPad, rightLeg, rightLegLower, rightFoot, rightPad))
                     .addAnimator(new BipedalRideAnimator<>(leftLeg, rightLeg))
                     .addAnimator(new BipedalStandAnimator<>(leftLeg, rightLeg))
-                    .addAnimator(new WolfBipedalSwimAnimator<>(leftLeg, leftLegLower, leftFoot, leftPad, rightLeg, rightLegLower, rightFoot, rightPad));
+                    .addAnimator(new WolfBipedalSwimAnimator<>(leftLeg, leftLegLower, leftFoot, leftPad, rightLeg, rightLegLower, rightFoot, rightPad))
+                    .addAnimator(new ExoskeletonBipedalAnimator<>(leftLeg, leftLegLower, leftFoot, leftPad, rightLeg, rightLegLower, rightFoot, rightPad));
         };
     }
 
@@ -68,7 +70,8 @@ public class AnimatorPresets {
                     .addAnimator(new CatBipedalInitAnimator<>(leftLeg, leftLegLower, leftFoot, leftPad, rightLeg, rightLegLower, rightFoot, rightPad))
                     .addAnimator(new BipedalRideAnimator<>(leftLeg, rightLeg))
                     .addAnimator(new BipedalStandAnimator<>(leftLeg, rightLeg))
-                    .addAnimator(new CatBipedalSwimAnimator<>(leftLeg, leftLegLower, leftFoot, leftPad, rightLeg, rightLegLower, rightFoot, rightPad));
+                    .addAnimator(new CatBipedalSwimAnimator<>(leftLeg, leftLegLower, leftFoot, leftPad, rightLeg, rightLegLower, rightFoot, rightPad))
+                    .addAnimator(new ExoskeletonBipedalAnimator<>(leftLeg, leftLegLower, leftFoot, leftPad, rightLeg, rightLegLower, rightFoot, rightPad));
         };
     }
 
@@ -81,7 +84,8 @@ public class AnimatorPresets {
                     .addAnimator(new DragonBipedalFallFlyAnimator<>(leftLeg, leftLegLower, leftFoot, leftPad, rightLeg, rightLegLower, rightFoot, rightPad))
                     .addAnimator(new BipedalRideAnimator<>(leftLeg, rightLeg))
                     .addAnimator(new BipedalStandAnimator<>(leftLeg, rightLeg))
-                    .addAnimator(new DragonBipedalSwimAnimator<>(leftLeg, leftLegLower, leftFoot, leftPad, rightLeg, rightLegLower, rightFoot, rightPad));
+                    .addAnimator(new DragonBipedalSwimAnimator<>(leftLeg, leftLegLower, leftFoot, leftPad, rightLeg, rightLegLower, rightFoot, rightPad))
+                    .addAnimator(new ExoskeletonBipedalAnimator<>(leftLeg, leftLegLower, leftFoot, leftPad, rightLeg, rightLegLower, rightFoot, rightPad));
         };
     }
 
@@ -93,7 +97,8 @@ public class AnimatorPresets {
                     .addAnimator(new SharkBipedalInitAnimator<>(leftLeg, leftLegLower, leftFoot, leftPad, rightLeg, rightLegLower, rightFoot, rightPad))
                     .addAnimator(new BipedalRideAnimator<>(leftLeg, rightLeg))
                     .addAnimator(new BipedalStandAnimator<>(leftLeg, rightLeg))
-                    .addAnimator(new SharkBipedalSwimAnimator<>(leftLeg, leftLegLower, leftFoot, leftPad, rightLeg, rightLegLower, rightFoot, rightPad));
+                    .addAnimator(new SharkBipedalSwimAnimator<>(leftLeg, leftLegLower, leftFoot, leftPad, rightLeg, rightLegLower, rightFoot, rightPad))
+                    .addAnimator(new ExoskeletonBipedalAnimator<>(leftLeg, leftLegLower, leftFoot, leftPad, rightLeg, rightLegLower, rightFoot, rightPad));
         };
     }
 
@@ -105,7 +110,8 @@ public class AnimatorPresets {
                     .addAnimator(new SharkBipedalInitAnimator<>(leftLeg, leftLegLower, leftFoot, leftPad, rightLeg, rightLegLower, rightFoot, rightPad))
                     .addAnimator(new BipedalRideAnimator<>(leftLeg, rightLeg))
                     .addAnimator(new BipedalStandAnimator<>(leftLeg, rightLeg))
-                    .addAnimator(new OrcaBipedalSwimAnimator<>(leftLeg, leftLegLower, leftFoot, leftPad, rightLeg, rightLegLower, rightFoot, rightPad));
+                    .addAnimator(new OrcaBipedalSwimAnimator<>(leftLeg, leftLegLower, leftFoot, leftPad, rightLeg, rightLegLower, rightFoot, rightPad))
+                    .addAnimator(new ExoskeletonBipedalAnimator<>(leftLeg, leftLegLower, leftFoot, leftPad, rightLeg, rightLegLower, rightFoot, rightPad));
         };
     }
 
@@ -142,6 +148,18 @@ public class AnimatorPresets {
                     .addAnimator(new LeglessFallFlyAnimator<>(abdomen, lowerAbdomen, tail, tailJoints))
                     .addAnimator(new LeglessStandAnimator<>(abdomen, lowerAbdomen, tail, tailJoints))
                     .addAnimator(new LeglessSwimAnimatorV2<>(abdomen, lowerAbdomen, tail, tailJoints))
+                    .addAnimator(new LeglessSleepAnimator<>(abdomen, lowerAbdomen, tail, tailJoints));
+        };
+    }
+
+    public static <T extends ChangedEntity, M extends AdvancedHumanoidModel<T>> Consumer<HumanoidAnimator<T, M>> leglessV2Snake(ModelPart abdomen, ModelPart lowerAbdomen, ModelPart tail, List<ModelPart> tailJoints) {
+        return animator -> {
+            animator.addAnimator(new LeglessInitAnimatorV2<>(abdomen, lowerAbdomen, tail, tailJoints))
+                    .addAnimator(new LeglessRideAnimator<>(abdomen, lowerAbdomen, tail, tailJoints))
+                    .addAnimator(new LeglessCrouchAnimator<>(abdomen, lowerAbdomen, tail, tailJoints))
+                    .addAnimator(new LeglessFallFlyAnimator<>(abdomen, lowerAbdomen, tail, tailJoints))
+                    .addAnimator(new LeglessStandAnimator<>(abdomen, lowerAbdomen, tail, tailJoints))
+                    .addAnimator(new LeglessSlitherAnimator<>(abdomen, lowerAbdomen, tail, tailJoints))
                     .addAnimator(new LeglessSleepAnimator<>(abdomen, lowerAbdomen, tail, tailJoints));
         };
     }
@@ -257,6 +275,17 @@ public class AnimatorPresets {
         };
     }
 
+    public static <T extends ChangedEntity, M extends AdvancedHumanoidModel<T>> Consumer<HumanoidAnimator<T, M>> snakeUpperBody(ModelPart head, ModelPart torso, ModelPart leftArm, ModelPart rightArm) {
+        return animator -> {
+            animator.setupHands(1, leftArm, rightArm)
+                    .addAnimator(new HoldEntityAnimator<>(head, torso, leftArm, rightArm))
+                    .addAnimator(new SharkUpperBodyInitAnimator<>(head, torso, leftArm, rightArm))
+                    .addAnimator(new SharkUpperBodyCrouchAnimator<>(head, torso, leftArm, rightArm))
+                    .addAnimator(new SharkUpperBodyAttackAnimator<>(head, torso, leftArm, rightArm))
+                    .addAnimator(new SharkUpperBodyStandAnimator<>(head, torso, leftArm, rightArm));
+        };
+    }
+
     public static <T extends ChangedEntity, M extends AdvancedHumanoidModel<T>> Consumer<HumanoidAnimator<T, M>> doubleArmUpperBody(ModelPart head, ModelPart torso, ModelPart upperLeftArm, ModelPart upperRightArm, ModelPart lowerLeftArm, ModelPart lowerRightArm) {
         return animator -> {
             animator.setupHands(1, upperLeftArm, upperRightArm)
@@ -297,7 +326,9 @@ public class AnimatorPresets {
                     .addAnimator(new TaurUpperBodyInitAnimator<>(head, torso, leftArm, rightArm))
                     .addAnimator(new TaurUpperBodyCrouchAnimator<>(head, torso, leftArm, rightArm))
                     .addAnimator(new TaurUpperBodyAttackAnimator<>(head, torso, leftArm, rightArm))
-                    .addAnimator(new TaurUpperBodyStandAnimator<>(head, torso, leftArm, rightArm));
+                    .addAnimator(new TaurUpperBodyStandAnimator<>(head, torso, leftArm, rightArm))
+                    .addAnimator(new TaurUpperBodyJumpAnimator<>(head, torso, leftArm, rightArm))
+                    .addCameraAnimator(new TaurCameraJumpAnimator<>());
         };
     }
 
@@ -689,6 +720,37 @@ public class AnimatorPresets {
         };
     }
 
+    public static <T extends ChangedEntity, M extends AdvancedHumanoidModel<T>> Consumer<HumanoidAnimator<T, M>> mothLike(ModelPart head, ModelPart torso, ModelPart leftArm, ModelPart rightArm,
+                                                                                                                          ModelPart tail, List<ModelPart> tailJoints, ModelPart leftWing, ModelPart rightWing,
+                                                                                                                          ModelPart leftLeg, ModelPart leftLegLower, ModelPart leftFoot, ModelPart leftPad,
+                                                                                                                          ModelPart rightLeg, ModelPart rightLegLower, ModelPart rightFoot, ModelPart rightPad) {
+        return animator -> {
+            animator.addPreset(dragonBipedal(leftLeg, leftLegLower, leftFoot, leftPad, rightLeg, rightLegLower, rightFoot, rightPad))
+                    .addPreset(dragonUpperBody(head, torso, leftArm, rightArm))
+                    .addPreset(dragonTail(tail, tailJoints))
+                    .addAnimator(new WolfHeadInitAnimator<>(head))
+                    .addAnimator(new BeeWingInitAnimator<>(leftWing, rightWing))
+                    .addAnimator(new ArmSwimAnimator<>(leftArm, rightArm))
+                    .addAnimator(new ArmBobAnimator<>(leftArm, rightArm))
+                    .addAnimator(new ArmRideAnimator<>(leftArm, rightArm));
+        };
+    }
+
+    public static <T extends ChangedEntity, M extends AdvancedHumanoidModel<T>> Consumer<HumanoidAnimator<T, M>> mothLikeArmor(ModelPart head, ModelPart torso, ModelPart leftArm, ModelPart rightArm,
+                                                                                                                          ModelPart tail, List<ModelPart> tailJoints,
+                                                                                                                          ModelPart leftLeg, ModelPart leftLegLower, ModelPart leftFoot, ModelPart leftPad,
+                                                                                                                          ModelPart rightLeg, ModelPart rightLegLower, ModelPart rightFoot, ModelPart rightPad) {
+        return animator -> {
+            animator.addPreset(dragonBipedal(leftLeg, leftLegLower, leftFoot, leftPad, rightLeg, rightLegLower, rightFoot, rightPad))
+                    .addPreset(dragonUpperBody(head, torso, leftArm, rightArm))
+                    .addPreset(dragonTail(tail, tailJoints))
+                    .addAnimator(new WolfHeadInitAnimator<>(head))
+                    .addAnimator(new ArmSwimAnimator<>(leftArm, rightArm))
+                    .addAnimator(new ArmBobAnimator<>(leftArm, rightArm))
+                    .addAnimator(new ArmRideAnimator<>(leftArm, rightArm));
+        };
+    }
+
     public static <T extends ChangedEntity, M extends AdvancedHumanoidModel<T>> Consumer<HumanoidAnimator<T, M>> beeLike(ModelPart head, ModelPart leftAntennae, ModelPart rightAntennae,
                                                                                                            ModelPart torso, ModelPart upperLeftArm, ModelPart upperRightArm, ModelPart lowerLeftArm, ModelPart lowerRightArm,
                                                                                                            ModelPart tail, List<ModelPart> tailJoints, ModelPart leftWing, ModelPart rightWing,
@@ -867,24 +929,26 @@ public class AnimatorPresets {
                                                                                                             ModelPart abdomen, ModelPart lowerAbdomen,
                                                                                                             ModelPart tail, List<ModelPart> tailJoints) {
         return animator -> {
-            animator.addPreset(legless(abdomen, lowerAbdomen, tail, tailJoints))
-                    .addPreset(upperBody(head, torso, leftArm, rightArm))
-                    .addAnimator(new AquaticHeadInitAnimator<>(head))
-                    .addAnimator(new AquaticArmSwimAnimator<>(leftArm, rightArm))
+            animator.addPreset(leglessV2Snake(abdomen, lowerAbdomen, tail, tailJoints))
+                    .addPreset(snakeUpperBody(head, torso, leftArm, rightArm))
+                    .addAnimator(new SharkHeadInitAnimator<>(head))
                     .addAnimator(new ArmBobAnimator<>(leftArm, rightArm))
                     .addAnimator(new ArmRideAnimator<>(leftArm, rightArm));
         };
     }
 
-    public static <T extends ChangedEntity, M extends AdvancedHumanoidModel<T>> Consumer<HumanoidAnimator<T, M>> snakeLikeV2(ModelPart head, ModelPart torso,
-                                                                                                            ModelPart leftArm, ModelPart rightArm,
-                                                                                                            ModelPart abdomen, ModelPart lowerAbdomen,
-                                                                                                            ModelPart tail, List<ModelPart> tailJoints) {
+    public static <T extends ChangedEntity, M extends AdvancedHumanoidModel<T>> Consumer<HumanoidAnimator<T, M>> snakeAbdomenArmor(ModelPart abdomen, ModelPart lowerAbdomen,
+                                                                                                                                   ModelPart tail, List<ModelPart> tailJoints) {
         return animator -> {
-            animator.addPreset(leglessV2(abdomen, lowerAbdomen, tail, tailJoints))
-                    .addPreset(upperBody(head, torso, leftArm, rightArm))
-                    .addAnimator(new AquaticHeadInitAnimator<>(head))
-                    .addAnimator(new AquaticArmSwimAnimator<>(leftArm, rightArm))
+            animator.addPreset(leglessV2Snake(abdomen, lowerAbdomen, tail, tailJoints));
+        };
+    }
+
+    public static <T extends ChangedEntity, M extends AdvancedHumanoidModel<T>> Consumer<HumanoidAnimator<T, M>> snakeUpperBodyArmor(ModelPart head, ModelPart torso,
+                                                                                                                                     ModelPart leftArm, ModelPart rightArm) {
+        return animator -> {
+            animator.addPreset(snakeUpperBody(head, torso, leftArm, rightArm))
+                    .addAnimator(new SharkHeadInitAnimator<>(head))
                     .addAnimator(new ArmBobAnimator<>(leftArm, rightArm))
                     .addAnimator(new ArmRideAnimator<>(leftArm, rightArm));
         };
@@ -965,8 +1029,7 @@ public class AnimatorPresets {
         };
     }
 
-    public static <T extends ChangedEntity, M extends AdvancedHumanoidModel<T>> Consumer<HumanoidAnimator<T, M>> taurLegs(ModelPart tail, List<ModelPart> tailJoints,
-                                                                                                           ModelPart lowerTorso, ModelPart frontLeftLeg, ModelPart frontLeftLegLower, ModelPart frontLeftFoot,
+    public static <T extends ChangedEntity, M extends AdvancedHumanoidModel<T>> Consumer<HumanoidAnimator<T, M>> taurLegs(ModelPart lowerTorso, ModelPart frontLeftLeg, ModelPart frontLeftLegLower, ModelPart frontLeftFoot,
                                                                                                            ModelPart frontRightLeg, ModelPart frontRightLegLower, ModelPart frontRightFoot,
                                                                                                            ModelPart backLeftLeg, ModelPart backLeftLegLower, ModelPart backLeftFoot, ModelPart backLeftPad,
                                                                                                            ModelPart backRightLeg, ModelPart backRightLegLower, ModelPart backRightFoot, ModelPart backRightPad) {
@@ -990,7 +1053,7 @@ public class AnimatorPresets {
                             backLeftLeg,  backLeftLegLower,  backLeftFoot,  backLeftPad,
                             backRightLeg,  backRightLegLower,  backRightFoot,  backRightPad))
                     .addAnimator(new QuadrupedalFallFlyAnimator<>(lowerTorso, frontLeftLeg, frontRightLeg, backLeftLeg, backRightLeg))
-                    .addAnimator(new WolfTailInitAnimator<>(tail, tailJoints));
+                    .addAnimator(new QuadrupedalJumpAnimator<>(lowerTorso, frontLeftLeg, frontRightLeg, backLeftLeg, backRightLeg));
         };
     }
 
@@ -1011,13 +1074,12 @@ public class AnimatorPresets {
 
     public static <T extends ChangedEntity, M extends AdvancedHumanoidModel<T>> Consumer<HumanoidAnimator<T, M>> taurLike(ModelPart head, ModelPart leftEar, ModelPart rightEar,
                                                                                                            ModelPart torso, ModelPart leftArm, ModelPart rightArm,
-                                                                                                           ModelPart tail, List<ModelPart> tailJoints,
                                                                                                            ModelPart lowerTorso, ModelPart frontLeftLeg, ModelPart frontLeftLegLower, ModelPart frontLeftFoot,
                                                                                                            ModelPart frontRightLeg, ModelPart frontRightLegLower, ModelPart frontRightFoot,
                                                                                                            ModelPart backLeftLeg, ModelPart backLeftLegLower, ModelPart backLeftFoot, ModelPart backLeftPad,
                                                                                                            ModelPart backRightLeg, ModelPart backRightLegLower, ModelPart backRightFoot, ModelPart backRightPad) {
         return animator -> {
-            animator.addPreset(taurLegs(tail, tailJoints, lowerTorso, frontLeftLeg, frontLeftLegLower, frontLeftFoot, frontRightLeg, frontRightLegLower, frontRightFoot, backLeftLeg, backLeftLegLower, backLeftFoot, backLeftPad, backRightLeg, backRightLegLower, backRightFoot, backRightPad))
+            animator.addPreset(taurLegs(lowerTorso, frontLeftLeg, frontLeftLegLower, frontLeftFoot, frontRightLeg, frontRightLegLower, frontRightFoot, backLeftLeg, backLeftLegLower, backLeftFoot, backLeftPad, backRightLeg, backRightLegLower, backRightFoot, backRightPad))
                     .addPreset(taurUpperBody(head, torso, leftArm, rightArm))
                     .addAnimator(new WolfHeadInitAnimator<>(head))
                     .addAnimator(new ArmSwimAnimator<>(leftArm, rightArm))

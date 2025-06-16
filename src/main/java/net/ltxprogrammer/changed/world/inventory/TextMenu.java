@@ -4,6 +4,7 @@ import net.ltxprogrammer.changed.block.TextEnterable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -70,7 +71,7 @@ public abstract class TextMenu extends AbstractContainerMenu implements Updateab
     }
 
     @Override
-    public void update(CompoundTag payload, LogicalSide receiver) {
+    public void update(CompoundTag payload, LogicalSide receiver, @Nullable ServerPlayer origin) {
         if (receiver.isServer() && textMenuBlockEntity != null) {
             if (payload.contains("Text")) {
                 textCopy = payload.getString("Text");

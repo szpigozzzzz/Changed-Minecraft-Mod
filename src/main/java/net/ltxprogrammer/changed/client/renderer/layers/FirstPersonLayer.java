@@ -2,6 +2,7 @@ package net.ltxprogrammer.changed.client.renderer.layers;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.ltxprogrammer.changed.entity.PlayerDataExtension;
+import net.ltxprogrammer.changed.util.EntityUtil;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -19,10 +20,8 @@ public interface FirstPersonLayer<T extends LivingEntity> {
     static void renderFirstPersonLayersOnFace(PoseStack poseStack, Camera camera, float partialTicks) {
         if (!(Minecraft.getInstance().getCameraEntity() instanceof LivingEntity livingEntity))
             return;
-        if (livingEntity instanceof PlayerDataExtension playerData && playerData.getTransfurVariant() != null)
-            livingEntity = playerData.getTransfurVariant().getChangedEntity();
 
-        final LivingEntity renderEntity = livingEntity;
+        final LivingEntity renderEntity = EntityUtil.maybeGetOverlaying(livingEntity);
         if (Minecraft.getInstance().getEntityRenderDispatcher().getRenderer(renderEntity) instanceof LivingEntityRenderer livingEntityRenderer) {
             poseStack.pushPose();
             poseStack.scale(1.0f, -1.0f, 1.0f);

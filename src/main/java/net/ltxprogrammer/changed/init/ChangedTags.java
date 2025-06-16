@@ -23,6 +23,7 @@ public class ChangedTags {
         public static final TagKey<EntityType<?>> ARMLESS = create("armless");
         public static final TagKey<EntityType<?>> CANNOT_OPEN_LAB_DOORS = create("cannot_open_lab_doors");
         public static final TagKey<EntityType<?>> CAN_OPEN_LAB_DOORS = create("can_open_lab_doors");
+        public static final TagKey<EntityType<?>> CAN_WEAR_EXOSKELETON = create("can_wear_exoskeleton");
 
         private static TagKey<EntityType<?>> create(String name) {
             return TagKey.create(Registry.ENTITY_TYPE_REGISTRY, Changed.modResource(name));
@@ -38,6 +39,7 @@ public class ChangedTags {
         public static final TagKey<Block> AIR_CONDITIONER = create("air_conditioner");
         public static final TagKey<Block> LATEX_CRYSTAL = create("latex_crystal");
         public static final TagKey<Block> LATEX_SPAWNABLE_ON = create("latex_spawnable_on");
+        public static final TagKey<Block> CRYSTALLINE = create("crystalline");
 
         private static TagKey<Block> create(String name) {
             return TagKey.create(Registry.BLOCK_REGISTRY, Changed.modResource(name));

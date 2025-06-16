@@ -1,13 +1,13 @@
 {
   "replace": false,
   "values": [
-    "minecraft:white_concrete",
-    "minecraft:white_terracotta",
+    "changed:tiles_white",
+    "changed:tiles_white_connected",
+    "changed:wall_white",
     "minecraft:quartz_block",
+    "minecraft:quartz_bricks",
     "minecraft:smooth_quartz",
-	"changed:tiles_white",
-	"changed:tiles_white_connected",
-	"changed:wall_white",
-    "changed:wall_blue_tiled"
+    "minecraft:white_concrete",
+    "minecraft:white_terracotta"
   ]
 }

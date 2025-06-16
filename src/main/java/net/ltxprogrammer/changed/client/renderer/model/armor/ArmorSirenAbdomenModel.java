@@ -7,7 +7,6 @@ import net.ltxprogrammer.changed.client.renderer.animate.AnimatorPresets;
 import net.ltxprogrammer.changed.client.renderer.animate.HumanoidAnimator;
 import net.ltxprogrammer.changed.client.renderer.model.LeglessModel;
 import net.ltxprogrammer.changed.entity.ChangedEntity;
-import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
 import net.minecraft.client.model.geom.builders.CubeListBuilder;
@@ -22,12 +21,13 @@ import net.minecraft.world.item.ItemStack;
 import java.util.List;
 
 public class ArmorSirenAbdomenModel<T extends ChangedEntity> extends LatexHumanoidArmorModel<T, ArmorSirenAbdomenModel<T>> implements LeglessModel {
-    public static final ModelLayerLocation INNER_ARMOR = ArmorModelLayerLocation.createInnerArmorLocation(Changed.modResource("armor_siren_abdomen")).get();
-    public static final ModelLayerLocation OUTER_ARMOR = ArmorModelLayerLocation.createOuterArmorLocation(Changed.modResource("armor_siren_abdomen")).get();
+    public static final ArmorModelSet<ChangedEntity, ArmorSirenAbdomenModel<ChangedEntity>> MODEL_SET =
+            ArmorModelSet.of(Changed.modResource("armor_siren_abdomen"), ArmorSirenAbdomenModel::createArmorLayer, ArmorSirenAbdomenModel::new);
 
     private final ModelPart Abdomen;
     private final ModelPart LowerAbdomen;
     private final ModelPart Tail;
+    private final ModelPart TailPrimary;
     private final HumanoidAnimator<T, ArmorSirenAbdomenModel<T>> animator;
 
     public ArmorSirenAbdomenModel(ModelPart modelPart, ArmorModel model) {
@@ -36,15 +36,15 @@ public class ArmorSirenAbdomenModel<T extends ChangedEntity> extends LatexHumano
         this.LowerAbdomen = Abdomen.getChild("LowerAbdomen");
         this.Tail = LowerAbdomen.getChild("Tail");
 
-        var tailPrimary = Tail.getChild("TailPrimary");
-        var tailSecondary = tailPrimary.getChild("TailSecondary");
+        this.TailPrimary = Tail.getChild("TailPrimary");
+        var tailSecondary = TailPrimary.getChild("TailSecondary");
         var tailTertiary = tailSecondary.getChild("TailTertiary");
         var tailQuaternary = tailTertiary.getChild("TailQuaternary");
 
         animator = HumanoidAnimator.of(this).hipOffset(-1.5f).torsoLength(9.0f).legLength(9.5f)
                 .addPreset(AnimatorPresets.leglessSharkAbdomenArmor(
                         Abdomen, LowerAbdomen,
-                        Tail, List.of(tailPrimary, tailSecondary, tailTertiary, tailQuaternary)));
+                        Tail, List.of(TailPrimary, tailSecondary, tailTertiary, tailQuaternary)));
     }
 
     public static LayerDefinition createArmorLayer(ArmorModel layer) {
@@ -55,7 +55,7 @@ public class ArmorSirenAbdomenModel<T extends ChangedEntity> extends LatexHumano
 
         PartDefinition LowerAbdomen = Abdomen.addOrReplaceChild("LowerAbdomen", CubeListBuilder.create().texOffs(0, 8).addBox(-4.5F, -1.5F, -1.75F, 9.0F, 7.0F, 5.0F, layer.deformation), PartPose.offset(0.0F, 4.5F, -0.75F));
 
-        PartDefinition Tail = LowerAbdomen.addOrReplaceChild("Tail", CubeListBuilder.create().texOffs(0, 20).addBox(-4.0F, -0.75F, -2.0F, 8.0F, 6.0F, 4.0F, layer.altDeformation.extend(0.65F)), PartPose.offset(0.0F, 6.0F, 0.5F));
+        PartDefinition Tail = LowerAbdomen.addOrReplaceChild("Tail", CubeListBuilder.create().texOffs(0, 20).addBox(-4.0F, -0.75F, -2.0F, 8.0F, 6.0F, 4.0F, layer.dualDeformation.extend(0.65F)), PartPose.offset(0.0F, 6.0F, 0.5F));
 
         PartDefinition TailPrimary = Tail.addOrReplaceChild("TailPrimary", CubeListBuilder.create().texOffs(40, 21).addBox(-3.5F, -0.25F, -2.0F, 7.0F, 5.0F, 4.0F, layer.altDeformation.extend(0.26F)), PartPose.offset(0.0F, 4.75F, 0.0F));
 
@@ -69,7 +69,7 @@ public class ArmorSirenAbdomenModel<T extends ChangedEntity> extends LatexHumano
     }
 
     @Override
-    public HumanoidAnimator<T, ArmorSirenAbdomenModel<T>> getAnimator() {
+    public HumanoidAnimator<T, ArmorSirenAbdomenModel<T>> getAnimator(T entity) {
         return animator;
     }
 
@@ -77,7 +77,7 @@ public class ArmorSirenAbdomenModel<T extends ChangedEntity> extends LatexHumano
     public void prepareVisibility(EquipmentSlot armorSlot, ItemStack item) {
         super.prepareVisibility(armorSlot, item);
         if (armorSlot == EquipmentSlot.LEGS) {
-            setAllPartsVisibility(Tail, false);
+            setAllPartsVisibility(TailPrimary, false);
         }
     }
 
@@ -85,12 +85,12 @@ public class ArmorSirenAbdomenModel<T extends ChangedEntity> extends LatexHumano
     public void unprepareVisibility(EquipmentSlot armorSlot, ItemStack item) {
         super.unprepareVisibility(armorSlot, item);
         if (armorSlot == EquipmentSlot.LEGS) {
-            setAllPartsVisibility(Tail, true);
+            setAllPartsVisibility(TailPrimary, true);
         }
     }
 
     @Override
-    public void renderForSlot(T entity, RenderLayerParent<T, ?> parent, ItemStack stack, EquipmentSlot slot, PoseStack poseStack, VertexConsumer buffer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
+    public void renderForSlot(T entity, RenderLayerParent<? super T, ?> parent, ItemStack stack, EquipmentSlot slot, PoseStack poseStack, VertexConsumer buffer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
         poseStack.pushPose();
         this.scaleForSlot(parent, slot, poseStack);
 

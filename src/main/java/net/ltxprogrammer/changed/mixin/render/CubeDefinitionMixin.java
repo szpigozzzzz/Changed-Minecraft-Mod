@@ -1,5 +1,6 @@
 package net.ltxprogrammer.changed.mixin.render;
 
+import com.mojang.datafixers.util.Pair;
 import net.ltxprogrammer.changed.client.CubeDefinitionExtender;
 import net.ltxprogrammer.changed.client.CubeExtender;
 import net.minecraft.client.model.geom.ModelPart;
@@ -18,6 +19,8 @@ import java.util.Set;
 @Mixin(CubeDefinition.class)
 public abstract class CubeDefinitionMixin implements CubeDefinitionExtender {
     @Unique
+    private Set<Pair<Direction, Direction>> copyUVStarts = null;
+    @Unique
     private Set<Direction> removedDirections = null;
 
     @Override
@@ -28,11 +31,24 @@ public abstract class CubeDefinitionMixin implements CubeDefinitionExtender {
         removedDirections.addAll(Arrays.asList(directions));
     }
 
-    @Inject(method = "bake", at = @At("RETURN"))
-    public void bakeWithRemoved(int u, int v, CallbackInfoReturnable<ModelPart.Cube> cubeCallback) {
-        if (removedDirections == null) return;
+    @Override
+    public void copyFaceUVStart(Direction from, Direction to) {
+        if (copyUVStarts == null)
+            copyUVStarts = new HashSet<>();
 
-        CubeExtender cubeExtender = (CubeExtender)cubeCallback.getReturnValue();
-        cubeExtender.removeSides(removedDirections);
+        copyUVStarts.add(Pair.of(from, to));
+    }
+
+    @Inject(method = "bake", at = @At("RETURN"))
+    public void bakeWithExtra(int u, int v, CallbackInfoReturnable<ModelPart.Cube> cubeCallback) {
+        if (copyUVStarts != null) {
+            CubeExtender cubeExtender = (CubeExtender) cubeCallback.getReturnValue();
+            cubeExtender.copyUVStarts(copyUVStarts);
+        }
+
+        if (removedDirections != null) {
+            CubeExtender cubeExtender = (CubeExtender) cubeCallback.getReturnValue();
+            cubeExtender.removeSides(removedDirections);
+        }
     }
 }

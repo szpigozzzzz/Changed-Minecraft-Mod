@@ -5,6 +5,7 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.ltxprogrammer.changed.Changed;
 import net.ltxprogrammer.changed.client.renderer.animate.AnimatorPresets;
 import net.ltxprogrammer.changed.client.renderer.animate.HumanoidAnimator;
+import net.ltxprogrammer.changed.client.renderer.animate.tail.WolfTailInitAnimator;
 import net.ltxprogrammer.changed.entity.beast.HeadlessKnight;
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.model.geom.ModelPart;
@@ -48,9 +49,9 @@ public class HeadlessKnightModel extends AdvancedHumanoidModel<HeadlessKnight> i
         var rightFoot2 = rightLowerLeg2.getChild("RightFoot2");
 
         animator = HumanoidAnimator.of(this).addPreset(AnimatorPresets.taurLegs(
-                        Tail, List.of(tailPrimary, tailSecondary, tailTertiary),
                         LowerTorso, FrontLeftLeg, leftLowerLeg, leftLowerLeg.getChild("LeftFoot"), FrontRightLeg, rightLowerLeg, rightLowerLeg.getChild("RightFoot"),
                         BackLeftLeg, leftLowerLeg2, leftFoot2, leftFoot2.getChild("LeftPad2"), BackRightLeg, rightLowerLeg2, rightFoot2, rightFoot2.getChild("RightPad2")))
+                .addAnimator(new WolfTailInitAnimator<>(Tail, List.of(tailPrimary, tailSecondary, tailTertiary)))
                 .forwardOffset(-7.0f).hipOffset(-1.5f).legLength(13.5f).torsoLength(13.05f);
     }
 
@@ -131,7 +132,7 @@ public class HeadlessKnightModel extends AdvancedHumanoidModel<HeadlessKnight> i
         this.prepareMobModel(animator, p_102861_, p_102862_, p_102863_, p_102864_);
     }
 
-    public void setupHand() {
+    public void setupHand(HeadlessKnight entity) {
         animator.setupHand();
     }
 
@@ -170,7 +171,7 @@ public class HeadlessKnightModel extends AdvancedHumanoidModel<HeadlessKnight> i
     }
 
     @Override
-    public HumanoidAnimator<HeadlessKnight, HeadlessKnightModel> getAnimator() {
+    public HumanoidAnimator<HeadlessKnight, HeadlessKnightModel> getAnimator(HeadlessKnight entity) {
         return animator;
     }
 

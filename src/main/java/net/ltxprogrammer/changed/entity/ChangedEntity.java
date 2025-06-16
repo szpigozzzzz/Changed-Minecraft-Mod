@@ -6,8 +6,10 @@ import net.ltxprogrammer.changed.ability.AbstractAbility;
 import net.ltxprogrammer.changed.ability.AbstractAbilityInstance;
 import net.ltxprogrammer.changed.ability.IAbstractChangedEntity;
 import net.ltxprogrammer.changed.block.WhiteLatexTransportInterface;
+import net.ltxprogrammer.changed.entity.ai.LookAtPlayerButNotHostGoal;
 import net.ltxprogrammer.changed.entity.ai.UseAbilityGoal;
 import net.ltxprogrammer.changed.entity.beast.*;
+import net.ltxprogrammer.changed.entity.variant.EntityShape;
 import net.ltxprogrammer.changed.entity.variant.TransfurVariant;
 import net.ltxprogrammer.changed.entity.variant.TransfurVariantInstance;
 import net.ltxprogrammer.changed.extension.ChangedCompatibility;
@@ -88,7 +90,20 @@ public abstract class ChangedEntity extends Monster {
     float tailDragAmount = 0.0F;
     float tailDragAmountO;
 
+    Vec3 deltaMovementOO = Vec3.ZERO;
+    Vec3 deltaMovementO = Vec3.ZERO;
+
+    public Vec3 getDeltaMovement(float partialTicks) {
+        return new Vec3(
+                Mth.lerp(partialTicks, deltaMovementOO.x, deltaMovementO.x),
+                this.onGround ? 0.0 : Mth.lerp(partialTicks, deltaMovementOO.y, deltaMovementO.y),
+                Mth.lerp(partialTicks, deltaMovementOO.z, deltaMovementO.z)
+        );
+    }
+
     final Map<SpringType.Direction, EnumMap<SpringType, SpringType.Simulator>> simulatedSprings;
+    protected int blinkFatigue = 0;
+    protected int blinkDuration = 0;
 
     public BasicPlayerInfo getBasicPlayerInfo() {
         if (underlyingPlayer instanceof PlayerDataExtension ext) {
@@ -370,7 +385,7 @@ public abstract class ChangedEntity extends Monster {
             case CROUCHING -> EntityDimensions.scalable(core.width, core.height - 0.3f);
             case DYING -> EntityDimensions.fixed(0.2f, 0.2f);
             default -> core;
-        }).scale(getBasicPlayerInfo().getSize());
+        }).scale(getBasicPlayerInfo().getSize() * this.getScale());
     }
 
     public abstract LatexType getLatexType();
@@ -527,11 +542,18 @@ public abstract class ChangedEntity extends Monster {
         return false;
     }
 
-    public TransfurContext getAttackContext() {
+    public TransfurContext getReplicateContext() {
         if (underlyingPlayer == null)
-            return TransfurContext.npcLatexAttack(this);
+            return TransfurContext.npcLatexHazard(this, TransfurCause.GRAB_REPLICATE);
         else
-            return TransfurContext.playerLatexAttack(underlyingPlayer);
+            return TransfurContext.playerLatexHazard(underlyingPlayer, TransfurCause.GRAB_REPLICATE);
+    }
+
+    public TransfurContext getAbsorbContext() {
+        if (underlyingPlayer == null)
+            return TransfurContext.npcLatexHazard(this, TransfurCause.GRAB_ABSORB);
+        else
+            return TransfurContext.playerLatexHazard(underlyingPlayer, TransfurCause.GRAB_ABSORB);
     }
 
     public LivingEntity maybeGetUnderlying() {
@@ -546,62 +568,47 @@ public abstract class ChangedEntity extends Monster {
      * @return True if the entity was absorbed, False otherwise
      */
     public boolean tryAbsorbTarget(LivingEntity target, IAbstractChangedEntity source, float amount, @Nullable List<TransfurVariant<?>> possibleMobFusions) {
+        final TransfurVariant<?> sourceTfVariant = source.getTransfurVariant();
+
+        if (sourceTfVariant == null)
+            return false;
+
         if (!ProcessTransfur.willTransfur(target, amount)) {
-            ProcessTransfur.progressTransfur(target, amount, source.getTransfurVariant(), source.attack());
+            ProcessTransfur.progressTransfur(target, amount, sourceTfVariant, source.absorb());
             return false;
         }
 
         // Special scenario where source is NPC, and attacked is Player, transfur player with possible keepCon
         if (!source.isPlayer() && target instanceof Player &&
-                ProcessTransfur.progressTransfur(target, amount, source.getTransfurVariant(), source.attack())) {
+                ProcessTransfur.progressTransfur(target, amount, sourceTfVariant, source.absorb())) {
             source.getEntity().discard();
             return true;
         }
 
-        if (possibleMobFusions != null && !possibleMobFusions.isEmpty()) {
-            TransfurVariant<?> mobFusionVariant = possibleMobFusions.get(source.getEntity().getRandom().nextInt(possibleMobFusions.size()));
-            if (source.getEntity() instanceof Player sourcePlayer) {
-                float beforeHealth = sourcePlayer.getHealth();
-                ProcessTransfur.setPlayerTransfurVariant(sourcePlayer, mobFusionVariant, source.attack());
-                sourcePlayer.setHealth(beforeHealth);
-            }
+        TransfurVariant<?> actualTfVariant;
 
-            else {
-                source.getEntity().discard();
-                source = IAbstractChangedEntity.forEntity(mobFusionVariant.getEntityType().create(source.getLevel()));
-                source.getLevel().addFreshEntity(source.getEntity());
-            }
-        }
+        if (possibleMobFusions != null && !possibleMobFusions.isEmpty())
+            actualTfVariant = Util.getRandom(possibleMobFusions, source.getEntity().getRandom());
+        else
+            actualTfVariant = sourceTfVariant;
 
-        else if (source.getSelfVariant() == null || !source.getSelfVariant().getFormId().equals(source.getTransfurVariant().getFormId())) {
-            if (source.getEntity() instanceof Player sourcePlayer) {
-                float beforeHealth = sourcePlayer.getHealth();
-                ProcessTransfur.setPlayerTransfurVariant(sourcePlayer, source.getTransfurVariant(), source.attack());
-                sourcePlayer.setHealth(beforeHealth);
-            }
+        source.replaceVariant(actualTfVariant); // Replace entity variant if tf variant is different
 
-            else {
-                source.getEntity().discard();
-                source = IAbstractChangedEntity.forEntity(source.getTransfurVariant().getEntityType().create(source.getLevel()));
-                source.getLevel().addFreshEntity(source.getEntity());
-            }
-        }
-
-        source.getEntity().heal(14.0f); // Heal 7 hearts, and teleport to old entity location
+        ProcessTransfur.onAbsorbEntity(source);
         var pos = target.position();
         source.getEntity().teleportTo(pos.x, pos.y, pos.z);
         source.getEntity().setYRot(target.getYRot());
         source.getEntity().setXRot(target.getXRot());
 
+        ChangedAnimationEvents.broadcastTransfurAnimation(target, actualTfVariant, source.absorb());
+
         // Should be one-hit absorption here
         if (target instanceof Player loserPlayer) {
             if (!ProcessTransfur.killPlayerByAbsorption(loserPlayer, source.getEntity())) { // Failed to kill player
-                var instance = ProcessTransfur.setPlayerTransfurVariant(loserPlayer, source.getTransfurVariant(), source.attack(), 1.0f);
+                var instance = ProcessTransfur.setPlayerTransfurVariant(loserPlayer, source.getTransfurVariant(), source.absorb(), 1.0f);
                 instance.willSurviveTransfur = true;
 
-                ProcessTransfur.forceNearbyToRetarget(level, loserPlayer);
-
-                loserPlayer.heal(10.0F);
+                ProcessTransfur.onNewlyTransfurred(IAbstractChangedEntity.forPlayer(loserPlayer));
             }
         }
 
@@ -656,6 +663,7 @@ public abstract class ChangedEntity extends Monster {
                     this.discard();
                 }
 
+                ChangedAnimationEvents.broadcastTransfurAnimation(entity, fusionVariant, source.absorb());
                 return true;
             }
         }
@@ -681,15 +689,17 @@ public abstract class ChangedEntity extends Monster {
             if (!possibleMobFusions.isEmpty()) {
                 var mobFusionVariant = Util.getRandom(possibleMobFusions, random);
 
+                ChangedAnimationEvents.broadcastTransfurAnimation(entity, mobFusionVariant, source.absorb());
+
                 if (underlyingPlayer != null) {
                     float beforeHealth = underlyingPlayer.getHealth();
-                    ProcessTransfur.setPlayerTransfurVariant(underlyingPlayer, mobFusionVariant, getAttackContext());
+                    ProcessTransfur.setPlayerTransfurVariant(underlyingPlayer, mobFusionVariant, getAbsorbContext());
                     underlyingPlayer.setHealth(beforeHealth);
                 }
 
                 else if (entity instanceof Player victimPlayer) {
                     float beforeHealth = entity.getHealth();
-                    ProcessTransfur.setPlayerTransfurVariant(victimPlayer, mobFusionVariant, getAttackContext());
+                    ProcessTransfur.setPlayerTransfurVariant(victimPlayer, mobFusionVariant, getAbsorbContext());
                     entity.setHealth(beforeHealth);
                     this.discard();
                     return true;
@@ -701,7 +711,7 @@ public abstract class ChangedEntity extends Monster {
                     source.getLevel().addFreshEntity(source.getEntity());
                 }
 
-                source.getEntity().heal(14.0f); // Heal 7 hearts, and teleport to old entity location
+                ProcessTransfur.onAbsorbEntity(source);
                 var pos = entity.position();
                 source.getEntity().teleportTo(pos.x, pos.y, pos.z);
                 source.getEntity().setYRot(entity.getYRot());
@@ -760,24 +770,18 @@ public abstract class ChangedEntity extends Monster {
         TransfurVariant<?> variant = this.getTransfurVariant();
 
         if (entity instanceof LivingEntity livingEntity) {
-            final var context = getAttackContext();
+            final var context = getReplicateContext();
 
             ProcessTransfur.TransfurAttackEvent event = new ProcessTransfur.TransfurAttackEvent(livingEntity, variant, context);
             if (Changed.postModEvent(event))
                 return false;
 
             damage = ProcessTransfur.checkBlocked(livingEntity, damage, context.source);
-            if (tryFuseWithTarget(livingEntity, context.source, damage))
+            if (tryFuseWithTarget(livingEntity, context.source, damage)) // Absorption or Fusion
                 return true;
 
             if (TransfurVariant.getEntityVariant(livingEntity) == null) {
-                if (livingEntity instanceof Player player) {
-                    ProcessTransfur.progressPlayerTransfur(player, damage, variant, context);
-                    return true;
-                } else if (livingEntity.getType().is(ChangedTags.EntityTypes.HUMANOIDS)) {
-                    ProcessTransfur.progressTransfur(livingEntity, damage, variant, context);
-                    return true;
-                }
+                ProcessTransfur.progressTransfur(livingEntity, damage, variant, context);
             }
         }
 
@@ -823,7 +827,7 @@ public abstract class ChangedEntity extends Monster {
             this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, Player.class, true, this::targetSelectorTest));
             this.targetSelector.addGoal(4, new NearestAttackableTargetGoal<>(this, LivingEntity.class, true, this::targetSelectorTest));
         }
-        this.goalSelector.addGoal(6, new LookAtPlayerGoal(this, Player.class, 7.0F));
+        this.goalSelector.addGoal(6, new LookAtPlayerButNotHostGoal(this, Player.class, 7.0F));
         this.goalSelector.addGoal(7, new RandomLookAroundGoal(this));
         this.goalSelector.addGoal(8, new LookAtPlayerGoal(this, ChangedEntity.class, 7.0F, 0.2F));
         this.goalSelector.addGoal(8, new LookAtPlayerGoal(this, Villager.class, 7.0F, 0.2F));
@@ -837,18 +841,12 @@ public abstract class ChangedEntity extends Monster {
     public void tick() {
         super.tick();
         moveCloak();
-        visualTick(this.level);
+        variantTick(this.level);
 
         var player = getUnderlyingPlayer();
         if (player != null) { // ticking whilst hosting a player, mirror players inputs
             mirrorLiving(player);
         }
-
-        var variant = getSelfVariant();
-        if (variant == null) return;
-
-        if (this.vehicle != null && (variant.rideable() || !variant.hasLegs))
-            this.stopRiding();
     }
     
     public void mirrorLiving(LivingEntity player) {
@@ -935,9 +933,6 @@ public abstract class ChangedEntity extends Monster {
             return super.getCapability(capability, facing);
     }
 
-    @Deprecated
-    public abstract Color3 getDripColor();
-
     public Color3 getTransfurColor(TransfurCause cause) { return Color3.WHITE; }
 
     public float getDripRate(float damage) {
@@ -958,7 +953,11 @@ public abstract class ChangedEntity extends Monster {
         return new Vec3((double)(f3), 0.0, (double)(f2));
     }
 
-    public void visualTick(Level level) {
+    /**
+     * Executed by both entity and tf'd player
+     * @param level
+     */
+    public void variantTick(Level level) {
         this.crouchAmountO = this.crouchAmount;
         this.flyAmountO = this.flyAmount;
 
@@ -985,12 +984,55 @@ public abstract class ChangedEntity extends Monster {
         this.tailDragAmount -= (float) (Math.toRadians(Mth.wrapDegrees(this.yBodyRot - this.yBodyRotO)) * 0.35F);
         this.tailDragAmount = Mth.clamp(this.tailDragAmount, -1.1F, 1.1F);
 
+        this.deltaMovementOO = this.deltaMovementO;
+        this.deltaMovementO = this.getDeltaMovement();
+
         simulatedSprings.forEach((direction, map) -> {
             final float deltaVelocity = direction.apply(this);
             map.forEach((springType, simulator) -> {
                 simulator.tick(deltaVelocity);
             });
         });
+
+        this.tickBlink();
+    }
+
+    private static final int BLINK_MIN = 150;
+    private static final int BLINK_MAX = 180;
+    protected void tickBlink() {
+        if (this.isSleeping()) {
+            blinkDuration = 5;
+        }
+
+        if (blinkDuration <= 0)
+            blinkFatigue++;
+        else {
+            blinkFatigue = 0;
+            blinkDuration--;
+        }
+
+        if (blinkFatigue > BLINK_MIN) {
+            if (blinkFatigue > BLINK_MAX)
+                blink();
+            else if (random.nextInt(0, BLINK_MAX - BLINK_MIN) < blinkFatigue - BLINK_MIN)
+                blink();
+        }
+    }
+
+    public void blink() {
+        blinkDuration = 3;
+    }
+
+    public boolean isBlinking() {
+        return blinkDuration > 0;
+    }
+
+    public float getVerticalSpringOffset() {
+        return 0f;
+    }
+
+    public float getHorizontalSpringOffset() {
+        return 0f;
     }
 
     @Override
@@ -1126,14 +1168,22 @@ public abstract class ChangedEntity extends Monster {
     }
 
     public UseItemMode getItemUseMode() {
-        var instance = getAbilityInstance(ChangedAbilities.GRAB_ENTITY_ABILITY.get());
-        if (instance != null && (instance.shouldAnimateArms() || instance.grabbedHasControl))
+        var instance = IAbstractChangedEntity.forEither(this.maybeGetUnderlying()).getTransfurVariantInstance();
+        if (instance != null)
+            return instance.getItemUseMode();
+        var grabAbility = getAbilityInstance(ChangedAbilities.GRAB_ENTITY_ABILITY.get());
+        if (grabAbility != null && (grabAbility.shouldAnimateArms() || grabAbility.grabbedHasControl))
             return UseItemMode.NONE;
         var variant = getSelfVariant();
         if (variant != null)
             return getSelfVariant().itemUseMode;
         else
             return UseItemMode.NORMAL;
+    }
+
+    @NotNull
+    public EntityShape getEntityShape() {
+        return EntityShape.ANTHRO;
     }
 
     public boolean isItemAllowedInSlot(ItemStack stack, EquipmentSlot slot) {

@@ -2,9 +2,13 @@ package net.ltxprogrammer.changed.mixin.entity;
 
 import net.ltxprogrammer.changed.ability.AbstractAbility;
 import net.ltxprogrammer.changed.ability.GrabEntityAbility;
+import net.ltxprogrammer.changed.ability.IAbstractChangedEntity;
+import net.ltxprogrammer.changed.block.StasisChamber;
+import net.ltxprogrammer.changed.block.entity.StasisChamberBlockEntity;
 import net.ltxprogrammer.changed.entity.ChangedEntity;
 import net.ltxprogrammer.changed.entity.LivingEntityDataExtension;
 import net.ltxprogrammer.changed.entity.SeatEntity;
+import net.ltxprogrammer.changed.entity.variant.EntityShape;
 import net.ltxprogrammer.changed.entity.variant.TransfurVariantInstance;
 import net.ltxprogrammer.changed.init.ChangedAbilities;
 import net.ltxprogrammer.changed.init.ChangedTags;
@@ -138,12 +142,21 @@ public abstract class EntityMixin extends net.minecraftforge.common.capabilities
     public void canEnterPose(Pose pose, CallbackInfoReturnable<Boolean> callback) {
         if (!((Entity)(Object)this instanceof LivingEntity livingEntity)) return;
 
-        ProcessTransfur.getEntityVariant(livingEntity).flatMap(variant -> {
-            if (!variant.hasLegs && livingEntity.isEyeInFluid(FluidTags.WATER)) {
-                return Optional.of(pose == Pose.SWIMMING);
-            } else
-                return Optional.empty();
-        }).ifPresent(callback::setReturnValue);
+        if (StasisChamber.isEntityStabilized(livingEntity) && pose != Pose.STANDING) {
+            callback.setReturnValue(false);
+            return;
+        }
+
+        IAbstractChangedEntity.forEitherSafe(livingEntity)
+                .map(IAbstractChangedEntity::getChangedEntity)
+                .map(ChangedEntity::getEntityShape)
+                .map(EntityShape::isLegless)
+                .flatMap(legless -> {
+                    if (legless && livingEntity.isEyeInFluid(FluidTags.WATER)) {
+                        return Optional.of(pose == Pose.SWIMMING);
+                    } else
+                        return Optional.empty();
+                }).ifPresent(callback::setReturnValue);
     }
 
     @Shadow public abstract boolean updateFluidHeightAndDoFluidPushing(TagKey<Fluid> tag, double scale);

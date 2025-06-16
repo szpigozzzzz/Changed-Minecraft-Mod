@@ -6,6 +6,7 @@ import net.ltxprogrammer.changed.entity.variant.TransfurVariant;
 import net.ltxprogrammer.changed.entity.variant.TransfurVariantInstance;
 import net.ltxprogrammer.changed.init.ChangedAbilities;
 import net.ltxprogrammer.changed.init.ChangedCriteriaTriggers;
+import net.ltxprogrammer.changed.init.ChangedEffects;
 import net.ltxprogrammer.changed.init.ChangedTags;
 import net.ltxprogrammer.changed.process.ProcessTransfur;
 import net.minecraft.server.level.ServerPlayer;
@@ -60,7 +61,7 @@ public class ServerTransfurVariantInstance<T extends ChangedEntity> extends Tran
         if (transfurProgression >= 1f && !isTemporaryFromSuit()) {
             transfurContext = transfurContext.withSource(null);
             if (willSurviveTransfur)
-                ChangedCriteriaTriggers.TRANSFUR.trigger(host, getParent());
+                ChangedCriteriaTriggers.TRANSFUR.trigger(host, this);
         }
     }
 
@@ -80,7 +81,7 @@ public class ServerTransfurVariantInstance<T extends ChangedEntity> extends Tran
     protected void tickBreathing() {
         super.tickBreathing();
 
-        if (host.isAlive() && parent.breatheMode.canBreatheWater() && shouldApplyAbilities() && host.isEyeInFluid(FluidTags.WATER)) {
+        if (host.isAlive() && breatheMode.canBreatheWater() && shouldApplyAbilities() && host.isEyeInFluid(FluidTags.WATER)) {
             ChangedCriteriaTriggers.AQUATIC_BREATHE.trigger(host, this.ticksBreathingUnderwater);
         }
     }
@@ -88,6 +89,9 @@ public class ServerTransfurVariantInstance<T extends ChangedEntity> extends Tran
     @Override
     public void tick() {
         super.tick();
+
+        if (parent.getEntityType().is(ChangedTags.EntityTypes.LATEX))
+            host.removeEffect(ChangedEffects.HYPERCOAGULATION);
 
         final double distance = 8D;
         final double farRunSpeed = 1.0D;

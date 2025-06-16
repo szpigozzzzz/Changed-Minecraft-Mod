@@ -4,6 +4,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import net.ltxprogrammer.changed.client.renderer.model.*;
 import net.ltxprogrammer.changed.entity.VisionType;
+import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.util.StringRepresentable;
@@ -16,33 +17,39 @@ import java.util.function.Function;
 
 public enum Limb implements StringRepresentable {
     HEAD("head", HumanoidModel::getHead, AdvancedHumanoidModel::getHead),
+    HEAD2("head2", HumanoidModel::getHead, model -> {
+        if (model instanceof DoubleHeadedModel<?> doubleHeadedModel)
+            return doubleHeadedModel.getOtherHead();
+        return null;
+    }),
+
     TORSO("torso", model -> model.body, AdvancedHumanoidModel::getTorso),
 
     LEFT_ARM("left_arm", model -> model.leftArm, model -> model.getArm(HumanoidArm.LEFT)),
     RIGHT_ARM("right_arm", model -> model.rightArm, model -> model.getArm(HumanoidArm.RIGHT)),
 
     LEFT_ARM2("left_arm2", model -> model.leftArm, model -> {
-        if (model instanceof TripleArmedModel tripleArmedModel)
+        if (model instanceof TripleArmedModel<?> tripleArmedModel)
             return tripleArmedModel.getMiddleArm(HumanoidArm.LEFT);
-        if (model instanceof DoubleArmedModel doubleArmedModel)
+        if (model instanceof DoubleArmedModel<?> doubleArmedModel)
             return doubleArmedModel.getOtherArm(HumanoidArm.LEFT);
         return null;
     }, false),
     RIGHT_ARM2("right_arm2", model -> model.rightArm, model -> {
-        if (model instanceof TripleArmedModel tripleArmedModel)
+        if (model instanceof TripleArmedModel<?> tripleArmedModel)
             return tripleArmedModel.getMiddleArm(HumanoidArm.RIGHT);
-        if (model instanceof DoubleArmedModel doubleArmedModel)
+        if (model instanceof DoubleArmedModel<?> doubleArmedModel)
             return doubleArmedModel.getOtherArm(HumanoidArm.RIGHT);
         return null;
     }, false),
 
     LEFT_ARM3("left_arm3", model -> model.leftArm, model -> {
-        if (model instanceof TripleArmedModel doubleArmedModel)
+        if (model instanceof TripleArmedModel<?> doubleArmedModel)
             return doubleArmedModel.getOtherArm(HumanoidArm.LEFT);
         return null;
     }, false),
     RIGHT_ARM3("right_arm3", model -> model.rightArm, model -> {
-        if (model instanceof TripleArmedModel doubleArmedModel)
+        if (model instanceof TripleArmedModel<?> doubleArmedModel)
             return doubleArmedModel.getOtherArm(HumanoidArm.RIGHT);
         return null;
     }, false),
@@ -115,6 +122,18 @@ public enum Limb implements StringRepresentable {
 
     public Optional<ModelPart> getModelPartSafe(AdvancedHumanoidModel<?> model) {
         return Optional.ofNullable(getLatexModelPartFn.apply(model));
+    }
+
+    public ModelPart getModelPart(EntityModel<?> model) {
+        if (model instanceof HumanoidModel<?> humanoidModel)
+            return getModelPart(humanoidModel);
+        else if (model instanceof AdvancedHumanoidModel<?> advancedHumanoidModel)
+            return getModelPart(advancedHumanoidModel);
+        return null;
+    }
+
+    public Optional<ModelPart> getModelPartSafe(EntityModel<?> model) {
+        return Optional.ofNullable(getModelPart(model));
     }
 
     public boolean isVanillaPart() {

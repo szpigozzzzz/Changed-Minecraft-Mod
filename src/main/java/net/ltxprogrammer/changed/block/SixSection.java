@@ -11,14 +11,15 @@ import java.util.Locale;
 import java.util.stream.Collectors;
 
 public enum SixSection implements StringRepresentable {
-    BOTTOM_LEFT(YAxis.BOTTOM, XAxis.LEFT),
-    TOP_LEFT(YAxis.TOP, XAxis.LEFT),
-    TOP_MIDDLE(YAxis.TOP, XAxis.MIDDLE),
-    TOP_RIGHT(YAxis.TOP, XAxis.RIGHT),
-    BOTTOM_RIGHT(YAxis.BOTTOM, XAxis.RIGHT),
-    BOTTOM_MIDDLE(YAxis.BOTTOM, XAxis.MIDDLE);
+    BOTTOM_LEFT("bottom_left", YAxis.BOTTOM, XAxis.LEFT),
+    TOP_LEFT("top_left", YAxis.TOP, XAxis.LEFT),
+    TOP_MIDDLE("top_middle", YAxis.TOP, XAxis.MIDDLE),
+    TOP_RIGHT("top_right", YAxis.TOP, XAxis.RIGHT),
+    BOTTOM_RIGHT("bottom_right", YAxis.BOTTOM, XAxis.RIGHT),
+    BOTTOM_MIDDLE("bottom_middle", YAxis.BOTTOM, XAxis.MIDDLE);
 
-    SixSection(YAxis yAxis, XAxis xAxis) {
+    SixSection(String serialName, YAxis yAxis, XAxis xAxis) {
+        this.serialName = serialName;
         this.yAxis = yAxis;
         this.xAxis = xAxis;
     }
@@ -64,13 +65,14 @@ public enum SixSection implements StringRepresentable {
         }
     }
 
+    private final String serialName;
     public final YAxis yAxis;
     public final XAxis xAxis;
 
     @NotNull
     @Override
     public String getSerializedName() {
-        return name().toLowerCase(Locale.ROOT);
+        return serialName;
     }
 
     @NotNull
@@ -114,6 +116,28 @@ public enum SixSection implements StringRepresentable {
             case Y -> (this.yAxis != other.yAxis) && (this.xAxis == other.xAxis);
             case Z -> switch (facing) {
                 case EAST, WEST -> this.yAxis == other.yAxis;
+                default -> false;
+            };
+        };
+    }
+
+    public boolean isRelative(SixSection other, Direction facing, Direction where) {
+        if (!this.isOnAxis(other, facing, where.getAxis()))
+            return false;
+
+        if (this == other)
+            return false;
+
+        return switch (where.getAxis()) {
+            case X -> switch (facing) {
+                case NORTH -> (this.yAxis == other.yAxis) && (this.xAxis.relativeTo(other.xAxis) == -where.getStepX());
+                case SOUTH -> (this.yAxis == other.yAxis) && (this.xAxis.relativeTo(other.xAxis) == where.getStepX());
+                default -> false;
+            };
+            case Y -> (this.yAxis.relativeTo(other.yAxis) == where.getStepY()) && (this.xAxis == other.xAxis);
+            case Z -> switch (facing) {
+                case EAST -> (this.yAxis == other.yAxis) && (this.xAxis.relativeTo(other.xAxis) == -where.getStepZ());
+                case WEST -> (this.yAxis == other.yAxis) && (this.xAxis.relativeTo(other.xAxis) == where.getStepZ());
                 default -> false;
             };
         };

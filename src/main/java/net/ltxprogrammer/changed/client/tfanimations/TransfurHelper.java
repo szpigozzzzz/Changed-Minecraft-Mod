@@ -1,6 +1,7 @@
 package net.ltxprogrammer.changed.client.tfanimations;
 
 import net.ltxprogrammer.changed.Changed;
+import net.ltxprogrammer.changed.client.CubeListBuilderExtender;
 import net.ltxprogrammer.changed.client.animations.Limb;
 import net.ltxprogrammer.changed.client.renderer.model.armor.ArmorModel;
 import net.ltxprogrammer.changed.util.Cacheable;
@@ -11,8 +12,10 @@ import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
 import net.minecraft.client.model.geom.builders.*;
+import net.minecraft.core.Direction;
 import net.minecraft.util.Mth;
 
+import java.util.Arrays;
 import java.util.EnumMap;
 
 /**
@@ -34,18 +37,17 @@ public class TransfurHelper {
     protected final HelperModel TaurTorso;
     protected final HelperModel PupTorso;
 
-    protected final ArmorHelper InnerArmor;
-    protected final ArmorHelper OuterArmor;
-
     protected final EnumMap<ArmorModel, ArmorHelper> ArmorMap;
 
     public static class ArmorHelper {
         protected final HelperModel DigitigradeLeftLeg;
         protected final HelperModel DigitigradeRightLeg;
+        protected final HelperModel FeminineTorso;
 
         protected ArmorHelper(ModelPart root) {
             this.DigitigradeLeftLeg = HelperModel.fixed(root.getChild("DigitigradeLeftLeg"));
             this.DigitigradeRightLeg = HelperModel.fixed(root.getChild("DigitigradeRightLeg"));
+            this.FeminineTorso = HelperModel.fixed(root.getChild("FeminineTorso"));
         }
     }
 
@@ -88,12 +90,8 @@ public class TransfurHelper {
         });
         this.PupTorso = HelperModel.fixed(root.getChild("PupTorso"));
 
-        this.InnerArmor = new ArmorHelper(root.getChild("InnerArmor"));
-        this.OuterArmor = new ArmorHelper(root.getChild("OuterArmor"));
-
         ArmorMap = Util.make(new EnumMap<>(ArmorModel.class), map -> {
-            map.put(ArmorModel.INNER, InnerArmor);
-            map.put(ArmorModel.OUTER, OuterArmor);
+            Arrays.stream(ArmorModel.values()).forEach(armorModel -> map.put(armorModel, new ArmorHelper(root.getChild(armorModel.identifier))));
         });
     }
 
@@ -106,17 +104,17 @@ public class TransfurHelper {
         {
             PartDefinition DigitigradeLeftLeg = root.addOrReplaceChild("DigitigradeLeftLeg", CubeListBuilder.create(), PartPose.offset(2.0F, 12.0F, 0.0F));
 
-            PartDefinition LeftThigh_r1 = DigitigradeLeftLeg.addOrReplaceChild("LeftThigh_r1", CubeListBuilder.create().texOffs(0, 16).addBox(-2.0F, 0.0F, -2.0F, 4.0F, 5.0F, 4.0F, armor.dualDeformation), PartPose.offset(0.0F, 0.0F, 0.0F));
+            PartDefinition LeftThigh_r1 = DigitigradeLeftLeg.addOrReplaceChild("LeftThigh_r1", CubeListBuilder.create().texOffs(0, 16).mirror().addBox(-2.0F, 0.0F, -2.0F, 4.0F, 5.0F, 4.0F, armor.dualDeformation).mirror(false), PartPose.offset(0.0F, 0.0F, 0.0F));
 
             PartDefinition LeftLowerLeg = DigitigradeLeftLeg.addOrReplaceChild("LeftLowerLeg", CubeListBuilder.create(), PartPose.offset(0.0F, 5.0F, -2.0F));
 
-            PartDefinition LeftCalf_r1 = LeftLowerLeg.addOrReplaceChild("LeftCalf_r1", CubeListBuilder.create().texOffs(0, 21).addBox(-2.0F, 5.0F, -2.0F, 4.0F, 3.0F, 4.0F, armor.dualDeformation), PartPose.offset(0.0F, -5.0F, 2.0F));
+            PartDefinition LeftCalf_r1 = LeftLowerLeg.addOrReplaceChild("LeftCalf_r1", CubeListBuilder.create().texOffs(0, 21).mirror().addBox(-2.0F, 5.0F, -2.0F, 4.0F, 3.0F, 4.0F, armor.dualDeformation).mirror(false), PartPose.offset(0.0F, -5.0F, 2.0F));
 
             PartDefinition LeftFoot = LeftLowerLeg.addOrReplaceChild("LeftFoot", CubeListBuilder.create(), PartPose.offset(0.0F, 3.0F, 4.0F));
 
             PartDefinition LeftArch_r1 = LeftFoot.addOrReplaceChild("LeftArch_r1", CubeListBuilder.create().texOffs(0, 24).mirror().addBox(-2.0F, -0.5F, -4.0F, 4.0F, 3.0F, 4.0F, armor.dualDeformation).mirror(false), PartPose.offset(0.0F, 0.0F, 0.0F));
 
-            PartDefinition LeftPad = LeftFoot.addOrReplaceChild("LeftPad", CubeListBuilder.create().texOffs(0, 26).addBox(-2.0F, 10.0F, -2.0F, 4.0F, 2.0F, 4.0F, armor.dualDeformation), PartPose.offset(0.0F, -8.0F, -2.0F));
+            PartDefinition LeftPad = LeftFoot.addOrReplaceChild("LeftPad", CubeListBuilder.create().texOffs(0, 26).mirror().addBox(-2.0F, 10.0F, -2.0F, 4.0F, 2.0F, 4.0F, armor.dualDeformation).mirror(false), PartPose.offset(0.0F, -8.0F, -2.0F));
 
         }
 
@@ -124,17 +122,33 @@ public class TransfurHelper {
         {
             PartDefinition DigitigradeRightLeg = root.addOrReplaceChild("DigitigradeRightLeg", CubeListBuilder.create(), PartPose.offset(-2.0F, 12.0F, 0.0F));
 
-            PartDefinition RightThigh_r1 = DigitigradeRightLeg.addOrReplaceChild("RightThigh_r1", CubeListBuilder.create().texOffs(0, 16).mirror().addBox(-2.0F, 0.0F, -2.0F, 4.0F, 5.0F, 4.0F, armor.dualDeformation).mirror(false), PartPose.offset(0.0F, 0.0F, 0.0F));
+            PartDefinition RightThigh_r1 = DigitigradeRightLeg.addOrReplaceChild("RightThigh_r1", CubeListBuilder.create().texOffs(0, 16).addBox(-2.0F, 0.0F, -2.0F, 4.0F, 5.0F, 4.0F, armor.dualDeformation), PartPose.offset(0.0F, 0.0F, 0.0F));
 
             PartDefinition RightLowerLeg = DigitigradeRightLeg.addOrReplaceChild("RightLowerLeg", CubeListBuilder.create(), PartPose.offset(0.0F, 5.0F, -2.0F));
 
-            PartDefinition RightCalf_r1 = RightLowerLeg.addOrReplaceChild("RightCalf_r1", CubeListBuilder.create().texOffs(0, 21).mirror().addBox(-2.0F, 5.0F, -2.0F, 4.0F, 3.0F, 4.0F, armor.dualDeformation).mirror(false), PartPose.offset(0.0F, -5.0F, 2.0F));
+            PartDefinition RightCalf_r1 = RightLowerLeg.addOrReplaceChild("RightCalf_r1", CubeListBuilder.create().texOffs(0, 21).addBox(-2.0F, 5.0F, -2.0F, 4.0F, 3.0F, 4.0F, armor.dualDeformation), PartPose.offset(0.0F, -5.0F, 2.0F));
 
             PartDefinition RightFoot = RightLowerLeg.addOrReplaceChild("RightFoot", CubeListBuilder.create(), PartPose.offset(0.0F, 3.0F, 4.0F));
 
             PartDefinition RightArch_r1 = RightFoot.addOrReplaceChild("RightArch_r1", CubeListBuilder.create().texOffs(0, 24).addBox(-2.0F, -0.5F, -4.0F, 4.0F, 3.0F, 4.0F, armor.dualDeformation), PartPose.offset(0.0F, 0.0F, 0.0F));
 
-            PartDefinition RightPad = RightFoot.addOrReplaceChild("RightPad", CubeListBuilder.create().texOffs(0, 26).mirror().addBox(-2.0F, 10.0F, -2.0F, 4.0F, 2.0F, 4.0F, armor.dualDeformation).mirror(false), PartPose.offset(0.0F, -8.0F, -2.0F));
+            PartDefinition RightPad = RightFoot.addOrReplaceChild("RightPad", CubeListBuilder.create().texOffs(0, 26).addBox(-2.0F, 10.0F, -2.0F, 4.0F, 2.0F, 4.0F, armor.dualDeformation), PartPose.offset(0.0F, -8.0F, -2.0F));
+        }
+
+        // FEMININE TORSO
+        {
+            PartDefinition Torso = root.addOrReplaceChild("FeminineTorso", CubeListBuilder.create().texOffs(16, 16).addBox(-4.0F, 0.0F, -2.0F, 8.0F, 12.0F, 4.0F, armor.dualDeformation), PartPose.offset(0.0F, 0.0F, 0.0F));
+
+            PartDefinition Plantoids = Torso.addOrReplaceChild("Plantoids", CubeListBuilder.create(), PartPose.offset(0.0F, 1.8F, -1.0F));
+
+            final var plantoidCubes = ((CubeListBuilderExtender)((CubeListBuilderExtender)CubeListBuilder.create()
+                    .texOffs(18, 19).mirror().addBox(-4.0F, -2.3F, -0.9F, 8.0F, 2.0F, 2.0F, armor.dualDeformation).mirror(false))
+                    .removeLastFaces(Direction.DOWN).finish()
+                    .texOffs(18, 22).mirror().addBox(-4.0F, -0.3F, -0.9F, 8.0F, 1.0F, 2.0F, armor.dualDeformation).mirror(false))
+                    .copyLastFaceUVStart(Direction.NORTH, Direction.DOWN)
+                    .removeLastFaces(Direction.UP);
+
+            PartDefinition Plantoid_r1 = Plantoids.addOrReplaceChild("Plantoid_r1", plantoidCubes.finish(), PartPose.offset(0.0F, 2.5F, 0.0F));
         }
     }
 
@@ -340,11 +354,10 @@ public class TransfurHelper {
 
         // ARMOR
         {
-            PartDefinition innerLayer = partdefinition.addOrReplaceChild("InnerArmor", CubeListBuilder.create(), PartPose.ZERO);
-            createArmorLayer(innerLayer, ArmorModel.INNER);
-
-            PartDefinition outerLayer = partdefinition.addOrReplaceChild("OuterArmor", CubeListBuilder.create(), PartPose.ZERO);
-            createArmorLayer(outerLayer, ArmorModel.OUTER);
+            Arrays.stream(ArmorModel.values()).forEach(armorModel -> {
+                PartDefinition layer = partdefinition.addOrReplaceChild(armorModel.identifier, CubeListBuilder.create(), PartPose.ZERO);
+                createArmorLayer(layer, armorModel);
+            });
         }
 
         return LayerDefinition.create(meshdefinition, 64, 32);
@@ -366,6 +379,10 @@ public class TransfurHelper {
 
     public static HelperModel getDigitigradeRightLeg(ArmorModel model) {
         return INSTANCE.get().ArmorMap.get(model).DigitigradeRightLeg;
+    }
+
+    public static HelperModel getFeminineTorso(ArmorModel model) {
+        return INSTANCE.get().ArmorMap.get(model).FeminineTorso;
     }
 
     public static HelperModel getBasicLeftArm() {

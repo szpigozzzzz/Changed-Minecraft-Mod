@@ -1,16 +1,16 @@
 package net.ltxprogrammer.changed.entity.variant;
 
 import com.google.common.collect.ImmutableMap;
-import com.mojang.datafixers.util.Pair;
-import it.unimi.dsi.fastutil.objects.Object2DoubleArrayMap;
-import it.unimi.dsi.fastutil.objects.Object2DoubleOpenHashMap;
 import net.ltxprogrammer.changed.Changed;
 import net.ltxprogrammer.changed.ability.AbstractAbility;
 import net.ltxprogrammer.changed.ability.AbstractAbilityInstance;
 import net.ltxprogrammer.changed.ability.GrabEntityAbility;
 import net.ltxprogrammer.changed.ability.IAbstractChangedEntity;
+import net.ltxprogrammer.changed.data.AccessorySlots;
 import net.ltxprogrammer.changed.entity.*;
+import net.ltxprogrammer.changed.entity.robot.Exoskeleton;
 import net.ltxprogrammer.changed.extension.ChangedCompatibility;
+import net.ltxprogrammer.changed.entity.AccessoryEntities;
 import net.ltxprogrammer.changed.init.*;
 import net.ltxprogrammer.changed.item.ExtendedItemProperties;
 import net.ltxprogrammer.changed.network.packet.BasicPlayerInfoPacket;
@@ -19,6 +19,7 @@ import net.ltxprogrammer.changed.network.packet.SyncTransfurPacket;
 import net.ltxprogrammer.changed.process.Pale;
 import net.ltxprogrammer.changed.process.ProcessTransfur;
 import net.ltxprogrammer.changed.util.*;
+import net.ltxprogrammer.changed.world.enchantments.FormFittingEnchantment;
 import net.minecraft.Util;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
@@ -69,6 +70,11 @@ public abstract class TransfurVariantInstance<T extends ChangedEntity> {
     public AbstractAbility<?> menuAbility = null;
     public boolean abilityKeyState = false;
     public TransfurMode transfurMode;
+    public TransfurVariant.BreatheMode breatheMode;
+    public VisionType visionType;
+    public MiningStrength miningStrength;
+    public UseItemMode itemUseMode;
+    public float jumpStrength;
     public int ageAsVariant = 0;
     protected int air = -100;
     protected int jumpCharges = 0;
@@ -76,6 +82,7 @@ public abstract class TransfurVariantInstance<T extends ChangedEntity> {
     public int ticksBreathingUnderwater;
     public int ticksFlying;
     protected int ticksSinceLastAbilityActivity = 0;
+    private int ticksInWaveVision = 0;
 
     private final Map<Attribute, Double> previousAttributes = new HashMap<>();
     private final Map<Attribute, Double> newAttributes = new HashMap<>();
@@ -84,6 +91,10 @@ public abstract class TransfurVariantInstance<T extends ChangedEntity> {
     public TransfurContext transfurContext = TransfurContext.hazard(TransfurCause.ATTACK_REPLICATE_LEFT);
     public boolean willSurviveTransfur = true;
     protected boolean isTemporaryFromSuit = false;
+
+    public void refreshAttributes() {
+        newAttributes.clear();
+    }
 
     private void captureBaseline(Map<Attribute, Double> baseValues, AttributeMap attributeMap) {
         baseValues.clear();
@@ -156,11 +167,8 @@ public abstract class TransfurVariantInstance<T extends ChangedEntity> {
         if (newAttributes.isEmpty())
             captureBaseline(newAttributes, entity.getAttributes());
 
-        final float taggedProgress = tag.getFloat("transfurProgression");
-        if (Mth.abs(transfurProgression - taggedProgress) > 0.5f) { // Prevent sync shudder
-            transfurProgressionO = tag.getFloat("transfurProgressionO");
-            transfurProgression = tag.getFloat("transfurProgression");
-        }
+        transfurProgressionO = tag.getFloat("transfurProgressionO");
+        transfurProgression = tag.getFloat("transfurProgression");
 
         willSurviveTransfur = tag.getBoolean("willSurviveTransfur");
         isTemporaryFromSuit = tag.getBoolean("isTemporaryFromSuit");
@@ -214,6 +222,11 @@ public abstract class TransfurVariantInstance<T extends ChangedEntity> {
         this.host = host;
 
         this.transfurMode = parent.transfurMode;
+        this.breatheMode = parent.breatheMode;
+        this.visionType = parent.visionType;
+        this.miningStrength = parent.miningStrength;
+        this.itemUseMode = parent.itemUseMode;
+        this.jumpStrength = parent.jumpStrength;
 
         var builder = new ImmutableMap.Builder<AbstractAbility<?>, AbstractAbilityInstance>();
         parent.abilities.forEach(abilityFunction -> {
@@ -360,6 +373,10 @@ public abstract class TransfurVariantInstance<T extends ChangedEntity> {
         if (variant != null && variant.isReducedFall()) {
             event.setDistance(0.4f * event.getDistance());
         }
+        Exoskeleton.getEntityExoskeleton(event.getEntityLiving())
+                .ifPresent(pair -> {
+                    event.setDistance(event.getDistance() * pair.getSecond().getFallDamageMultiplier(pair.getFirst()));
+                });
     }
 
     @SubscribeEvent
@@ -409,7 +426,7 @@ public abstract class TransfurVariantInstance<T extends ChangedEntity> {
                 if (!event.player.isSpectator()) {
                     if (!instance.entity.level.isClientSide)
                         instance.entity.tickLeash();
-                    instance.getChangedEntity().visualTick(event.player.level);
+                    instance.getChangedEntity().variantTick(event.player.level);
                 }
             } catch (Exception x) {
                 x.printStackTrace();
@@ -456,6 +473,8 @@ public abstract class TransfurVariantInstance<T extends ChangedEntity> {
 
             // Send client empty bpi packet, so it'll reply with its bpi
             Changed.PACKET_HANDLER.send(playerTarget, BasicPlayerInfoPacket.EMPTY);
+
+            Changed.PACKET_HANDLER.send(playerTarget, AccessoryEntities.INSTANCE.syncPacket(player));
         }
     }
 
@@ -601,21 +620,29 @@ public abstract class TransfurVariantInstance<T extends ChangedEntity> {
     public boolean canWear(Player player, ItemStack itemStack, EquipmentSlot slot) {
         if (slot == EquipmentSlot.MAINHAND)
             return true;
-        if (itemStack.getItem() instanceof ExtendedItemProperties wearableItem && !wearableItem.allowedInSlot(itemStack, player, slot))
-            return false;
+        itemStack = FormFittingEnchantment.getFormFitted(player, itemStack, slot);
+        if (itemStack.getItem() instanceof ExtendedItemProperties wearableItem) {
+            if (!wearableItem.allowedInSlot(itemStack, player, slot))
+                return false;
+        }
+
+        else { // Default expected entity shapes
+            boolean shapeFits = switch (slot) {
+                case HEAD -> getEntityShape().getHeadShape() == ClothingShape.Head.ANTHRO;
+                case CHEST -> getEntityShape().getTorsoShape() == ClothingShape.Torso.ANTHRO;
+                case LEGS -> getEntityShape().getLegsShape() == ClothingShape.Legs.BIPEDAL;
+                case FEET -> getEntityShape().getFeetShape() == ClothingShape.Feet.BIPEDAL;
+                default -> true;
+            };
+
+            if (!shapeFits)
+                return false;
+        }
+
         if (!entity.isItemAllowedInSlot(itemStack, slot))
             return false;
 
-        int expectedLegCount;
-        if (itemStack.getItem() instanceof ExtendedItemProperties wearableItem)
-            expectedLegCount = wearableItem.getExpectedLegCount(itemStack);
-        else
-            expectedLegCount = 2;
-
-        return switch (slot) {
-            case LEGS, FEET -> expectedLegCount == parent.legCount;
-            default -> true;
-        };
+        return true;
     }
 
     protected static double correctScaling(Attribute attribute, double original) {
@@ -663,25 +690,20 @@ public abstract class TransfurVariantInstance<T extends ChangedEntity> {
 
         float morph = getMorphProgression();
 
-        Arrays.stream(EquipmentSlot.values()).filter(slot -> slot.getType() == EquipmentSlot.Type.ARMOR)
-                        .map(slot -> Pair.of(slot, player.getItemBySlot(slot))).forEach(pair -> {
-                            var itemStack = pair.getSecond();
+        ItemUtil.getWearingItems(entity, ChangedTags.Items.WILL_BREAK_ON_TF).forEach(slottedItem -> {
+            final ItemStack itemStack = slottedItem.itemStack();
+            int currentDamage = itemStack.getDamageValue();
+            int newDamage = (int) Math.ceil(Mth.lerp(morph, 0, itemStack.getMaxDamage()));
 
-                            if (!itemStack.is(ChangedTags.Items.WILL_BREAK_ON_TF))
-                                return;
+            if (newDamage > currentDamage)
+                itemStack.setDamageValue(newDamage);
+            if (newDamage >= itemStack.getMaxDamage()) {
+                player.awardStat(Stats.ITEM_BROKEN.get(itemStack.getItem()));
+                slottedItem.slot().ifLeft(player::broadcastBreakEvent).ifRight(slotType -> AccessorySlots.onBrokenAccessory(player, slotType));
 
-                            int currentDamage = itemStack.getDamageValue();
-                            int newDamage = (int) Math.ceil(Mth.lerp(morph, 0, itemStack.getMaxDamage()));
-
-                            if (newDamage > currentDamage)
-                                itemStack.setDamageValue(newDamage);
-                            if (newDamage >= itemStack.getMaxDamage()) {
-                                itemStack.shrink(1);
-
-                                player.awardStat(Stats.ITEM_BROKEN.get(itemStack.getItem()));
-                                player.broadcastBreakEvent(pair.getFirst());
-                            }
-                        });
+                itemStack.shrink(1);
+            }
+        });
     }
 
     protected void tickTransfurProgress() {
@@ -700,6 +722,10 @@ public abstract class TransfurVariantInstance<T extends ChangedEntity> {
             checkBreakItems(host);
             mapAttributes(host, previousAttributes, TransfurVariantInstance::noOp,
                     newAttributes, TransfurVariantInstance::correctScaling, getMorphProgression());
+
+            if (transfurProgression >= 1f && willSurviveTransfur) {
+                AccessoryEntities.INSTANCE.forceReloadAccessories(host);
+            }
         }
     }
 
@@ -740,7 +766,7 @@ public abstract class TransfurVariantInstance<T extends ChangedEntity> {
     }
 
     protected void tickBreathing() {
-        if (host.isAlive() && parent.breatheMode.canBreatheWater() && shouldApplyAbilities()) {
+        if (host.isAlive() && breatheMode.canBreatheWater() && shouldApplyAbilities()) {
             if (air == -100) {
                 air = host.getAirSupply();
             }
@@ -754,7 +780,7 @@ public abstract class TransfurVariantInstance<T extends ChangedEntity> {
             }
 
             //if the player is on land and the entity suffocates
-            else if (!parent.breatheMode.canBreatheAir()) {
+            else if (!breatheMode.canBreatheAir()) {
                 //taken from decreaseAirSupply in Living Entity
                 int i = EnchantmentHelper.getRespiration(host);
                 air = i > 0 && host.getRandom().nextInt(i + 1) > 0 ? air : air - 1;
@@ -774,7 +800,7 @@ public abstract class TransfurVariantInstance<T extends ChangedEntity> {
             }
         }
 
-        else if (host.isAlive() && !parent.breatheMode.canBreatheWater() && parent.breatheMode == TransfurVariant.BreatheMode.WEAK && shouldApplyAbilities()) {
+        else if (host.isAlive() && !breatheMode.canBreatheWater() && breatheMode == TransfurVariant.BreatheMode.WEAK && shouldApplyAbilities()) {
             //if the player is in water, remove more air
             if (host.isEyeInFluid(FluidTags.WATER)) {
                 int air = host.getAirSupply();
@@ -782,6 +808,15 @@ public abstract class TransfurVariantInstance<T extends ChangedEntity> {
                     host.setAirSupply(air-1);
                 this.ticksBreathingUnderwater = 0;
             }
+        }
+
+        // Air is fixed, doesn't increase or decrease
+        else if (host.isAlive() && breatheMode == TransfurVariant.BreatheMode.NONE && shouldApplyAbilities()) {
+            if (air == -100) {
+                air = host.getAirSupply();
+            }
+
+            host.setAirSupply(Mth.clamp(air, 0, host.getMaxAirSupply()));
         }
     }
 
@@ -849,9 +884,6 @@ public abstract class TransfurVariantInstance<T extends ChangedEntity> {
         if (host.isOnGround())
             jumpCharges = parent.extraJumpCharges;
 
-        if (parent.rideable())
-            host.stopRiding();
-
         this.tickFlying();
 
         if (shouldApplyAbilities())
@@ -870,7 +902,7 @@ public abstract class TransfurVariantInstance<T extends ChangedEntity> {
 
         this.tickBreathing();
 
-        if (!parent.hasLegs && host.isEyeInFluid(FluidTags.WATER) && shouldApplyAbilities())
+        if (getEntityShape().isLegless() && host.isEyeInFluid(FluidTags.WATER) && shouldApplyAbilities())
             host.setPose(Pose.SWIMMING);
 
         // Sink in water
@@ -885,8 +917,14 @@ public abstract class TransfurVariantInstance<T extends ChangedEntity> {
             host.maxUpStep = parent.stepSize;
 
         // Effects
-        if (parent.visionType == VisionType.BLIND) {
+        if (visionType == VisionType.BLIND) {
             host.addEffect(new MobEffectInstance(MobEffects.BLINDNESS, 20, 1, false, false, false));
+        }
+
+        if (visionType == VisionType.WAVE_VISION) {
+            ticksInWaveVision++;
+        } else {
+            ticksInWaveVision = 0;
         }
 
         this.tickAbilities();
@@ -979,7 +1017,7 @@ public abstract class TransfurVariantInstance<T extends ChangedEntity> {
         if (instance != null && instance.shouldAnimateArms())
             return UseItemMode.NONE;
         else
-            return parent.itemUseMode;
+            return itemUseMode;
     }
 
     public float getSwimEfficiency() {
@@ -1008,6 +1046,14 @@ public abstract class TransfurVariantInstance<T extends ChangedEntity> {
         }
 
         return 1.0f;
+    }
+
+    public int getTicksInWaveVision() {
+        return ticksInWaveVision;
+    }
+
+    public EntityShape getEntityShape() {
+        return entity.getEntityShape();
     }
 
     public void prepareForRender(float partialTicks) {}

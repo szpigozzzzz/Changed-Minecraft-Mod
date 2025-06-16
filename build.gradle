@@ -24,6 +24,9 @@ archivesBaseName = "Changed-m${minecraftVersion}"
 java.toolchain.languageVersion = JavaLanguageVersion.of(javaVersion)
 
 println('Java: ' + System.getProperty('java.version') + ' JVM: ' + System.getProperty('java.vm.version') + '(' + System.getProperty('java.vendor') + ') Arch: ' + System.getProperty('os.arch'))
+
+jarJar.enable()
+
 minecraft {
     // The mappings can be changed at any time and must be in the following format.
     // Channel:   Version:
@@ -167,10 +170,11 @@ repositories {
     maven {
         // location of a maven mirror for JEI files, as a fallback
         name = "ModMaven"
-        url = "https://modmaven.dev"
+        url = "https://modmaven.dev/"
     }
-    maven { url "https://cursemaven.com" }
-    maven { url "https://maven.shedaniel.me" }
+    maven { url "https://maven.theillusivec4.top/" }
+    maven { url "https://maven.shedaniel.me/" }
+    maven { url "https://cursemaven.com/" }
 }
 
 mixin {
@@ -189,12 +193,17 @@ dependencies {
     annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
     annotationProcessor project(':ap')
 
+    compileOnly(annotationProcessor("io.github.llamalad7:mixinextras-common:0.4.1"))
+    implementation(jarJar("io.github.llamalad7:mixinextras-forge:0.4.1")) {
+        jarJar.ranged(it, "[0.4.1,)")
+    }
+
     implementation fg.deobf("curse.maven:presence-footsteps-forge-433068:4328018") // Forge 1.18.2 v1.5.1
     implementation fg.deobf("curse.maven:spark-361579:4505375") // Forge 1.18.2 v1.10.38
     implementation fg.deobf("curse.maven:modernfix-790626:5399365") // Forge 1.18.2 v5.18.0
     implementation fg.deobf("curse.maven:rubidium-574856:4494903") // Forge 1.18.2 v0.5.6
     implementation fg.deobf("curse.maven:oculus-581495:4578744") // Forge 1.18.2 v1.6.4
-    implementation fg.deobf("curse.maven:vivecraft-667903:5830810") // Forge 1.18.2 v1.1.14
+    implementation fg.deobf("curse.maven:vivecraft-667903:6208677") // Forge 1.18.2 v1.2.5
     runtimeOnly fg.deobf("curse.maven:ferritecore-429235:4074294") // Forge 1.18.2 v4.2.2
 
     compileOnly fg.deobf("mezz.jei:jei-${minecraftVersion}:${jeiVersion}:api")

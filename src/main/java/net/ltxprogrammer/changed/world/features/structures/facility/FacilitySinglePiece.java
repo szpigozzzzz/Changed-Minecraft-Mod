@@ -9,6 +9,10 @@ import net.ltxprogrammer.changed.util.TagUtil;
 import net.ltxprogrammer.changed.world.features.structures.ChestLootTableProcessor;
 import net.ltxprogrammer.changed.world.features.structures.FacilityPieces;
 import net.ltxprogrammer.changed.world.features.structures.GluReplacementProcessor;
+import net.ltxprogrammer.changed.world.features.structures.HangingBlockFixerProcessor;
+import net.minecraft.CrashReport;
+import net.minecraft.CrashReportCategory;
+import net.minecraft.ReportedException;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -85,13 +89,25 @@ public abstract class FacilitySinglePiece extends FacilityPiece {
                     .addProcessor(BlockIgnoreProcessor.STRUCTURE_BLOCK)
                     .addProcessor(JigsawReplacementProcessor.INSTANCE)
                     .addProcessor(GluReplacementProcessor.INSTANCE)
+                    .addProcessor(HangingBlockFixerProcessor.INSTANCE)
                     .setKnownShape(true)
                     .setKeepLiquids(false)
                     .setIgnoreEntities(false);
             if (lootTable != null)
                 settings.addProcessor(ChestLootTableProcessor.of(lootTable));
             settings.setBoundingBox(bb);
-            template.placeInWorld(level, generationPosition, generationPosition, settings, random, 2);
+
+            try {
+                template.placeInWorld(level, generationPosition, generationPosition, settings, random, 2);
+            } catch (Exception e) {
+                CrashReport report = CrashReport.forThrowable(e, "Placing Facility");
+                CrashReportCategory category = report.addCategory("Facility piece being placed");
+                category.setDetail("Generation Position", generationPosition);
+                category.setDetail("Template Name", templateName);
+                category.setDetail("Loot Table", lootTable);
+                throw new ReportedException(report);
+            }
+
             BoundingBox intersect = new BoundingBox(
                     Math.max(this.boundingBox.minX(), bb.minX()),
                     Math.max(this.boundingBox.minY(), bb.minY()),

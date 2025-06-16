@@ -63,6 +63,10 @@ public abstract class AbstractAbilityInstance {
         }
     }
 
+    public final AbstractAbility<?> getAbility() {
+        return ability;
+    }
+
     public abstract boolean canUse();
     public abstract boolean canKeepUsing();
 
@@ -113,10 +117,6 @@ public abstract class AbstractAbilityInstance {
         return ability.getUseType(entity);
     }
 
-    public final ResourceLocation getTexture() {
-        return ability.getTexture(entity);
-    }
-
     public AbstractAbility.Controller getController() {
         return controller;
     }
@@ -127,5 +127,9 @@ public abstract class AbstractAbilityInstance {
 
     public Collection<Component> getAbilityDescription() {
         return ability.getAbilityDescription(entity);
+    }
+
+    public boolean hasFoil() {
+        return false;
     }
 }

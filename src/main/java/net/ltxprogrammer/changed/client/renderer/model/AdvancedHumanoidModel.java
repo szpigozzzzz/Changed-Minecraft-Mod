@@ -4,18 +4,24 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import net.ltxprogrammer.changed.client.ClientLivingEntityExtender;
 import net.ltxprogrammer.changed.client.ModelPartStem;
 import net.ltxprogrammer.changed.client.PoseStackExtender;
+import net.ltxprogrammer.changed.client.renderer.ExoskeletonRenderer;
+import net.ltxprogrammer.changed.client.renderer.accessory.WornExoskeletonRenderer;
+import net.ltxprogrammer.changed.client.renderer.layers.AccessoryLayer;
 import net.ltxprogrammer.changed.client.tfanimations.HelperModel;
 import net.ltxprogrammer.changed.client.animations.Limb;
 import net.ltxprogrammer.changed.client.renderer.animate.HumanoidAnimator;
 import net.ltxprogrammer.changed.client.tfanimations.*;
 import net.ltxprogrammer.changed.entity.ChangedEntity;
+import net.ltxprogrammer.changed.entity.robot.Exoskeleton;
 import net.ltxprogrammer.changed.extension.ChangedCompatibility;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.ArmedModel;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.HeadedModel;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.builders.CubeDeformation;
+import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.HumanoidArm;
 
@@ -25,7 +31,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public abstract class AdvancedHumanoidModel<T extends ChangedEntity> extends PlayerModel<T> implements ArmedModel, HeadedModel, TorsoedModel {
+public abstract class AdvancedHumanoidModel<T extends ChangedEntity> extends PlayerModel<T> implements AdvancedArmedModel<T>, HeadedModel, TorsoedModel {
     public static final CubeDeformation NO_DEFORMATION = CubeDeformation.NONE;
     public static final CubeDeformation TEXTURE_DEFORMATION = new CubeDeformation(-0.01F);
     protected static final ModelPart NULL_PART = new ModelPart(List.of(), Map.of());
@@ -45,13 +51,13 @@ public abstract class AdvancedHumanoidModel<T extends ChangedEntity> extends Pla
         this.rootModelPart = root;
     }
 
-    public void syncPropertyModel() {
-        if (this instanceof AdvancedHumanoidModelInterface<?,?> modelInterface)
-            modelInterface.getAnimator().writePropertyModel(this);
+    public void syncPropertyModel(T entity) {
+        if (this instanceof AdvancedHumanoidModelInterface modelInterface)
+            modelInterface.getAnimator(entity).writePropertyModel(this);
     }
 
-    public PlayerModel<?> preparePropertyModel() {
-        syncPropertyModel();
+    public PlayerModel<?> preparePropertyModel(T entity) {
+        syncPropertyModel(entity);
         return this;
     }
 
@@ -70,7 +76,7 @@ public abstract class AdvancedHumanoidModel<T extends ChangedEntity> extends Pla
             getTorso().visible = true;
         }
 
-        this.syncPropertyModel();
+        this.syncPropertyModel(entity);
     }
 
     public PoseStack.Pose resetPoseStack = null;
@@ -89,7 +95,15 @@ public abstract class AdvancedHumanoidModel<T extends ChangedEntity> extends Pla
             instance.animate(this, Mth.positiveModulo(ageInTicks, 1.0f));
         });
 
-        this.syncPropertyModel();
+        Exoskeleton.getEntityExoskeleton(entity).ifPresent(pair -> {
+            AccessoryLayer.getRenderer(pair.getSecond()).ifPresent(renderer -> {
+                if (renderer instanceof WornExoskeletonRenderer exoRenderer) {
+                    exoRenderer.getModel().animateWearerLimbs(this, pair.getFirst());
+                }
+            });
+        });
+
+        this.syncPropertyModel(entity);
     }
 
     public abstract ModelPart getArm(HumanoidArm arm);
@@ -112,10 +126,10 @@ public abstract class AdvancedHumanoidModel<T extends ChangedEntity> extends Pla
         return true;
     }
 
-    public void translateToHand(HumanoidArm arm, PoseStack poseStack) {
+    public void translateToHand(T entity, HumanoidArm arm, PoseStack poseStack) {
         this.getArm(arm).translateAndRotate(poseStack);
         if (this instanceof AdvancedHumanoidModelInterface modelInterface)
-            poseStack.translate(0.0, (modelInterface.getAnimator().armLength - 12.0f) / 20.0, 0.0);
+            poseStack.translate(0.0, (modelInterface.getAnimator(entity).armLength - 12.0f) / 20.0, 0.0);
     }
 
     private Stream<ModelPartStem> getAllPartsFor(ModelPart root) {

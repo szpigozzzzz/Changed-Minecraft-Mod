@@ -12,14 +12,10 @@ import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraftforge.eventbus.api.Event;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.function.Supplier;
-
 public class AnimationDefinitions extends SimplePreparableReloadListener<ImmutableMap<ResourceLocation, AnimationDefinition>> {
     public static AnimationDefinitions INSTANCE = new AnimationDefinitions();
 
     private static ImmutableMap<ResourceLocation, AnimationDefinition> definitions;
-
-    public static final Supplier<AnimationDefinition> PLACEHOLDER = () -> definitions.get(Changed.modResource("transfur/placeholder"));
 
     public static AnimationDefinition getAnimation(ResourceLocation id) {
         return definitions.get(id);

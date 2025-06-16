@@ -21,7 +21,7 @@ public abstract class ForgeIngameGuiMixin extends Gui {
     protected void renderAir(int width, int height, PoseStack poseStack, CallbackInfo callback) {
         var entity = Minecraft.getInstance().getCameraEntity();
         ProcessTransfur.ifPlayerTransfurred(EntityUtil.playerOrNull(entity), (player, variant) -> {
-            if (variant.getParent().breatheMode.canBreatheWater() && player.getAirSupply() >= 300)
+            if (variant.breatheMode.canBreatheWater() && player.getAirSupply() >= 300)
                 callback.cancel();
         });
     }

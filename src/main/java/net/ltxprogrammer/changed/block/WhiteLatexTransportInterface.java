@@ -17,6 +17,7 @@ import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.food.Foods;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.BooleanOp;
@@ -69,11 +70,14 @@ public interface WhiteLatexTransportInterface extends NonLatexCoverableBlock {
     }
 
     static boolean isBoundingBoxInWhiteLatex(LivingEntity entity) {
-        return entity.level.getBlockStates(entity.getBoundingBox().inflate(-0.05)).anyMatch(blockState -> {
+        AABB testHitbox = entity.getBoundingBox().inflate(-0.05);
+        return BlockPos.betweenClosedStream(testHitbox).anyMatch(blockPos -> {
+            final BlockState blockState = entity.level.getBlockState(blockPos);
             if (blockState.getBlock() instanceof WhiteLatexTransportInterface transportInterface)
                 return transportInterface.allowTransport(blockState);
             if (blockState.getProperties().contains(COVERED) && blockState.getValue(COVERED) == LatexType.WHITE_LATEX) {
-                return blockState.isCollisionShapeFullBlock(entity.level, entity.blockPosition());
+                var shape = blockState.getCollisionShape(entity.level, blockPos, CollisionContext.empty()).move((double)blockPos.getX(), (double)blockPos.getY(), (double)blockPos.getZ());
+                return Shapes.joinIsNotEmpty(shape, Shapes.create(testHitbox), BooleanOp.AND);
             }
 
             return false;
@@ -122,7 +126,7 @@ public interface WhiteLatexTransportInterface extends NonLatexCoverableBlock {
                     if (variant.getLatexType().isHostileTo(LatexType.WHITE_LATEX))
                         player.hurt(ChangedDamageSources.WHITE_LATEX, 2.0f);
                 }, () -> {
-                    ProcessTransfur.progressPlayerTransfur(player, 4.8f, ChangedTransfurVariants.PURE_WHITE_LATEX_WOLF.get(), TransfurContext.hazard(TransfurCause.WHITE_LATEX));
+                    ProcessTransfur.progressTransfur(player, 4.8f, ChangedTransfurVariants.PURE_WHITE_LATEX_WOLF.get(), TransfurContext.hazard(TransfurCause.WHITE_LATEX));
                 });
 
                 player.setDeltaMovement(0, 0, 0);
@@ -197,7 +201,7 @@ public interface WhiteLatexTransportInterface extends NonLatexCoverableBlock {
                     else if (variant.getLatexType().isHostileTo(LatexType.WHITE_LATEX))
                         event.player.hurt(ChangedDamageSources.WHITE_LATEX, 2.0f);
                 }, () -> {
-                    if (ProcessTransfur.progressPlayerTransfur(event.player, 4.8f, ChangedTransfurVariants.PURE_WHITE_LATEX_WOLF.get(), TransfurContext.hazard(TransfurCause.WHITE_LATEX)))
+                    if (ProcessTransfur.progressTransfur(event.player, 4.8f, ChangedTransfurVariants.PURE_WHITE_LATEX_WOLF.get(), TransfurContext.hazard(TransfurCause.WHITE_LATEX)))
                         entityEnterLatex(event.player, new BlockPos(event.player.getBlockX(), event.player.getBlockY(), event.player.getBlockZ()));
                 });
             }

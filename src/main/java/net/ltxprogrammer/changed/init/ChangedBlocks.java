@@ -7,6 +7,7 @@ import net.ltxprogrammer.changed.block.*;
 import net.ltxprogrammer.changed.entity.LatexType;
 import net.ltxprogrammer.changed.entity.beast.DarkLatexEntity;
 import net.ltxprogrammer.changed.item.BlockEntityRenderedBlockItem;
+import net.ltxprogrammer.changed.item.FluidCanister;
 import net.ltxprogrammer.changed.item.GasCanister;
 import net.minecraft.Util;
 import net.minecraft.client.renderer.BiomeColors;
@@ -26,6 +27,7 @@ import net.minecraft.world.level.block.grower.AbstractTreeGrower;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
+import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.level.material.Material;
 import net.minecraft.world.level.material.MaterialColor;
 import net.minecraftforge.api.distmarker.Dist;
@@ -47,6 +49,12 @@ import java.util.function.Supplier;
 
 @Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD)
 public class ChangedBlocks {
+    /*
+    setBlock() flags:
+    1 -> update neighbors
+    2 -> notify clients
+     */
+
     public static boolean always(BlockState blockState, BlockGetter level, BlockPos blockPos) {
         return true;
     }
@@ -105,6 +113,7 @@ public class ChangedBlocks {
     public static final RegistryObject<AbstractPuddle> WHITE_LATEX_PUDDLE_FEMALE = register("white_latex_puddle_female", () -> new AbstractPuddle(BlockBehaviour.Properties.of(Material.CLAY, MaterialColor.QUARTZ).sound(SoundType.SLIME_BLOCK).strength(0.1F), ChangedTransfurVariants.WHITE_LATEX_WOLF_FEMALE));
     public static final RegistryObject<AbstractPuddle> WHITE_LATEX_PUDDLE_MALE = register("white_latex_puddle_male", () -> new AbstractPuddle(BlockBehaviour.Properties.copy(WHITE_LATEX_PUDDLE_FEMALE.get()), ChangedTransfurVariants.WHITE_LATEX_WOLF_MALE));
     public static final RegistryObject<PipeBlock> PIPE = register("pipe", PipeBlock::new);
+    public static final RegistryObject<PetriDishBlock> PETRI_DISH = register("petri_dish", () -> new PetriDishBlock(BlockBehaviour.Properties.of(Material.GLASS, MaterialColor.QUARTZ).sound(SoundType.GLASS).instabreak().dynamicShape()));
     public static final RegistryObject<RetinalScanner> RETINAL_SCANNER = register("retinal_scanner", () -> new RetinalScanner(BlockBehaviour.Properties.copy(COMPUTER.get()).lightLevel((state) -> 0)));
     public static final RegistryObject<RoombaCharger> ROOMBA_CHARGER = register("roomba_charger", () -> new RoombaCharger(BlockBehaviour.Properties.of(Material.METAL, MaterialColor.COLOR_GRAY).sound(SoundType.METAL).strength(3.0f, 3.0f)));
     public static final RegistryObject<SpeakerBlock> SPEAKER = register("speaker", () -> new SpeakerBlock(BlockBehaviour.Properties.copy(RETINAL_SCANNER.get())), ChangedBlocks::cutoutRenderer);
@@ -112,25 +121,36 @@ public class ChangedBlocks {
     public static final RegistryObject<Microscope> MICROSCOPE = register("microscope", () -> new Microscope(BlockBehaviour.Properties.of(Material.METAL, MaterialColor.COLOR_LIGHT_GRAY).sound(SoundType.METAL).strength(1.0F, 4.0F)));
     public static final RegistryObject<OfficeChair> OFFICE_CHAIR = register("office_chair", OfficeChair::new);
     public static final RegistryObject<TapeRecorder> TAPE_RECORDER = register("tape_recorder", () -> new TapeRecorder(BlockBehaviour.Properties.of(Material.METAL, MaterialColor.COLOR_CYAN).sound(SoundType.METAL).strength(1.0F, 4.0F)));
-    public static final RegistryObject<LabBlock> TILES_DARKBLUE = register("tiles_darkblue", () -> new LabBlock(BlockBehaviour.Properties.of(Material.STONE, MaterialColor.COLOR_BLUE).sound(SoundType.STONE).strength(1.5F, 6.5F)));
     public static final RegistryObject<LabBlock> TILES_BLUE = register("tiles_blue", () -> new LabBlock(BlockBehaviour.Properties.of(Material.STONE, MaterialColor.COLOR_BLUE).sound(SoundType.STONE).strength(1.5F, 6.5F)));
     public static final RegistryObject<LabBlock> TILES_BLUE_SMALL = register("tiles_blue_small", () -> new LabBlock(BlockBehaviour.Properties.of(Material.STONE, MaterialColor.COLOR_BLUE).sound(SoundType.STONE).strength(1.5F, 6.5F)));
     public static final RegistryObject<LabBlock> TILES_CAUTION = register("tiles_caution", () -> new LabBlock(BlockBehaviour.Properties.of(Material.STONE, MaterialColor.COLOR_YELLOW).sound(SoundType.STONE).strength(1.5F, 6.5F)));
+    public static final RegistryObject<LabSlabBlock> TILES_CAUTION_SLAB = register("tiles_caution_slab", () -> new LabSlabBlock(TILES_CAUTION.get()::defaultBlockState, BlockBehaviour.Properties.copy(TILES_CAUTION.get())));
+    public static final RegistryObject<LabStairBlock> TILES_CAUTION_STAIRS = register("tiles_caution_stairs", () -> new LabStairBlock(TILES_CAUTION.get()::defaultBlockState, BlockBehaviour.Properties.copy(TILES_CAUTION.get())));
     public static final RegistryObject<ChangedBlock> TILES_GREENHOUSE = register("tiles_greenhouse", () -> new ChangedBlock(BlockBehaviour.Properties.copy(Blocks.OAK_PLANKS).color(MaterialColor.COLOR_ORANGE)));
     public static final RegistryObject<ConnectedFloorBlock> TILES_GREENHOUSE_CONNECTED = register("tiles_greenhouse_connected", () -> new ConnectedFloorBlock(BlockBehaviour.Properties.copy(Blocks.OAK_PLANKS)));
     public static final RegistryObject<ChangedBlock> WALL_GREENHOUSE = register("wall_greenhouse", () -> new ChangedBlock(BlockBehaviour.Properties.copy(Blocks.OAK_PLANKS).color(MaterialColor.COLOR_BROWN)));
     public static final RegistryObject<LabBlock> TILES_GRAYBLUE = register("tiles_grayblue", () -> new LabBlock(BlockBehaviour.Properties.copy(TILES_CAUTION.get()).color(MaterialColor.COLOR_LIGHT_BLUE)));
     public static final RegistryObject<ConnectedFloorBlock> TILES_GRAYBLUE_CONNECTED = register("tiles_grayblue_connected", () -> new ConnectedFloorBlock(BlockBehaviour.Properties.copy(TILES_CAUTION.get()).color(MaterialColor.COLOR_LIGHT_BLUE)));
+    public static final RegistryObject<LabSlabBlock> TILES_GRAYBLUE_SLAB = register("tiles_grayblue_slab", () -> new LabSlabBlock(TILES_GRAYBLUE.get()::defaultBlockState, BlockBehaviour.Properties.copy(TILES_GRAYBLUE.get())));
     public static final RegistryObject<LabStairBlock> TILES_GRAYBLUE_STAIRS = register("tiles_grayblue_stairs", () -> new LabStairBlock(TILES_GRAYBLUE.get()::defaultBlockState, BlockBehaviour.Properties.copy(TILES_GRAYBLUE.get())));
     public static final RegistryObject<LabBlock> TILES_GRAY = register("tiles_gray", () -> new LabBlock(BlockBehaviour.Properties.copy(TILES_CAUTION.get()).color(MaterialColor.COLOR_GRAY)));
+    public static final RegistryObject<LabSlabBlock> TILES_GRAY_SLAB = register("tiles_gray_slab", () -> new LabSlabBlock(TILES_GRAY.get()::defaultBlockState, BlockBehaviour.Properties.copy(TILES_GRAY.get())));
+    public static final RegistryObject<LabStairBlock> TILES_GRAY_STAIRS = register("tiles_gray_stairs", () -> new LabStairBlock(TILES_GRAY.get()::defaultBlockState, BlockBehaviour.Properties.copy(TILES_GRAY.get())));
     public static final RegistryObject<LabBlock> TILES_GRAYBLUE_BOLTED = register("tiles_grayblue_bolted", () -> new LabBlock(BlockBehaviour.Properties.copy(TILES_CAUTION.get()).color(MaterialColor.COLOR_GRAY)));
     public static final RegistryObject<ConnectedFloorBlock> TILES_GRAYBLUE_BOLTED_CONNECTED = register("tiles_grayblue_bolted_connected", () -> new ConnectedFloorBlock(BlockBehaviour.Properties.copy(TILES_CAUTION.get()).color(MaterialColor.COLOR_GRAY)));
-    public static final RegistryObject<LabStairBlock> TILES_GRAY_STAIRS = register("tiles_gray_stairs", () -> new LabStairBlock(TILES_GRAY.get()::defaultBlockState, BlockBehaviour.Properties.copy(TILES_GRAY.get())));
+    public static final RegistryObject<LabSlabBlock> TILES_GRAYBLUE_BOLTED_SLAB = register("tiles_grayblue_bolted_slab", () -> new LabSlabBlock(TILES_GRAYBLUE_BOLTED.get()::defaultBlockState, BlockBehaviour.Properties.copy(TILES_GRAYBLUE_BOLTED.get())));
+    public static final RegistryObject<LabStairBlock> TILES_GRAYBLUE_BOLTED_STAIRS = register("tiles_grayblue_bolted_stairs", () -> new LabStairBlock(TILES_GRAYBLUE_BOLTED.get()::defaultBlockState, BlockBehaviour.Properties.copy(TILES_GRAYBLUE_BOLTED.get())));
     public static final RegistryObject<LabBlock> TILES_LIBRARY_BROWN = register("tiles_library_brown", () -> new LabBlock(BlockBehaviour.Properties.copy(TILES_CAUTION.get()).color(MaterialColor.COLOR_BROWN)));
+    public static final RegistryObject<LabSlabBlock> TILES_LIBRARY_BROWN_SLAB = register("tiles_library_brown_slab", () -> new LabSlabBlock(TILES_LIBRARY_BROWN.get()::defaultBlockState, BlockBehaviour.Properties.copy(TILES_LIBRARY_BROWN.get())));
+    public static final RegistryObject<LabStairBlock> TILES_LIBRARY_BROWN_STAIRS = register("tiles_library_brown_stairs", () -> new LabStairBlock(TILES_LIBRARY_BROWN.get()::defaultBlockState, BlockBehaviour.Properties.copy(TILES_LIBRARY_BROWN.get())));
     public static final RegistryObject<LabBlock> TILES_LIBRARY_TAN = register("tiles_library_tan", () -> new LabBlock(BlockBehaviour.Properties.copy(TILES_CAUTION.get()).color(MaterialColor.WOOD)));
+    public static final RegistryObject<LabSlabBlock> TILES_LIBRARY_TAN_SLAB = register("tiles_library_tan_slab", () -> new LabSlabBlock(TILES_LIBRARY_TAN.get()::defaultBlockState, BlockBehaviour.Properties.copy(TILES_LIBRARY_TAN.get())));
+    public static final RegistryObject<LabStairBlock> TILES_LIBRARY_TAN_STAIRS = register("tiles_library_tan_stairs", () -> new LabStairBlock(TILES_LIBRARY_TAN.get()::defaultBlockState, BlockBehaviour.Properties.copy(TILES_LIBRARY_TAN.get())));
+    public static final RegistryObject<LabBlock> TILES_TEAL = register("tiles_teal", () -> new LabBlock(BlockBehaviour.Properties.of(Material.STONE, MaterialColor.COLOR_CYAN).sound(SoundType.STONE).strength(1.5F, 6.5F)));
     public static final RegistryObject<LabBlock> TILES_WHITE = register("tiles_white", () -> new LabBlock(BlockBehaviour.Properties.copy(TILES_CAUTION.get()).color(MaterialColor.QUARTZ)));
-    public static final RegistryObject<LabStairBlock> TILES_WHITE_STAIRS = register("tiles_white_stairs", () -> new LabStairBlock(TILES_WHITE.get()::defaultBlockState, BlockBehaviour.Properties.copy(TILES_WHITE.get())));
     public static final RegistryObject<ConnectedFloorBlock> TILES_WHITE_CONNECTED = register("tiles_white_connected", () -> new ConnectedFloorBlock(BlockBehaviour.Properties.copy(TILES_WHITE.get())));
+    public static final RegistryObject<LabSlabBlock> TILES_WHITE_SLAB = register("tiles_white_slab", () -> new LabSlabBlock(TILES_WHITE.get()::defaultBlockState, BlockBehaviour.Properties.copy(TILES_WHITE.get())));
+    public static final RegistryObject<LabStairBlock> TILES_WHITE_STAIRS = register("tiles_white_stairs", () -> new LabStairBlock(TILES_WHITE.get()::defaultBlockState, BlockBehaviour.Properties.copy(TILES_WHITE.get())));
     public static final RegistryObject<ConnectedFloorBlock> ORANGE_LAB_CARPETING = register("orange_lab_carpeting", () -> new ConnectedFloorBlock(BlockBehaviour.Properties.copy(Blocks.ORANGE_WOOL)));
     public static final RegistryObject<VentFanBlock> VENT_FAN = register("vent_fan", VentFanBlock::new);
     public static final RegistryObject<VentHatchBlock> VENT_HATCH = register("vent_hatch", () -> new VentHatchBlock(BlockBehaviour.Properties.copy(Blocks.OAK_TRAPDOOR).sound(SoundType.METAL).requiresCorrectToolForDrops()), ChangedBlocks::cutoutRenderer);
@@ -140,18 +160,24 @@ public class ChangedBlocks {
     public static final RegistryObject<LabBlock> WALL_LIBRARY_UPPER = register("wall_library_upper", () -> new LabBlock(BlockBehaviour.Properties.copy(TILES_CAUTION.get()).color(MaterialColor.COLOR_BROWN)));
     public static final RegistryObject<LabBlock> WALL_LIBRARY_LOWER = register("wall_library_lower", () -> new LabBlock(BlockBehaviour.Properties.copy(TILES_CAUTION.get()).color(MaterialColor.COLOR_BROWN)));
     public static final RegistryObject<LabBlock> WALL_LIGHTRED = register("wall_lightred", () -> new LabBlock(BlockBehaviour.Properties.copy(TILES_CAUTION.get()).color(MaterialColor.COLOR_RED)));
+    public static final RegistryObject<LabSlabBlock> WALL_LIGHTRED_SLAB = register("wall_lightred_slab", () -> new LabSlabBlock(WALL_LIGHTRED.get()::defaultBlockState, BlockBehaviour.Properties.copy(WALL_LIGHTRED.get())));
+    public static final RegistryObject<LabStairBlock> WALL_LIGHTRED_STAIRS = register("wall_lightred_stairs", () -> new LabStairBlock(WALL_LIGHTRED.get()::defaultBlockState, BlockBehaviour.Properties.copy(WALL_LIGHTRED.get())));
     public static final RegistryObject<LabBlock> WALL_LIGHTRED_STRIPED = register("wall_lightred_striped", () -> new LabBlock(BlockBehaviour.Properties.copy(WALL_LIGHTRED.get())));
     public static final RegistryObject<LabBlock> WALL_GRAY = register("wall_gray", () -> new LabBlock(BlockBehaviour.Properties.copy(TILES_CAUTION.get()).color(MaterialColor.COLOR_GRAY)));
+    public static final RegistryObject<LabSlabBlock> WALL_GRAY_SLAB = register("wall_gray_slab", () -> new LabSlabBlock(WALL_GRAY.get()::defaultBlockState, BlockBehaviour.Properties.copy(WALL_GRAY.get())));
+    public static final RegistryObject<LabStairBlock> WALL_GRAY_STAIRS = register("wall_gray_stairs", () -> new LabStairBlock(WALL_GRAY.get()::defaultBlockState, BlockBehaviour.Properties.copy(WALL_GRAY.get())));
     public static final RegistryObject<LabBlock> WALL_GRAY_STRIPED = register("wall_gray_striped", () -> new LabBlock(BlockBehaviour.Properties.copy(WALL_GRAY.get())));
-    public static final RegistryObject<LabBlock> WALL_GREEN = register("wall_green", () -> new LabBlock(BlockBehaviour.Properties.copy(TILES_CAUTION.get())));
-    public static final RegistryObject<LabBlock> WALL_GREEN_STRIPED = register("wall_green_striped", () -> new LabBlock(BlockBehaviour.Properties.copy(TILES_CAUTION.get())));
+    public static final RegistryObject<LabBlock> WALL_GREEN = register("wall_green", () -> new LabBlock(BlockBehaviour.Properties.copy(TILES_CAUTION.get()).color(MaterialColor.TERRACOTTA_GREEN)));
+    public static final RegistryObject<LabSlabBlock> WALL_GREEN_SLAB = register("wall_green_slab", () -> new LabSlabBlock(WALL_GREEN.get()::defaultBlockState, BlockBehaviour.Properties.copy(WALL_GREEN.get())));
+    public static final RegistryObject<LabStairBlock> WALL_GREEN_STAIRS = register("wall_green_stairs", () -> new LabStairBlock(WALL_GREEN.get()::defaultBlockState, BlockBehaviour.Properties.copy(WALL_GREEN.get())));
+    public static final RegistryObject<LabBlock> WALL_GREEN_STRIPED = register("wall_green_striped", () -> new LabBlock(BlockBehaviour.Properties.copy(WALL_GREEN.get())));
     public static final RegistryObject<LabBlock> WALL_VENT = register("wall_vent", () -> new LabBlock(BlockBehaviour.Properties.of(Material.METAL, MaterialColor.COLOR_GRAY).sound(SoundType.METAL).strength(2.5F, 6.5F)));
     public static final RegistryObject<LabBlock> WALL_WHITE = register("wall_white", () -> new LabBlock(BlockBehaviour.Properties.copy(WALL_GRAY.get()).color(MaterialColor.QUARTZ)));
-    public static final RegistryObject<GasCanisterBlock> WOLF_GAS_CANISTER = register("wolf_gas_canister",
-            () -> new GasCanisterBlock(ChangedFluids.WOLF_GAS), null,
-            canister -> new GasCanister(canister, ChangedFluids.WOLF_GAS));
+    public static final RegistryObject<LabBlock> WALL_WHITE_GREEN_STRIPED = register("wall_white_green_striped", () -> new LabBlock(BlockBehaviour.Properties.copy(WALL_WHITE.get()).color(MaterialColor.COLOR_LIGHT_GREEN)));
+    public static final RegistryObject<LabBlock> WALL_WHITE_GREEN_TILED = register("wall_white_green_tiled", () -> new LabBlock(BlockBehaviour.Properties.copy(WALL_WHITE.get()).color(MaterialColor.COLOR_LIGHT_GREEN)));
+    public static final RegistryObject<LabSlabBlock> WALL_WHITE_SLAB = register("wall_white_slab", () -> new LabSlabBlock(WALL_WHITE.get()::defaultBlockState, BlockBehaviour.Properties.copy(WALL_WHITE.get())));
+    public static final RegistryObject<LabStairBlock> WALL_WHITE_STAIRS = register("wall_white_stairs", () -> new LabStairBlock(WALL_WHITE.get()::defaultBlockState, BlockBehaviour.Properties.copy(WALL_WHITE.get())));
     public static final RegistryObject<LabTable> WHITE_LAB_TABLE = register("white_lab_table", () -> new LabTable(BlockBehaviour.Properties.of(Material.METAL, MaterialColor.COLOR_GRAY).sound(SoundType.METAL).requiresCorrectToolForDrops().strength(3.0F, 5.0F)), ChangedBlocks::cutoutRenderer);
-    public static final RegistryObject<GasFluidBlock> WOLF_GAS = registerNoItem("wolf_gas", () -> new GasFluidBlock(ChangedFluids.WOLF_GAS));
 
     public static final RegistryObject<WhiteLatexFluidBlock> WHITE_LATEX_FLUID = registerNoItem("white_latex_fluid", WhiteLatexFluidBlock::new);
     public static final RegistryObject<WhiteLatexPillar> WHITE_LATEX_PILLAR = register("white_latex_pillar", () -> new WhiteLatexPillar(BlockBehaviour.Properties.of(Material.CLAY, MaterialColor.QUARTZ).sound(SoundType.SLIME_BLOCK).strength(1.0F, 4.0F).noOcclusion()));
@@ -164,6 +190,28 @@ public class ChangedBlocks {
     public static final RegistryObject<AbstractLargeLabDoor> LARGE_MAINTENANCE_DOOR = register("large_maintenance_door", () -> new AbstractLargeLabDoor(ChangedSounds.OPEN3, ChangedSounds.CLOSE3, false));
     public static final RegistryObject<AbstractLargeLabDoor> LARGE_LAB_DOOR = register("large_lab_door", () -> new AbstractLargeLabDoor(ChangedSounds.OPEN3, ChangedSounds.CLOSE3, false), ChangedBlocks::cutoutRenderer);
     public static final RegistryObject<AbstractLargeLabDoor> LARGE_LIBRARY_DOOR = register("large_library_door", () -> new AbstractLargeLabDoor(ChangedSounds.OPEN3, ChangedSounds.CLOSE3, true), ChangedBlocks::cutoutRenderer);
+
+    public static final RegistryObject<FluidCanisterBlock> EMPTY_CANISTER = register("empty_canister",
+            () -> new FluidCanisterBlock(null), null,
+            canister -> new FluidCanister(canister, new Item.Properties().tab(ChangedTabs.TAB_CHANGED_BLOCKS), null));
+    public static final RegistryObject<FluidCanisterBlock> OXYGENATED_WATER_CANISTER = register("oxygenated_water_canister",
+            () -> new FluidCanisterBlock(null), null,
+            canister -> new FluidCanister(canister, new Item.Properties().tab(ChangedTabs.TAB_CHANGED_BLOCKS), () -> Fluids.WATER));
+
+    public static final RegistryObject<GasFluidBlock> SKUNK_GAS = registerNoItem("skunk_gas", () -> new GasFluidBlock(ChangedFluids.SKUNK_GAS));
+    public static final RegistryObject<FluidCanisterBlock> SKUNK_GAS_CANISTER = register("skunk_gas_canister",
+            () -> new FluidCanisterBlock(ChangedFluids.SKUNK_GAS), null,
+            canister -> new GasCanister(canister, ChangedFluids.SKUNK_GAS));
+    public static final RegistryObject<GasFluidBlock> TIGER_GAS = registerNoItem("tiger_gas", () -> new GasFluidBlock(ChangedFluids.TIGER_GAS));
+    public static final RegistryObject<FluidCanisterBlock> TIGER_GAS_CANISTER = register("tiger_gas_canister",
+            () -> new FluidCanisterBlock(ChangedFluids.TIGER_GAS), null,
+            canister -> new GasCanister(canister, ChangedFluids.TIGER_GAS));
+    public static final RegistryObject<GasFluidBlock> WOLF_GAS = registerNoItem("wolf_gas", () -> new GasFluidBlock(ChangedFluids.WOLF_GAS));
+    public static final RegistryObject<FluidCanisterBlock> WOLF_GAS_CANISTER = register("wolf_gas_canister",
+            () -> new FluidCanisterBlock(ChangedFluids.WOLF_GAS), null,
+            canister -> new GasCanister(canister, ChangedFluids.WOLF_GAS));
+
+    public static final RegistryObject<StasisChamber> STASIS_CHAMBER = register("stasis_chamber", () -> new StasisChamber(ChangedSounds.OPEN3, ChangedSounds.CLOSE3), ChangedBlocks::cutoutRenderer);
 
     public static final List<RegistryObject<? extends Block>> LAB_DOORS = Util.make(new ArrayList<>(), list -> {
         list.add(BLUE_LAB_DOOR);

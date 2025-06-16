@@ -27,20 +27,22 @@ public class ChangedDamageSources {
         }
     }
 
+    public static final String TRANSFUR_NAME = Changed.modResourceStr("transfur");
     public static DamageSource entityTransfur(LivingEntity source) {
-        return new TransfurDamageSource(Changed.modResourceStr("transfur"), source);
+        return new TransfurDamageSource(TRANSFUR_NAME, source);
     }
 
     public static DamageSource entityTransfur(@Nullable IAbstractChangedEntity source) {
-        return new TransfurDamageSource(Changed.modResourceStr("transfur"), source == null ? null : source.getEntity());
+        return new TransfurDamageSource(TRANSFUR_NAME, source == null ? null : source.getEntity());
     }
 
+    public static final String ABSORB_NAME = Changed.modResourceStr("absorb");
     public static DamageSource entityAbsorb(LivingEntity source) {
-        return new TransfurDamageSource(Changed.modResourceStr("absorb"), source);
+        return new TransfurDamageSource(ABSORB_NAME, source);
     }
 
     public static DamageSource entityAbsorb(@Nullable IAbstractChangedEntity source) {
-        return new TransfurDamageSource(Changed.modResourceStr("absorb"), source == null ? null : source.getEntity());
+        return new TransfurDamageSource(ABSORB_NAME, source == null ? null : source.getEntity());
     }
 
     public static final DamageSource BLOODLOSS = (new DamageSource(Changed.modResourceStr("bloodloss"))).bypassArmor();

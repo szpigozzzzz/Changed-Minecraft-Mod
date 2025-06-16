@@ -152,7 +152,7 @@ public class DarkLatexWolfPartialModel extends AdvancedHumanoidModel<DarkLatexWo
 
         final var rightPantCubes = ((CubeListBuilderExtender)CubeListBuilder.create().texOffs(0, 32).addBox(-2.0F, 0.0F, -2.0F, 4.0F, 7.0F, 4.0F, clothingDeformation)).removeLastFaces(Direction.DOWN);
 
-        PartDefinition RightThighLayer_r1 = RightPants.addOrReplaceChild("RightThighLayer_r1", rightPantCubes, PartPose.offsetAndRotation(0.0F, 0.0F, 0.0F, -0.2182F, 0.0F, 0.0F));
+        PartDefinition RightThighLayer_r1 = RightPants.addOrReplaceChild("RightThighLayer_r1", rightPantCubes.finish(), PartPose.offsetAndRotation(0.0F, 0.0F, 0.0F, -0.2182F, 0.0F, 0.0F));
 
         PartDefinition RightLowerLeg = RightLeg.addOrReplaceChild("RightLowerLeg", CubeListBuilder.create(), PartPose.offset(0.0F, 6.375F, -3.45F));
 
@@ -172,7 +172,7 @@ public class DarkLatexWolfPartialModel extends AdvancedHumanoidModel<DarkLatexWo
 
         final var leftPantCubes = ((CubeListBuilderExtender)CubeListBuilder.create().texOffs(0, 48).addBox(-2.0F, 0.0F, -2.0F, 4.0F, 7.0F, 4.0F, clothingDeformation)).removeLastFaces(Direction.DOWN);
 
-        PartDefinition LeftThighLayer_r1 = LeftPants.addOrReplaceChild("LeftThighLayer_r1", leftPantCubes, PartPose.offsetAndRotation(0.0F, 0.0F, 0.0F, -0.2182F, 0.0F, 0.0F));
+        PartDefinition LeftThighLayer_r1 = LeftPants.addOrReplaceChild("LeftThighLayer_r1", leftPantCubes.finish(), PartPose.offsetAndRotation(0.0F, 0.0F, 0.0F, -0.2182F, 0.0F, 0.0F));
 
         PartDefinition LeftLowerLeg = LeftLeg.addOrReplaceChild("LeftLowerLeg", CubeListBuilder.create(), PartPose.offset(0.0F, 6.375F, -3.45F));
 
@@ -224,13 +224,13 @@ public class DarkLatexWolfPartialModel extends AdvancedHumanoidModel<DarkLatexWo
 
         final var rightSleeveCube = ((CubeListBuilderExtender)CubeListBuilder.create().texOffs(40, 32).addBox(-3.0F + rightArmOffset, -2.0F, -2.0F, armWidth, 9.0F, 4.0F, clothingDeformation)).removeLastFaces(Direction.DOWN);
 
-        PartDefinition RightSleeve = RightArm.addOrReplaceChild("RightSleeve", rightSleeveCube, PartPose.offset(0.0F, 0.0F, 0.0F));
+        PartDefinition RightSleeve = RightArm.addOrReplaceChild("RightSleeve", rightSleeveCube.finish(), PartPose.offset(0.0F, 0.0F, 0.0F));
 
         PartDefinition LeftArm = partdefinition.addOrReplaceChild("LeftArm", CubeListBuilder.create().texOffs(32, 48).addBox(-1.0F, -2.0F, -2.0F, armWidth, 12.0F, 4.0F, CubeDeformation.NONE), PartPose.offset(5.0F, 1.5F, 0.0F));
 
         final var leftSleeveCube = ((CubeListBuilderExtender)CubeListBuilder.create().texOffs(48, 48).addBox(-1.0F, -2.0F, -2.0F, armWidth, 9.0F, 4.0F, clothingDeformation)).removeLastFaces(Direction.DOWN);
 
-        PartDefinition LeftSleeve = LeftArm.addOrReplaceChild("LeftSleeve", leftSleeveCube, PartPose.offset(0.0F, 0.0F, 0.0F));
+        PartDefinition LeftSleeve = LeftArm.addOrReplaceChild("LeftSleeve", leftSleeveCube.finish(), PartPose.offset(0.0F, 0.0F, 0.0F));
 
         return LayerDefinition.create(meshdefinition, 64, 64);
     }
@@ -322,7 +322,7 @@ public class DarkLatexWolfPartialModel extends AdvancedHumanoidModel<DarkLatexWo
         }
     }
 
-    public void setupHand() {
+    public void setupHand(DarkLatexWolfPartial entity) {
         animator.setupHand();
     }
 
@@ -359,7 +359,7 @@ public class DarkLatexWolfPartialModel extends AdvancedHumanoidModel<DarkLatexWo
     }
 
     @Override
-    public HumanoidAnimator<DarkLatexWolfPartial, DarkLatexWolfPartialModel> getAnimator() {
+    public HumanoidAnimator<DarkLatexWolfPartial, DarkLatexWolfPartialModel> getAnimator(DarkLatexWolfPartial entity) {
         return animator;
     }
 }
