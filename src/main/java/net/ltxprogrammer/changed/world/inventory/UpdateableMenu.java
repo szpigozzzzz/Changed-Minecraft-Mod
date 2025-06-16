@@ -7,6 +7,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.network.PacketDistributor;
+import org.jetbrains.annotations.Nullable;
 
 public interface UpdateableMenu {
     default void setDirty(CompoundTag tag) {
@@ -21,5 +22,5 @@ public interface UpdateableMenu {
     int getId();
     Player getPlayer();
 
-    void update(CompoundTag payload, LogicalSide receiver);
+    void update(CompoundTag payload, LogicalSide receiver, @Nullable ServerPlayer origin);
 }

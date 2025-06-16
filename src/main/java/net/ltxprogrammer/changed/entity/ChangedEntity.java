@@ -997,8 +997,8 @@ public abstract class ChangedEntity extends Monster {
         this.tickBlink();
     }
 
-    private static final int BLINK_MIN = 80;
-    private static final int BLINK_MAX = 160;
+    private static final int BLINK_MIN = 150;
+    private static final int BLINK_MAX = 180;
     protected void tickBlink() {
         if (this.isSleeping()) {
             blinkDuration = 5;
