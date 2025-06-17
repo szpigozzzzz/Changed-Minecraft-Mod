@@ -47,7 +47,7 @@ public class RoombaCharger extends AbstractCustomShapeBlock implements IRobotCha
     @Override
     public void randomTick(BlockState state, ServerLevel level, BlockPos pos, Random random) {
         super.randomTick(state, level, pos, random);
-        broadcastPosition(level, pos);
+        broadcastPosition(level, pos, !state.getValue(OCCUPIED));
     }
 
     @Override
@@ -127,7 +127,7 @@ public class RoombaCharger extends AbstractCustomShapeBlock implements IRobotCha
             level.scheduleTick(pos, this, 20 * 60, TickPriority.NORMAL);
             robot.discard();
 
-            broadcastPosition(level, pos);
+            broadcastPosition(level, pos, false);
         }
     }
 }
