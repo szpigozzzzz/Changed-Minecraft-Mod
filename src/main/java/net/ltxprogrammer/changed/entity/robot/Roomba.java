@@ -13,6 +13,7 @@ import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.Goal;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
@@ -39,8 +40,8 @@ public class Roomba extends AbstractRobot {
                 .add(Attributes.MOVEMENT_SPEED, 0.15D);
     }
 
-    public ItemLike getDropItem() {
-        return ChangedItems.ROOMBA.get();
+    public ItemStack getDropItem() {
+        return new ItemStack(ChangedItems.ROOMBA.get());
     }
 
     @Override

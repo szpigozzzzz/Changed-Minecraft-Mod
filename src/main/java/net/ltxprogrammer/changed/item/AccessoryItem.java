@@ -6,6 +6,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.BlockSource;
 import net.minecraft.core.dispenser.DefaultDispenseItemBehavior;
 import net.minecraft.core.dispenser.DispenseItemBehavior;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.ItemStack;
@@ -53,6 +54,13 @@ public interface AccessoryItem {
         }
     };
 
+    static boolean isEmptyHanded(AccessorySlotContext<?> slotContext, InteractionHand hand) {
+        return slotContext.wearer().getItemInHand(hand).isEmpty();
+    }
+
     default void accessoryBreak(AccessorySlotContext<?> slotContext) {}
     default void accessoryInteract(AccessorySlotContext<?> slotContext) {}
+    default void accessoryTick(AccessorySlotContext<?> slotContext) {}
+    default void accessorySwing(AccessorySlotContext<?> slotContext, InteractionHand hand) {}
+    default void accessoryAttack(AccessorySlotContext<?> slotContext, InteractionHand hand, Entity target) {}
 }

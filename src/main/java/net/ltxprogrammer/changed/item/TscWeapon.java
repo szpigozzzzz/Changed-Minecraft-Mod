@@ -54,18 +54,18 @@ public abstract class TscWeapon extends Item implements Vanishable {
         return slot == EquipmentSlot.MAINHAND ? this.defaultModifiers.get() : super.getDefaultAttributeModifiers(slot);
     }
 
-    public void sweepWeapon(LivingEntity source) {
-        double d0 = (double)(-Mth.sin(source.getYRot() * ((float)Math.PI / 180F))) * attackRange();
-        double d1 = (double)Mth.cos(source.getYRot() * ((float)Math.PI / 180F)) * attackRange();
+    public static void sweepWeapon(LivingEntity source, double attackRange) {
+        double d0 = (double)(-Mth.sin(source.getYRot() * ((float)Math.PI / 180F))) * attackRange;
+        double d1 = (double)Mth.cos(source.getYRot() * ((float)Math.PI / 180F)) * attackRange;
         if (source.level instanceof ServerLevel serverLevel)
             serverLevel.sendParticles(ChangedParticles.TSC_SWEEP_ATTACK,
                     source.getX() + d0, source.getY(0.5D),
                     source.getZ() + d1, 0, d0, 0.0D, d1, 0.0D);
     }
 
-    public void applyShock(LivingEntity enemy) {
+    public static void applyShock(LivingEntity enemy, int attackStun) {
         ChangedSounds.broadcastSound(enemy, ChangedSounds.PARALYZE1, 1, 1);
-        enemy.addEffect(new MobEffectInstance(ChangedEffects.SHOCK, attackStun(), 0, false, false, true));
+        enemy.addEffect(new MobEffectInstance(ChangedEffects.SHOCK, attackStun, 0, false, false, true));
         ChangedAnimationEvents.broadcastEntityAnimation(enemy, ChangedAnimationEvents.SHOCK_STUN.get(), StunAnimationParameters.INSTANCE);
     }
 }

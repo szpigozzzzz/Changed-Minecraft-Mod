@@ -47,8 +47,8 @@ public class TscBaton extends TscWeapon implements SpecializedItemRendering {
     }
 
     public boolean hurtEnemy(ItemStack itemStack, LivingEntity enemy, LivingEntity source) {
-        sweepWeapon(source);
-        applyShock(enemy);
+        sweepWeapon(source, attackRange());
+        applyShock(enemy, attackStun());
         itemStack.hurtAndBreak(1, source, (entity) -> {
             entity.broadcastBreakEvent(EquipmentSlot.MAINHAND);
         });
@@ -74,7 +74,7 @@ public class TscBaton extends TscWeapon implements SpecializedItemRendering {
     public boolean onEntitySwing(ItemStack stack, LivingEntity entity) {
         if (entity.swingTime > 0)
             return true;
-        sweepWeapon(entity);
+        sweepWeapon(entity, attackRange());
         return super.onEntitySwing(stack, entity);
     }
 

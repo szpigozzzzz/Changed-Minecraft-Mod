@@ -3,6 +3,7 @@ package net.ltxprogrammer.changed.item;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Multimap;
 import net.ltxprogrammer.changed.block.IRobotCharger;
+import net.ltxprogrammer.changed.data.AccessorySlotContext;
 import net.ltxprogrammer.changed.data.AccessorySlotType;
 import net.ltxprogrammer.changed.entity.robot.AbstractRobot;
 import net.ltxprogrammer.changed.entity.robot.ChargerType;
@@ -12,7 +13,9 @@ import net.ltxprogrammer.changed.process.ProcessTransfur;
 import net.ltxprogrammer.changed.util.Cacheable;
 import net.ltxprogrammer.changed.util.EntityUtil;
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
@@ -95,5 +98,30 @@ public class ExoskeletonItem<T extends AbstractRobot> extends PlaceableEntity<T>
         }
 
         return super.useOn(context);
+    }
+
+    @Override
+    public void accessoryTick(AccessorySlotContext<?> slotContext) {
+        // TODO degrade charge
+    }
+
+    private static int ATTACK_STUN = 5;
+    private static double ATTACK_RANGE = 1.0;
+
+    @Override
+    public void accessorySwing(AccessorySlotContext<?> slotContext, InteractionHand hand) {
+        if (!AccessoryItem.isEmptyHanded(slotContext, hand))
+            return;
+
+        TscWeapon.sweepWeapon(slotContext.wearer(), ATTACK_RANGE);
+    }
+
+    @Override
+    public void accessoryAttack(AccessorySlotContext<?> slotContext, InteractionHand hand, Entity target) {
+        if (!AccessoryItem.isEmptyHanded(slotContext, hand))
+            return;
+
+        TscWeapon.sweepWeapon(slotContext.wearer(), ATTACK_RANGE);
+        TscWeapon.applyShock(slotContext.wearer(), ATTACK_STUN);
     }
 }

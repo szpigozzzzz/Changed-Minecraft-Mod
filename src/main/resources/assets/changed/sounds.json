@@ -179,6 +179,16 @@
     ],
     "subtitle": "subtitles.changed.open2"
   },
+  "exoskeleton_step": {
+    "category": "entity",
+    "sounds": [
+      {
+        "name": "changed:open2",
+        "stream": false
+      }
+    ],
+    "subtitle": "subtitles.changed.exoskeleton_step"
+  },
   "open3": {
     "category": "block",
     "sounds": [

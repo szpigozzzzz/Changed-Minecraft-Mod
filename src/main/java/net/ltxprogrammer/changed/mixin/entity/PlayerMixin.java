@@ -3,6 +3,7 @@ package net.ltxprogrammer.changed.mixin.entity;
 import net.ltxprogrammer.changed.Changed;
 import net.ltxprogrammer.changed.ability.AbstractAbility;
 import net.ltxprogrammer.changed.block.WhiteLatexTransportInterface;
+import net.ltxprogrammer.changed.data.AccessorySlots;
 import net.ltxprogrammer.changed.entity.*;
 import net.ltxprogrammer.changed.entity.variant.TransfurVariantInstance;
 import net.ltxprogrammer.changed.init.ChangedAbilities;
@@ -131,6 +132,12 @@ public abstract class PlayerMixin extends LivingEntity implements PlayerDataExte
                 ci.cancel();
             }
         });
+    }
+
+    @Inject(method = "attack", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/item/enchantment/EnchantmentHelper;doPostDamageEffects(Lnet/minecraft/world/entity/LivingEntity;Lnet/minecraft/world/entity/Entity;)V"))
+    public void accessoryAttack(Entity target, CallbackInfo ci) {
+        if (!level.isClientSide)
+            AccessorySlots.getForEntity((LivingEntity)(Object)this).ifPresent(slots -> slots.onEntityAttack(InteractionHand.MAIN_HAND, target));
     }
 
     @Inject(method = "setItemSlot", at = @At("HEAD"), cancellable = true)

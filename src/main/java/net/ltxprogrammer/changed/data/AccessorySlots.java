@@ -8,6 +8,7 @@ import net.ltxprogrammer.changed.entity.LivingEntityDataExtension;
 import net.ltxprogrammer.changed.extension.ChangedCompatibility;
 import net.ltxprogrammer.changed.init.ChangedRegistry;
 import net.ltxprogrammer.changed.init.ChangedSounds;
+import net.ltxprogrammer.changed.item.AccessoryItem;
 import net.ltxprogrammer.changed.network.packet.AccessoryEventPacket;
 import net.ltxprogrammer.changed.network.packet.AccessorySyncPacket;
 import net.ltxprogrammer.changed.util.Cacheable;
@@ -16,6 +17,8 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.Container;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
@@ -101,6 +104,21 @@ public class AccessorySlots implements Container {
         return Optional.empty();
     }
 
+    public static boolean isWearing(LivingEntity livingEntity, Predicate<ItemStack> predicate) {
+        return getForEntity(livingEntity).map(slots -> slots.getItems().anyMatch(predicate)).orElse(false);
+    }
+
+    public static boolean tryReplaceSlot(LivingEntity livingEntity, AccessorySlotType slot, ItemStack itemStack) {
+        return getForEntity(livingEntity)
+                .filter(slots -> slots.hasSlot(slot))
+                .map(slots -> {
+                    var oldStack = slots.getItem(slot);
+                    oldStack.ifPresent(stack -> defaultInvalidHandler(livingEntity).accept(stack));
+                    slots.setItem(slot, itemStack);
+                    return true;
+                }).orElse(false);
+    }
+
     public static void equipEventAndSound(LivingEntity entity, ItemStack stack) {
         SoundEvent soundevent = stack.getEquipSound();
         if (!stack.isEmpty() && soundevent != null && !entity.isSpectator()) {
@@ -164,6 +182,30 @@ public class AccessorySlots implements Container {
 
         orderedSlots.clear();
         return stateChanged.getAcquire();
+    }
+
+    public void tick() {
+        for (var entry : items.entrySet()) {
+            if (entry.getValue().getItem() instanceof AccessoryItem accessoryItem) {
+                accessoryItem.accessoryTick(AccessorySlotContext.of(this.owner, entry.getKey()));
+            }
+        }
+    }
+
+    public void onEntitySwing(InteractionHand hand) {
+        for (var entry : items.entrySet()) {
+            if (entry.getValue().getItem() instanceof AccessoryItem accessoryItem) {
+                accessoryItem.accessorySwing(AccessorySlotContext.of(this.owner, entry.getKey()), hand);
+            }
+        }
+    }
+
+    public void onEntityAttack(InteractionHand hand, Entity target) {
+        for (var entry : items.entrySet()) {
+            if (entry.getValue().getItem() instanceof AccessoryItem accessoryItem) {
+                accessoryItem.accessoryAttack(AccessorySlotContext.of(this.owner, entry.getKey()), hand, target);
+            }
+        }
     }
 
     public boolean moveToSlot(AccessorySlotType slot, ItemStack stack) {

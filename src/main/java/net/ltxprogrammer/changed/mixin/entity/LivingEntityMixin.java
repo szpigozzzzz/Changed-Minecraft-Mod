@@ -30,6 +30,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.FluidTags;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
@@ -311,6 +312,13 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityDa
         }
 
         this.checkForGas();
+
+        AccessorySlots.getForEntity((LivingEntity)(Object)this).ifPresent(AccessorySlots::tick);
+    }
+
+    @Inject(method = "swing(Lnet/minecraft/world/InteractionHand;Z)V", at = @At("HEAD"))
+    public void accessorySwingHook(InteractionHand hand, boolean sendToPlayer, CallbackInfo ci) {
+        AccessorySlots.getForEntity((LivingEntity)(Object)this).ifPresent(slots -> slots.onEntitySwing(hand));
     }
 
     @Inject(method = "canStandOnFluid", at = @At("HEAD"), cancellable = true)

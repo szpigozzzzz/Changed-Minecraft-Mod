@@ -61,8 +61,8 @@ public class TscShield extends TscWeapon implements SpecializedItemRendering {
     }
 
     public boolean hurtEnemy(ItemStack itemStack, LivingEntity enemy, LivingEntity source) {
-        sweepWeapon(source);
-        applyShock(enemy);
+        sweepWeapon(source, attackRange());
+        applyShock(enemy, attackStun());
         itemStack.hurtAndBreak(1, source, (entity) -> {
             entity.broadcastBreakEvent(EquipmentSlot.MAINHAND);
         });
@@ -88,7 +88,7 @@ public class TscShield extends TscWeapon implements SpecializedItemRendering {
     public boolean onEntitySwing(ItemStack stack, LivingEntity entity) {
         if (entity.swingTime > 0)
             return true;
-        sweepWeapon(entity);
+        sweepWeapon(entity, attackRange());
         return super.onEntitySwing(stack, entity);
     }
 
@@ -137,7 +137,7 @@ public class TscShield extends TscWeapon implements SpecializedItemRendering {
         public static void onShieldBlock(ShieldBlockEvent event) {
             if (event.getEntityLiving().getUseItem().is(ChangedItems.TSC_SHIELD.get())) {
                 if (event.getDamageSource() instanceof EntityDamageSource entityDamageSource && entityDamageSource.getEntity() instanceof LivingEntity source) {
-                    ChangedItems.TSC_SHIELD.get().applyShock(source);
+                    TscWeapon.applyShock(source, ChangedItems.TSC_SHIELD.get().attackStun());
                     if (TransfurVariant.getEntityVariant(source) != null)
                         source.hurt(DamageSource.mobAttack(event.getEntityLiving()), 1);
                 }
