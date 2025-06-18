@@ -23,20 +23,31 @@ public class PlaceableEntity<T extends Entity> extends Item {
         this.entityType = entityType;
     }
 
+    protected T placeAndShrink(BlockPlaceContext context) {
+        Level level = context.getLevel();
+        BlockPos placePos = context.getClickedPos();
+
+        if (level.isClientSide)
+            return null;
+
+        T entity = entityType.get().create(level);
+        if (entity == null)
+            return null;
+
+        entity.setPos(placePos.getX() + 0.5, placePos.getY(), placePos.getZ() + 0.5);
+        level.addFreshEntity(entity);
+        context.getItemInHand().shrink(1);
+        return entity;
+    }
+
     @Override
     public InteractionResult useOn(UseOnContext context) {
         Level level = context.getLevel();
         BlockPlaceContext placeContext = new BlockPlaceContext(context);
-        BlockPos placePos = placeContext.getClickedPos();
 
         if (!level.isClientSide) {
-            T entity = entityType.get().create(level);
-            if (entity == null)
+            if (this.placeAndShrink(placeContext) == null)
                 return InteractionResult.PASS;
-
-            entity.setPos(placePos.getX() + 0.5, placePos.getY(), placePos.getZ() + 0.5);
-            level.addFreshEntity(entity);
-            context.getItemInHand().shrink(1);
         }
 
         return InteractionResult.sidedSuccess(level.isClientSide);

@@ -29,10 +29,11 @@ import net.minecraft.world.level.gameevent.GameEvent;
 import javax.annotation.Nullable;
 
 public abstract class AbstractRobot extends PathfinderMob {
-    private static final EntityDataAccessor<Integer> DATA_ID_HURT = SynchedEntityData.defineId(AbstractRobot.class, EntityDataSerializers.INT);
-    private static final EntityDataAccessor<Integer> DATA_ID_HURTDIR = SynchedEntityData.defineId(AbstractRobot.class, EntityDataSerializers.INT);
-    private static final EntityDataAccessor<Float> DATA_ID_DAMAGE = SynchedEntityData.defineId(AbstractRobot.class, EntityDataSerializers.FLOAT);
-    private static final EntityDataAccessor<Float> DATA_ID_CHARGE = SynchedEntityData.defineId(AbstractRobot.class, EntityDataSerializers.FLOAT); // [0, 1]
+    protected static final EntityDataAccessor<Integer> DATA_ID_HURT = SynchedEntityData.defineId(AbstractRobot.class, EntityDataSerializers.INT);
+    protected static final EntityDataAccessor<Integer> DATA_ID_HURTDIR = SynchedEntityData.defineId(AbstractRobot.class, EntityDataSerializers.INT);
+    protected static final EntityDataAccessor<Float> DATA_ID_DAMAGE = SynchedEntityData.defineId(AbstractRobot.class, EntityDataSerializers.FLOAT);
+    protected static final EntityDataAccessor<Float> DATA_ID_CHARGE = SynchedEntityData.defineId(AbstractRobot.class, EntityDataSerializers.FLOAT); // [0, 1]
+    protected static final EntityDataAccessor<Boolean> DATA_ID_CHARGING = SynchedEntityData.defineId(AbstractRobot.class, EntityDataSerializers.BOOLEAN);
 
     protected @Nullable BlockPos closestCharger;
 
@@ -99,6 +100,7 @@ public abstract class AbstractRobot extends PathfinderMob {
         this.entityData.define(DATA_ID_HURTDIR, 1);
         this.entityData.define(DATA_ID_DAMAGE, 0.0F);
         this.entityData.define(DATA_ID_CHARGE, 1.0F);
+        this.entityData.define(DATA_ID_CHARGING, false);
     }
 
     public void setDamage(float value) {
@@ -135,6 +137,33 @@ public abstract class AbstractRobot extends PathfinderMob {
 
     public boolean isLowBattery() {
         return getCharge() < 0.15f;
+    }
+
+    public boolean isCharging() {
+        return this.entityData.get(DATA_ID_CHARGING);
+    }
+
+    public void setCharging(boolean value) {
+        this.entityData.set(DATA_ID_CHARGING, value);
+    }
+
+    @Override
+    public void addAdditionalSaveData(CompoundTag tag) {
+        super.addAdditionalSaveData(tag);
+        tag.putFloat("DamageLevel", getDamage());
+        tag.putFloat("ChargeLevel", getCharge());
+        tag.putBoolean("IsCharging", isCharging());
+    }
+
+    @Override
+    public void readAdditionalSaveData(CompoundTag tag) {
+        super.readAdditionalSaveData(tag);
+        if (tag.contains("DamageLevel"))
+            this.setDamage(tag.getFloat("DamageLevel"));
+        if (tag.contains("ChargeLevel"))
+            this.setCharge(tag.getFloat("ChargeLevel"));
+        if (tag.contains("IsCharging"))
+            this.setCharging(tag.getBoolean("IsCharging"));
     }
 
     @Override
@@ -219,6 +248,25 @@ public abstract class AbstractRobot extends PathfinderMob {
     public void load(CompoundTag tag) {
         setCharge(tag.getFloat("charge"));
         super.load(tag);
+    }
+
+    protected void detachFromCharger() {
+        if (this.isCharging() && this.getSleepingPos().isPresent()) {
+            final var chargerPos = this.getSleepingPos().get();
+            final var chargerState = level.getBlockState(chargerPos);
+            if (chargerState.getBlock() instanceof IRobotCharger charger) {
+                charger.acceptRobotRemoved(chargerState, level, chargerPos, this);
+            }
+        }
+    }
+
+    @Override
+    public void remove(RemovalReason reason) {
+        switch (reason) {
+            case KILLED, DISCARDED -> this.detachFromCharger();
+        }
+
+        super.remove(reason);
     }
 
     public static class SeekCharger extends Goal {

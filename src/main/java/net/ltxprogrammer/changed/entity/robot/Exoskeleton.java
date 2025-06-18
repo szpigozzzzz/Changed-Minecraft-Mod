@@ -1,11 +1,16 @@
 package net.ltxprogrammer.changed.entity.robot;
 
 import com.mojang.datafixers.util.Pair;
+import net.ltxprogrammer.changed.block.AbstractLargePanel;
+import net.ltxprogrammer.changed.block.IRobotCharger;
+import net.ltxprogrammer.changed.block.NineSection;
 import net.ltxprogrammer.changed.data.AccessorySlots;
 import net.ltxprogrammer.changed.init.ChangedAccessorySlots;
 import net.ltxprogrammer.changed.init.ChangedItems;
 import net.ltxprogrammer.changed.item.ExoskeletonItem;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -37,6 +42,22 @@ public class Exoskeleton extends AbstractRobot {
 
     public ItemLike getDropItem() {
         return ChangedItems.EXOSKELETON.get();
+    }
+
+    @Override
+    public EntityDimensions getDimensions(Pose pose) {
+        if (this.isCharging() && pose == Pose.SLEEPING)
+            return super.getDimensions(Pose.STANDING);
+        return super.getDimensions(pose);
+    }
+
+    @Override
+    public float getEyeHeight(Pose pose) {
+        return this.isCharging() ? this.getSleepOffset() : super.getEyeHeight(pose);
+    }
+
+    protected float getSleepOffset() {
+        return 2.0F / 16.0F;
     }
 
     @Override
@@ -91,5 +112,48 @@ public class Exoskeleton extends AbstractRobot {
             return InteractionResult.sidedSuccess(this.level.isClientSide);
         }
         return super.mobInteract(player, hand);
+    }
+
+    @Override
+    public void tick() {
+        super.tick();
+
+        if (this.isCharging() && this.getSleepingPos().isPresent()) {
+            final var panel = level.getBlockState(this.getSleepingPos().get());
+            if (panel.getBlock() instanceof AbstractLargePanel) {
+                final var section = panel.getValue(AbstractLargePanel.SECTION);
+                final var facing = panel.getValue(AbstractLargePanel.FACING);
+                final var entityPos = section.getRelative(this.getSleepingPos().get(), facing, NineSection.BOTTOM_MIDDLE);
+
+                this.setPos(entityPos.getX() + 0.5D, entityPos.getY(), entityPos.getZ() + 0.5D);
+                this.setOldPosAndRot();
+            }
+        }
+    }
+
+    @Override
+    public boolean isPushable() {
+        return super.isPushable() && !this.isCharging();
+    }
+
+    @Override
+    public boolean isNoGravity() {
+        return super.isNoGravity() || this.isCharging();
+    }
+
+    @Override
+    public void setCharging(boolean value) {
+        super.setCharging(value);
+
+        this.setPose(value ? Pose.SLEEPING : Pose.STANDING);
+        this.refreshDimensions();
+    }
+
+    @Override
+    public void onSyncedDataUpdated(EntityDataAccessor<?> accessor) {
+        super.onSyncedDataUpdated(accessor);
+        if (DATA_ID_CHARGING.equals(accessor)) {
+            this.refreshDimensions();
+        }
     }
 }

@@ -7,6 +7,7 @@ import net.minecraft.world.entity.ai.targeting.TargetingConditions;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
+import org.jetbrains.annotations.Nullable;
 
 public interface IRobotCharger {
     ChargerType getChargerType();
@@ -22,4 +23,6 @@ public interface IRobotCharger {
     }
 
     void acceptRobot(BlockState state, Level level, BlockPos pos, AbstractRobot robot);
+
+    void acceptRobotRemoved(BlockState state, Level level, BlockPos pos, @Nullable AbstractRobot oldRobot);
 }

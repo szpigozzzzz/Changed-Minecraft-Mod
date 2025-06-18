@@ -2,13 +2,17 @@ package net.ltxprogrammer.changed.item;
 
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Multimap;
+import net.ltxprogrammer.changed.block.IRobotCharger;
 import net.ltxprogrammer.changed.data.AccessorySlotType;
 import net.ltxprogrammer.changed.entity.robot.AbstractRobot;
+import net.ltxprogrammer.changed.entity.robot.ChargerType;
 import net.ltxprogrammer.changed.entity.variant.TransfurVariantInstance;
 import net.ltxprogrammer.changed.init.ChangedTags;
 import net.ltxprogrammer.changed.process.ProcessTransfur;
 import net.ltxprogrammer.changed.util.Cacheable;
 import net.ltxprogrammer.changed.util.EntityUtil;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
@@ -16,6 +20,9 @@ import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.item.context.UseOnContext;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.DispenserBlock;
 
 import java.util.UUID;
@@ -71,5 +78,22 @@ public class ExoskeletonItem<T extends AbstractRobot> extends PlaceableEntity<T>
         }
 
         return ImmutableMultimap.of();
+    }
+
+    @Override
+    public InteractionResult useOn(UseOnContext context) {
+        Level level = context.getLevel();
+        BlockPlaceContext placeContext = new BlockPlaceContext(context);
+        var blockState = level.getBlockState(context.getClickedPos());
+
+        if (blockState.getBlock() instanceof IRobotCharger charger && charger.getChargerType() == ChargerType.EXOSKELETON) {
+            var robot = this.placeAndShrink(placeContext);
+            if (robot != null) {
+                charger.acceptRobot(blockState, level, context.getClickedPos(), robot);
+                return InteractionResult.sidedSuccess(level.isClientSide);
+            }
+        }
+
+        return super.useOn(context);
     }
 }

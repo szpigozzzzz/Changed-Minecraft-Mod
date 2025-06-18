@@ -117,7 +117,7 @@ public class ChangedItems {
             () -> new QuadrupedalArmor(ArmorMaterials.NETHERITE, EquipmentSlot.FEET, new Item.Properties().tab(ChangedTabs.TAB_CHANGED_COMBAT).fireResistant()));
 
     public static final RegistryObject<PlaceableEntity<Roomba>> ROOMBA = register("roomba",
-            () -> new PlaceableEntity<>(new Item.Properties().tab(ChangedTabs.TAB_CHANGED_ITEMS).stacksTo(4), ChangedEntities.ROOMBA));
+            () -> new RoombaItem<>(new Item.Properties().tab(ChangedTabs.TAB_CHANGED_ITEMS).stacksTo(4), ChangedEntities.ROOMBA));
     public static final RegistryObject<ExoskeletonItem<Exoskeleton>> EXOSKELETON = register("exoskeleton",
             () -> new ExoskeletonItem<>(new Item.Properties().tab(ChangedTabs.TAB_CHANGED_ITEMS).stacksTo(1), ChangedEntities.EXOSKELETON));
 

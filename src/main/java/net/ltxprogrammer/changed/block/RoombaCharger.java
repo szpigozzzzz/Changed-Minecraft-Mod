@@ -26,6 +26,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraft.world.ticks.TickPriority;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Random;
 
@@ -129,5 +130,14 @@ public class RoombaCharger extends AbstractCustomShapeBlock implements IRobotCha
 
             broadcastPosition(level, pos, false);
         }
+    }
+
+    @Override
+    public void acceptRobotRemoved(BlockState state, Level level, BlockPos pos, @Nullable AbstractRobot oldRobot) {
+        if (!state.getValue(OCCUPIED))
+            return;
+
+        level.setBlockAndUpdate(pos, state.setValue(OCCUPIED, false));
+        broadcastPosition(level, pos);
     }
 }

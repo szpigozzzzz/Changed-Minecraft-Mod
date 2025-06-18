@@ -213,18 +213,48 @@ public class ExoskeletonModel extends EntityModel<Exoskeleton> {
     @Override
     public void setupAnim(Exoskeleton entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
         // TODO default animation
+
+        if (entity.isCharging()) {
+            Head.xRot = Mth.DEG_TO_RAD * 42.5F;
+            Head.yRot = 0F;
+            Head.zRot = 0F;
+
+            RightArm.xRot = Mth.DEG_TO_RAD * 15F;
+            RightArm.yRot = 0F;
+            RightArm.zRot = Mth.DEG_TO_RAD * 55F;
+            LeftArm.xRot = Mth.DEG_TO_RAD * 15F;
+            LeftArm.yRot = 0F;
+            LeftArm.zRot = Mth.DEG_TO_RAD * -55F;
+
+            RightLeg.xRot = Mth.DEG_TO_RAD * 17.5F;
+            RightLeg.yRot = 0F;
+            RightLeg.zRot = 0F;
+            LeftLeg.xRot = Mth.DEG_TO_RAD * 17.5F;
+            LeftLeg.yRot = 0F;
+            LeftLeg.zRot = 0F;
+        }
     }
 
     @Override
     public void prepareMobModel(Exoskeleton entity, float limbSwing, float limbSwingAmount, float partialTick) {
         super.prepareMobModel(entity, limbSwing, limbSwingAmount, partialTick);
-        HeadSupport.y = 1.0F;
+
         BackBraceLeft.yRot = Mth.DEG_TO_RAD * -20.0F;
         BackBraceRight.yRot = Mth.DEG_TO_RAD * 20.0F;
         RightArmBraceLeft.yRot = Mth.DEG_TO_RAD * -10.0F;
         RightArmBraceRight.yRot = Mth.DEG_TO_RAD * 10.0F;
         LeftArmBraceLeft.yRot = Mth.DEG_TO_RAD * -10.0F;
         LeftArmBraceRight.yRot = Mth.DEG_TO_RAD * 10.0F;
+
+        if (entity.isCharging()) {
+            HeadSupport.y = 7.0F;
+            Head.z = 4.0F;
+        }
+
+        else {
+            HeadSupport.y = 1.0F;
+            Head.z = 0.0F;
+        }
     }
 
     public void prepareMobModel(ItemStack itemStack, float limbSwing, float limbSwingAmount, float partialTick) {
