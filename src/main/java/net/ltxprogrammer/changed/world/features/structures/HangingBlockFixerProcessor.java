@@ -35,7 +35,7 @@ public class HangingBlockFixerProcessor extends StructureProcessor {
             // Code adapted from minecraftjibam2 on https://bugs.mojang.com/browse/MC/issues/MC-102223
 
             var motive = Registry.MOTIVE.get(ResourceLocation.tryParse(entityInfo.nbt.getString("Motive")));
-            var direction = Direction.from2DDataValue(entityInfo.nbt.getByte("Facing"));
+            var direction = placementSettings.getRotation().rotate(Direction.from2DDataValue(entityInfo.nbt.getByte("Facing")));
 
             var pos = new BlockPos.MutableBlockPos();
             pos.set(new BlockPos(entityInfo.pos));
