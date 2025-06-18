@@ -170,6 +170,8 @@
   "death.attack.changed:pale.player": "%1$s was taken by Pale whilst fighting %2$s",
   "death.attack.changed:bloodloss": "%s used foreign plasma",
   "death.attack.changed:bloodloss.player": "%1$s used foreign plasma, thanks to %2$s",
+  "death.attack.changed:electrocution": "%s was electrocuted",
+  "death.attack.changed:electrocution.player": "%1$s was electrocuted whilst fighting %2$s",
   "death.attack.changed:fan": "%s was diced by a fan",
   "death.attack.changed:fan.player": "%1$s was diced by a fan whilst fighting %2$s",
 

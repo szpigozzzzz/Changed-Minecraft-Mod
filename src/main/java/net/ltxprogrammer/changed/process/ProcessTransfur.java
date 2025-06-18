@@ -601,10 +601,13 @@ public class ProcessTransfur {
         if (isNonGoo(event.getEntityLiving()))
             return;
 
-        if (event.getSource() instanceof EntityDamageSource entityDamageSource && entityDamageSource.getEntity() instanceof LivingEntity livingEntity) {
-            if (getEntityAttackItem(livingEntity).is(ChangedTags.Items.TSC_WEAPON)) {
-                event.setAmount(event.getAmount() * 1.5F);
-            }
+        if (event.getSource() instanceof EntityDamageSource entityDamageSource && entityDamageSource.getEntity() instanceof LivingEntity livingEntity &&
+                getEntityAttackItem(livingEntity).is(ChangedTags.Items.TSC_WEAPON)) {
+            event.setAmount(event.getAmount() * 1.5F);
+        }
+
+        else if (event.getSource() == ChangedDamageSources.ELECTROCUTION) {
+            event.setAmount(event.getAmount() * 1.5F);
         }
 
         if (event.getSource().isFire()) {

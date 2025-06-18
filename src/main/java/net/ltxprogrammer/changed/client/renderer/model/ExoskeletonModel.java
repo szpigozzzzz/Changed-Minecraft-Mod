@@ -240,6 +240,10 @@ public class ExoskeletonModel extends EntityModel<Exoskeleton> {
             Head.yRot = 0F;
             Head.zRot = 0F;
 
+            Torso.xRot = 0F;
+            Torso.yRot = 0F;
+            Torso.zRot = 0F;
+
             RightArm.xRot = Mth.DEG_TO_RAD * 15F;
             RightArm.yRot = 0F;
             RightArm.zRot = Mth.DEG_TO_RAD * 55F;
@@ -254,27 +258,57 @@ public class ExoskeletonModel extends EntityModel<Exoskeleton> {
             LeftLeg.yRot = 0F;
             LeftLeg.zRot = 0F;
         }
+
+        else {
+            Head.xRot = 0F;
+            Head.yRot = netHeadYaw * ((float)Math.PI / 180F);
+            Head.zRot = 0F;
+
+            Torso.xRot = 0F;
+            Torso.yRot = 0F;
+            Torso.zRot = 0F;
+
+            RightArm.xRot = Mth.cos(limbSwing * 0.6662F + (float)Math.PI) * 2.0F * limbSwingAmount * 0.125F;
+            RightArm.yRot = 0F;
+            RightArm.zRot = Mth.DEG_TO_RAD * 35f;
+            LeftArm.xRot = Mth.cos(limbSwing * 0.6662F) * 2.0F * limbSwingAmount * 0.125F;
+            LeftArm.yRot = 0F;
+            LeftArm.zRot = Mth.DEG_TO_RAD * -35f;
+
+            RightLeg.xRot = Mth.cos(limbSwing * 0.6662F) * 1.4F * limbSwingAmount;
+            RightLeg.yRot = 0F;
+            RightLeg.zRot = Mth.DEG_TO_RAD * 2.5f;
+            LeftLeg.xRot = Mth.cos(limbSwing * 0.6662F + (float)Math.PI) * 1.4F * limbSwingAmount;
+            LeftLeg.yRot = 0F;
+            LeftLeg.zRot = Mth.DEG_TO_RAD * -2.5f;
+        }
     }
 
     @Override
     public void prepareMobModel(Exoskeleton entity, float limbSwing, float limbSwingAmount, float partialTick) {
         super.prepareMobModel(entity, limbSwing, limbSwingAmount, partialTick);
 
-        BackBraceLeft.yRot = Mth.DEG_TO_RAD * -20.0F;
-        BackBraceRight.yRot = Mth.DEG_TO_RAD * 20.0F;
-        RightArmBraceLeft.yRot = Mth.DEG_TO_RAD * -10.0F;
-        RightArmBraceRight.yRot = Mth.DEG_TO_RAD * 10.0F;
-        LeftArmBraceLeft.yRot = Mth.DEG_TO_RAD * -10.0F;
-        LeftArmBraceRight.yRot = Mth.DEG_TO_RAD * 10.0F;
+        BackBraceLeft.yRot = Mth.DEG_TO_RAD * -10.0F;
+        BackBraceRight.yRot = Mth.DEG_TO_RAD * 10.0F;
+        RightArmBraceLeft.yRot = 0.0F;
+        RightArmBraceRight.yRot = Mth.DEG_TO_RAD * 30.0F;
+        LeftArmBraceLeft.yRot = Mth.DEG_TO_RAD * -30.0F;
+        LeftArmBraceRight.yRot = 0.0F;
 
         if (entity.isCharging()) {
             HeadSupport.y = 7.0F;
             Head.z = 4.0F;
+
+            RightArm.x = -5.0F;
+            LeftArm.x = 5.0F;
         }
 
         else {
             HeadSupport.y = 1.0F;
             Head.z = 0.0F;
+
+            RightArm.x = -6.0F;
+            LeftArm.x = 6.0F;
         }
     }
 

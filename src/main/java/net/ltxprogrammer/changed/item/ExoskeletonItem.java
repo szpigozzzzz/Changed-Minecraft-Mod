@@ -10,6 +10,7 @@ import net.ltxprogrammer.changed.entity.robot.AbstractRobot;
 import net.ltxprogrammer.changed.entity.robot.ChargerType;
 import net.ltxprogrammer.changed.entity.variant.TransfurVariantInstance;
 import net.ltxprogrammer.changed.init.ChangedAccessorySlots;
+import net.ltxprogrammer.changed.init.ChangedDamageSources;
 import net.ltxprogrammer.changed.init.ChangedTags;
 import net.ltxprogrammer.changed.process.ProcessTransfur;
 import net.ltxprogrammer.changed.util.Cacheable;
@@ -121,6 +122,16 @@ public class ExoskeletonItem<T extends AbstractRobot> extends PlaceableEntity<T>
 
         else if (slotContext.wearer().tickCount % 20 == 0) {
             slotContext.stack().setDamageValue(slotContext.stack().getDamageValue() + 1);
+        }
+
+        if (slotContext.wearer().isInWaterOrRain()) {
+            int rate = slotContext.wearer().isInWater() ? 20 : 40;
+
+            if (slotContext.wearer().tickCount % rate == 0) {
+                slotContext.wearer().hurt(ChangedDamageSources.ELECTROCUTION, 3);
+                TscWeapon.applyShock(slotContext.wearer(), 3);
+                slotContext.stack().setDamageValue(slotContext.stack().getDamageValue() + 30);
+            }
         }
     }
 
