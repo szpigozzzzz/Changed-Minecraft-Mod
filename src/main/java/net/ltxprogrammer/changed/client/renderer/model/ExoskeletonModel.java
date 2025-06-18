@@ -1,10 +1,14 @@
 package net.ltxprogrammer.changed.client.renderer.model;
 
+import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.ltxprogrammer.changed.Changed;
 import net.ltxprogrammer.changed.client.animations.Limb;
 import net.ltxprogrammer.changed.entity.robot.Exoskeleton;
+import net.ltxprogrammer.changed.init.ChangedTags;
+import net.ltxprogrammer.changed.util.EntityUtil;
+import net.minecraft.Util;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.HeadedModel;
 import net.minecraft.client.model.geom.ModelLayerLocation;
@@ -12,6 +16,7 @@ import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
 import net.minecraft.client.model.geom.builders.*;
 import net.minecraft.client.player.AbstractClientPlayer;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.resources.DefaultPlayerSkin;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
@@ -20,10 +25,13 @@ import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 public class ExoskeletonModel extends EntityModel<Exoskeleton> {
     public static final ModelLayerLocation LAYER_LOCATION_SUIT = new ModelLayerLocation(Changed.modResource("exoskeleton"), "main");
+    public static final ModelLayerLocation LAYER_LOCATION_VISOR = new ModelLayerLocation(Changed.modResource("exoskeleton"), "visor");
     public static final ModelLayerLocation LAYER_LOCATION_HUMAN = new ModelLayerLocation(Changed.modResource("exoskeleton"), "human");
     private final ModelPart Root;
     private final ModelPart Head;
@@ -177,6 +185,19 @@ public class ExoskeletonModel extends EntityModel<Exoskeleton> {
         return LayerDefinition.create(meshdefinition, 64, 64);
     }
 
+    public static LayerDefinition createVisorLayer() {
+        MeshDefinition meshdefinition = new MeshDefinition();
+        PartDefinition partdefinition = meshdefinition.getRoot();
+
+        PartDefinition Head = partdefinition.addOrReplaceChild("Head", CubeListBuilder.create(), PartPose.offset(0.0F, -1.5F, 0.0F));
+
+        PartDefinition Visor = Head.addOrReplaceChild("Visor", CubeListBuilder.create().texOffs(0, 0).addBox(-5.0F, -6.0F, -4.0F, 10.0F, 3.0F, 1.0F, CubeDeformation.NONE)
+                .texOffs(0, 4).addBox(-5.0F, -6.0F, -3.0F, 1.0F, 3.0F, 2.0F, CubeDeformation.NONE)
+                .texOffs(6, 4).addBox(4.0F, -6.0F, -3.0F, 1.0F, 3.0F, 2.0F, CubeDeformation.NONE), PartPose.offset(0.0F, 0.0F, -1.0F));
+
+        return LayerDefinition.create(meshdefinition, 32, 16);
+    }
+
     public static LayerDefinition createHumanLayer() {
         MeshDefinition meshdefinition = new MeshDefinition();
         PartDefinition partdefinition = meshdefinition.getRoot();
@@ -281,17 +302,14 @@ public class ExoskeletonModel extends EntityModel<Exoskeleton> {
         Limb.RIGHT_ARM.getModelPartSafe(wearerModel).ifPresent(part -> part.zRot += Mth.DEG_TO_RAD * 12f);
         Limb.LEFT_ARM.getModelPartSafe(wearerModel).ifPresent(part -> part.zRot += Mth.DEG_TO_RAD * -12f);
 
-        Limb.RIGHT_LEG.getModelPartSafe(wearerModel).ifPresent(part -> part.zRot += Mth.DEG_TO_RAD * 2.5f);
-        Limb.LEFT_LEG.getModelPartSafe(wearerModel).ifPresent(part -> part.zRot += Mth.DEG_TO_RAD * -2.5f);
-    }
-
-    public <T extends LivingEntity, M extends EntityModel<T>> void matchWearersAnim(M wearerModel, Exoskeleton entity) {
-        Limb.HEAD.getModelPartSafe(wearerModel).ifPresent(this.Head::copyFrom);
-        Limb.TORSO.getModelPartSafe(wearerModel).ifPresent(this.Torso::copyFrom);
-        Limb.RIGHT_ARM.getModelPartSafe(wearerModel).ifPresent(this.RightArm::copyFrom);
-        Limb.LEFT_ARM.getModelPartSafe(wearerModel).ifPresent(this.LeftArm::copyFrom);
-        Limb.RIGHT_LEG.getModelPartSafe(wearerModel).ifPresent(this.RightLeg::copyFrom);
-        Limb.LEFT_LEG.getModelPartSafe(wearerModel).ifPresent(this.LeftLeg::copyFrom);
+        Limb.RIGHT_LEG.getModelPartSafe(wearerModel).ifPresent(part -> {
+            part.xRot += -0.2182F;
+            part.zRot += Mth.DEG_TO_RAD * 2.5f;
+        });
+        Limb.LEFT_LEG.getModelPartSafe(wearerModel).ifPresent(part -> {
+            part.xRot += -0.2182F;
+            part.zRot += Mth.DEG_TO_RAD * -2.5f;
+        });
     }
 
     public <T extends LivingEntity, M extends EntityModel<T>> void matchWearersAnim(M wearerModel, ItemStack stack) {
@@ -301,6 +319,11 @@ public class ExoskeletonModel extends EntityModel<Exoskeleton> {
         Limb.LEFT_ARM.getModelPartSafe(wearerModel).ifPresent(this.LeftArm::copyFrom);
         Limb.RIGHT_LEG.getModelPartSafe(wearerModel).ifPresent(this.RightLeg::copyFrom);
         Limb.LEFT_LEG.getModelPartSafe(wearerModel).ifPresent(this.LeftLeg::copyFrom);
+
+        if (wearerModel instanceof AdvancedHumanoidModel<?>) return;
+
+        this.RightLeg.xRot -= -0.2182F;
+        this.LeftLeg.xRot -= -0.2182F;
     }
 
     @Override
@@ -314,9 +337,10 @@ public class ExoskeletonModel extends EntityModel<Exoskeleton> {
     }
 
     private final ResourceLocation TEXTURE = Changed.modResource("textures/exoskeleton.png");
+    private final ResourceLocation TEXTURE_CHARGING = Changed.modResource("textures/exoskeleton_charging.png");
 
     public ResourceLocation getTexture(Exoskeleton entity) {
-        return TEXTURE;
+        return entity.isCharging() ? TEXTURE_CHARGING : TEXTURE;
     }
 
     public ResourceLocation getTexture(ItemStack stack) {
@@ -339,14 +363,12 @@ public class ExoskeletonModel extends EntityModel<Exoskeleton> {
             // TODO default animation
         }
 
-        public <T extends LivingEntity, M extends EntityModel<T>> void matchWearersAnim(M wearerModel, Exoskeleton entity) {
-            Limb.RIGHT_LEG.getModelPartSafe(wearerModel).ifPresent(this.RightLeg::copyFrom);
-            Limb.LEFT_LEG.getModelPartSafe(wearerModel).ifPresent(this.LeftLeg::copyFrom);
-        }
-
         public <T extends LivingEntity, M extends EntityModel<T>> void matchWearersAnim(M wearerModel, ItemStack stack) {
             Limb.RIGHT_LEG.getModelPartSafe(wearerModel).ifPresent(this.RightLeg::copyFrom);
             Limb.LEFT_LEG.getModelPartSafe(wearerModel).ifPresent(this.LeftLeg::copyFrom);
+
+            this.RightLeg.xRot -= -0.2182F;
+            this.LeftLeg.xRot -= -0.2182F;
         }
 
         @Override
@@ -359,6 +381,71 @@ public class ExoskeletonModel extends EntityModel<Exoskeleton> {
             if (entity instanceof AbstractClientPlayer clientPlayer)
                 return clientPlayer.getSkinTextureLocation();
             return DefaultPlayerSkin.getDefaultSkin(entity.getUUID());
+        }
+    }
+
+    public static class VisorModel extends EntityModel<Exoskeleton> {
+        public static final ResourceLocation VISOR_BLANK = Changed.modResource("textures/models/exoskeleton_visor/blank.png");
+        public static final ResourceLocation VISOR_ACTIVE = Changed.modResource("textures/models/exoskeleton_visor/active.png");
+        public static final int VISOR_CHARGE_STATES = 17;
+        public static final List<ResourceLocation> VISOR_CHARGE = Util.make(() -> {
+            final var builder = ImmutableList.<ResourceLocation>builder();
+            for (int i = 0; i < VISOR_CHARGE_STATES; ++i) {
+                builder.add(Changed.modResource(String.format("textures/models/exoskeleton_visor/charge%s.png", i)));
+            }
+            return builder.build();
+        });
+        public static final int VISOR_HYPNO_STATES = 2;
+        public static final List<ResourceLocation> VISOR_HYPNO = Util.make(() -> {
+            final var builder = ImmutableList.<ResourceLocation>builder();
+            for (int i = 0; i < VISOR_HYPNO_STATES; ++i) {
+                builder.add(Changed.modResource(String.format("textures/models/exoskeleton_visor/hypno%s.png", i)));
+            }
+            return builder.build();
+        });
+
+        private final ModelPart Head;
+
+        public VisorModel(ModelPart root) {
+            super(RenderType::eyes);
+            this.Head = root.getChild("Head");
+        }
+
+        @Override
+        public void setupAnim(Exoskeleton entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
+            // TODO default animation
+        }
+
+        public <T extends LivingEntity, M extends EntityModel<T>> void matchParentAnim(ExoskeletonModel parent) {
+            this.Head.copyFrom(parent.Head);
+        }
+
+        @Override
+        public void renderToBuffer(PoseStack poseStack, VertexConsumer buffer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
+            Head.render(poseStack, buffer, packedLight, packedOverlay, red, green, blue, alpha);
+        }
+
+        public ResourceLocation getTexture(LivingEntity wearer, ItemStack itemStack) {
+            if (EntityUtil.maybeGetOverlaying(wearer).getType().is(ChangedTags.EntityTypes.BENIGN_LATEXES)) {
+                return wearer.tickCount % 12 < 6 ? VISOR_HYPNO.get(0) : VISOR_HYPNO.get(1);
+            }
+
+            return VISOR_ACTIVE;
+        }
+
+        public ResourceLocation getTexture(Exoskeleton exoskeleton) {
+            if (exoskeleton.isCharging()) {
+                float scaledCharge = exoskeleton.getCharge() * (VISOR_CHARGE_STATES - 1);
+                int chargeLow = Mth.floor(scaledCharge);
+                int chargeHigh = Mth.ceil(scaledCharge);
+
+                if (exoskeleton.tickCount % 20 < 10)
+                    return VISOR_CHARGE.get(chargeLow);
+                else
+                    return VISOR_CHARGE.get(chargeHigh);
+            }
+
+            return VISOR_BLANK;
         }
     }
 }

@@ -5,9 +5,11 @@ import com.google.common.collect.Multimap;
 import net.ltxprogrammer.changed.block.IRobotCharger;
 import net.ltxprogrammer.changed.data.AccessorySlotContext;
 import net.ltxprogrammer.changed.data.AccessorySlotType;
+import net.ltxprogrammer.changed.data.AccessorySlots;
 import net.ltxprogrammer.changed.entity.robot.AbstractRobot;
 import net.ltxprogrammer.changed.entity.robot.ChargerType;
 import net.ltxprogrammer.changed.entity.variant.TransfurVariantInstance;
+import net.ltxprogrammer.changed.init.ChangedAccessorySlots;
 import net.ltxprogrammer.changed.init.ChangedTags;
 import net.ltxprogrammer.changed.process.ProcessTransfur;
 import net.ltxprogrammer.changed.util.Cacheable;
@@ -49,7 +51,7 @@ public class ExoskeletonItem<T extends AbstractRobot> extends PlaceableEntity<T>
     });
 
     public ExoskeletonItem(Properties builder, Supplier<EntityType<T>> entityType) {
-        super(builder, entityType);
+        super(builder.durability(12 * 60), entityType);
         DispenserBlock.registerBehavior(this, AccessoryItem.DISPENSE_ITEM_BEHAVIOR);
     }
 
@@ -84,6 +86,12 @@ public class ExoskeletonItem<T extends AbstractRobot> extends PlaceableEntity<T>
     }
 
     @Override
+    protected void finalizeEntity(T entity, ItemStack itemStack) {
+        super.finalizeEntity(entity, itemStack);
+        entity.loadFromItemStack(itemStack);
+    }
+
+    @Override
     public InteractionResult useOn(UseOnContext context) {
         Level level = context.getLevel();
         BlockPlaceContext placeContext = new BlockPlaceContext(context);
@@ -100,13 +108,24 @@ public class ExoskeletonItem<T extends AbstractRobot> extends PlaceableEntity<T>
         return super.useOn(context);
     }
 
-    @Override
-    public void accessoryTick(AccessorySlotContext<?> slotContext) {
-        // TODO degrade charge
+    protected boolean canUse(ItemStack stack) {
+        return !(stack.getDamageValue() >= stack.getMaxDamage() - 1);
     }
 
-    private static int ATTACK_STUN = 5;
-    private static double ATTACK_RANGE = 1.0;
+    @Override
+    public void accessoryTick(AccessorySlotContext<?> slotContext) {
+        if (!canUse(slotContext.stack())) {
+            if (!slotContext.wearer().level.isClientSide)
+                AccessorySlots.tryReplaceSlot(slotContext.wearer(), slotContext.slotType(), ItemStack.EMPTY);
+        }
+
+        else if (slotContext.wearer().tickCount % 20 == 0) {
+            slotContext.stack().setDamageValue(slotContext.stack().getDamageValue() + 1);
+        }
+    }
+
+    private static final int ATTACK_STUN = 5;
+    private static final double ATTACK_RANGE = 1.0;
 
     @Override
     public void accessorySwing(AccessorySlotContext<?> slotContext, InteractionHand hand) {
@@ -122,6 +141,10 @@ public class ExoskeletonItem<T extends AbstractRobot> extends PlaceableEntity<T>
             return;
 
         TscWeapon.sweepWeapon(slotContext.wearer(), ATTACK_RANGE);
-        TscWeapon.applyShock(slotContext.wearer(), ATTACK_STUN);
+        if (target instanceof LivingEntity livingTarget) {
+            TscWeapon.applyShock(livingTarget, ATTACK_STUN);
+
+            slotContext.stack().setDamageValue(slotContext.stack().getDamageValue() + 5);
+        }
     }
 }

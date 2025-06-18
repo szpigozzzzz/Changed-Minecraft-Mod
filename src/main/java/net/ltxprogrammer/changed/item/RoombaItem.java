@@ -5,6 +5,7 @@ import net.ltxprogrammer.changed.entity.robot.AbstractRobot;
 import net.ltxprogrammer.changed.entity.robot.ChargerType;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
@@ -14,6 +15,12 @@ import java.util.function.Supplier;
 public class RoombaItem<T extends AbstractRobot> extends PlaceableEntity<T> {
     public RoombaItem(Properties builder, Supplier<EntityType<T>> entityType) {
         super(builder, entityType);
+    }
+
+    @Override
+    protected void finalizeEntity(T entity, ItemStack itemStack) {
+        super.finalizeEntity(entity, itemStack);
+        entity.loadFromItemStack(itemStack);
     }
 
     @Override

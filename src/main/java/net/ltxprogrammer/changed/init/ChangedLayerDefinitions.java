@@ -167,6 +167,7 @@ public class ChangedLayerDefinitions {
 
         event.registerLayerDefinition(RoombaModel.LAYER_LOCATION, RoombaModel::createBodyLayer);
         event.registerLayerDefinition(ExoskeletonModel.LAYER_LOCATION_SUIT, ExoskeletonModel::createSuitLayer);
+        event.registerLayerDefinition(ExoskeletonModel.LAYER_LOCATION_VISOR, ExoskeletonModel::createVisorLayer);
         event.registerLayerDefinition(ExoskeletonModel.LAYER_LOCATION_HUMAN, ExoskeletonModel::createHumanLayer);
 
         event.registerLayerDefinition(LatexContainerRenderer.LAYER_LOCATION, LatexContainerRenderer::createLatexFill);

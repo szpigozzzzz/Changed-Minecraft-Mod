@@ -54,7 +54,13 @@ public class Exoskeleton extends AbstractRobot {
     }
 
     public ItemStack getDropItem() {
-        return new ItemStack(ChangedItems.EXOSKELETON.get());
+        final var stack = new ItemStack(ChangedItems.EXOSKELETON.get());
+        stack.setDamageValue((int) ((1.0f - this.getCharge()) * stack.getMaxDamage()));
+        return stack;
+    }
+
+    public void loadFromItemStack(ItemStack stack) {
+        this.setCharge(1.0f - ((float) (stack.getDamageValue()) / (float) (stack.getMaxDamage())));
     }
 
     @Override
@@ -97,12 +103,12 @@ public class Exoskeleton extends AbstractRobot {
         return Mob.createMobAttributes()
                 .add(Attributes.MAX_HEALTH, 30.0f)
                 .add(Attributes.ARMOR, 20.0f)
-                .add(Attributes.MOVEMENT_SPEED, 0.5D);
+                .add(Attributes.MOVEMENT_SPEED, 0.65D);
     }
 
     @Override
     protected void playStepSound(BlockPos blockPos, BlockState state) {
-        this.playSound(ChangedSounds.EXOSKELETON_STEP, 0.3F, this.random.nextFloat(0.8f, 0.95f));
+        this.playSound(ChangedSounds.EXOSKELETON_STEP, 0.3F, this.random.nextFloat(0.75f, 0.95f));
     }
 
     @Override
@@ -140,6 +146,11 @@ public class Exoskeleton extends AbstractRobot {
             return InteractionResult.sidedSuccess(this.level.isClientSide);
         }
         return super.mobInteract(player, hand);
+    }
+
+    @Override
+    protected float getChargeDecay() {
+        return super.getChargeDecay();
     }
 
     @Override
@@ -207,7 +218,7 @@ public class Exoskeleton extends AbstractRobot {
                 if (ProcessTransfur.getPlayerTransfurVariantSafe(EntityUtil.playerOrNull(target)).map(TransfurVariantInstance::isTransfurring).orElse(false))
                     return; // Wait for player to TF
 
-                double reachSqr = this.getAttackReachSqr(target) * 0.75;
+                double reachSqr = this.getAttackReachSqr(target) * 0.9;
 
                 if (distanceSquared <= reachSqr && this.getTicksUntilNextAttack() <= 0) {
                     this.resetAttackCooldown();
@@ -240,8 +251,14 @@ public class Exoskeleton extends AbstractRobot {
         }
 
         @Override
+        public void start() {
+            exoskeleton.detachFromCharger();
+            super.start();
+        }
+
+        @Override
         public boolean canUse() {
-            return super.canUse() && !exoskeleton.isCharging() && !exoskeleton.isLowBattery();
+            return super.canUse() && (!exoskeleton.isCharging() || exoskeleton.isSufficientlyCharged()) && !exoskeleton.isLowBattery();
         }
 
         @Override

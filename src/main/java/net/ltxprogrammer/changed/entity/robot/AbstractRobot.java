@@ -140,6 +140,11 @@ public abstract class AbstractRobot extends PathfinderMob {
         return getCharge() < 0.15f;
     }
 
+    // Threshold where the robot will detach to pursue its tasks
+    public boolean isSufficientlyCharged() {
+        return getCharge() > 0.8f;
+    }
+
     public boolean isCharging() {
         return this.entityData.get(DATA_ID_CHARGING);
     }
@@ -167,6 +172,14 @@ public abstract class AbstractRobot extends PathfinderMob {
             this.setCharging(tag.getBoolean("IsCharging"));
     }
 
+    protected float getChargeDecay() {
+        return 1f / (5 * 60 * 20); // 5 minutes runtime
+    }
+
+    protected float getChargeRate() {
+        return 1f / (2 * 60 * 20); // 2 minutes charge
+    }
+
     @Override
     public void tick() {
         super.tick();
@@ -191,15 +204,24 @@ public abstract class AbstractRobot extends PathfinderMob {
             }
         }
 
-        if (this.getCharge() > 0) {
+        if (this.getCharge() > 0 && !this.isCharging()) {
             this.playRunningSound();
-            this.setCharge(this.getCharge() - (0.01f / 60f));
+            this.setCharge(Mth.clamp(this.getCharge() - this.getChargeDecay(), 0f, 1f));
+        }
+
+        else if (this.getCharge() < 1f && this.isCharging()) {
+            this.setCharge(Mth.clamp(this.getCharge() + this.getChargeRate(), 0f, 1f));
+
+            if (this.getCharge() >= 1f)
+                this.detachFromCharger();
         }
     }
 
     public ItemStack getDropItem() {
         return ItemStack.EMPTY;
     }
+
+    public void loadFromItemStack(ItemStack stack) {}
 
     public boolean hurt(DamageSource source, float damage) {
         if (this.isInvulnerableTo(source)) {
@@ -237,18 +259,6 @@ public abstract class AbstractRobot extends PathfinderMob {
         yRot /= 90F;
         yRot = Math.round(yRot);
         return yRot * 90F;
-    }
-
-    @Override
-    public boolean save(CompoundTag tag) {
-        tag.putFloat("charge", getCharge());
-        return super.save(tag);
-    }
-
-    @Override
-    public void load(CompoundTag tag) {
-        setCharge(tag.getFloat("charge"));
-        super.load(tag);
     }
 
     protected void detachFromCharger() {

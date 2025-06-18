@@ -23,6 +23,10 @@ public class PlaceableEntity<T extends Entity> extends Item {
         this.entityType = entityType;
     }
 
+    protected void finalizeEntity(T entity, ItemStack itemStack) {
+
+    }
+
     protected T placeAndShrink(BlockPlaceContext context) {
         Level level = context.getLevel();
         BlockPos placePos = context.getClickedPos();
@@ -36,6 +40,7 @@ public class PlaceableEntity<T extends Entity> extends Item {
 
         entity.setPos(placePos.getX() + 0.5, placePos.getY(), placePos.getZ() + 0.5);
         level.addFreshEntity(entity);
+        this.finalizeEntity(entity, context.getItemInHand());
         context.getItemInHand().shrink(1);
         return entity;
     }

@@ -21,12 +21,22 @@ import org.jetbrains.annotations.Nullable;
 
 public class WornExoskeletonRenderer implements AccessoryRenderer {
     private final Cacheable<ExoskeletonModel> suitModel;
+    private final Cacheable<ExoskeletonModel.VisorModel> suitVisorModel;
     private final Cacheable<ExoskeletonModel.ReplacementLimbs> suitLegsModel;
 
-    public WornExoskeletonRenderer(EntityModelSet modelSet, ModelLayerLocation model, ModelLayerLocation legsModel) {
+    public WornExoskeletonRenderer(EntityModelSet modelSet, ModelLayerLocation model, ModelLayerLocation visorModel, ModelLayerLocation legsModel) {
         this.suitModel = Cacheable.of(() -> {
             try {
                 return new ExoskeletonModel(modelSet.bakeLayer(model));
+            } catch (Exception ex) {
+                ex.printStackTrace();
+                Changed.LOGGER.error("Failed to initialize exoskeleton model. This error is likely from a mod incompatibility.");
+                return null;
+            }
+        });
+        this.suitVisorModel = Cacheable.of(() -> {
+            try {
+                return new ExoskeletonModel.VisorModel(modelSet.bakeLayer(visorModel));
             } catch (Exception ex) {
                 ex.printStackTrace();
                 Changed.LOGGER.error("Failed to initialize exoskeleton model. This error is likely from a mod incompatibility.");
@@ -54,6 +64,7 @@ public class WornExoskeletonRenderer implements AccessoryRenderer {
         ItemStack stack = slotContext.stack();
 
         var suitModel = this.suitModel.getOrThrow();
+        var suitVisorModel = this.suitVisorModel.getOrThrow();
 
         pose.pushPose();
         /*ModelPart modelpart = this.getParentModel().getHead();
@@ -64,6 +75,9 @@ public class WornExoskeletonRenderer implements AccessoryRenderer {
         suitModel.prepareMobModel(stack, limbSwing, limbSwingAmount, partialTicks);
         suitModel.matchWearersAnim(renderLayerParent.getModel(), stack);
         suitModel.renderToBuffer(pose, renderTypeBuffer.getBuffer(suitModel.renderType(suitModel.getTexture(stack))), light, LivingEntityRenderer.getOverlayCoords(wearer, 0.0F), 1.0f, 1.0f, 1.0f, 1.0f);
+
+        suitVisorModel.matchParentAnim(suitModel);
+        suitVisorModel.renderToBuffer(pose, renderTypeBuffer.getBuffer(suitVisorModel.renderType(suitVisorModel.getTexture(slotContext.wearer(), stack))), light, LivingEntityRenderer.getOverlayCoords(wearer, 0.0F), 1.0f, 1.0f, 1.0f, 1.0f);
 
         if (renderLayerParent instanceof LatexHumanRenderer || renderLayerParent instanceof PlayerRenderer) {
             var legsModel = this.suitLegsModel.getOrThrow();

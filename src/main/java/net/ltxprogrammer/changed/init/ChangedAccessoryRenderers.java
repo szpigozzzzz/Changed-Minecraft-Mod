@@ -29,7 +29,8 @@ public class ChangedAccessoryRenderers {
                     new SimpleClothingRenderer.ModelComponent(ArmorModel.CLOTHING_MIDDLE, EquipmentSlot.LEGS)
             )));
 
-            AccessoryLayer.registerRenderer(ChangedItems.EXOSKELETON.get(), () -> new WornExoskeletonRenderer(modelSet, ExoskeletonModel.LAYER_LOCATION_SUIT, ExoskeletonModel.LAYER_LOCATION_HUMAN));
+            AccessoryLayer.registerRenderer(ChangedItems.EXOSKELETON.get(), () ->
+                    new WornExoskeletonRenderer(modelSet, ExoskeletonModel.LAYER_LOCATION_SUIT, ExoskeletonModel.LAYER_LOCATION_VISOR, ExoskeletonModel.LAYER_LOCATION_HUMAN));
         });
     }
 }
