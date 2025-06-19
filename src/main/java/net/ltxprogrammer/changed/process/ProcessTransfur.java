@@ -451,7 +451,8 @@ public class ProcessTransfur {
         if (oldVariant != null && oldVariant.getChangedEntity() != null)
             oldVariant.getChangedEntity().discard();
         TransfurVariantInstance<?> instance = TransfurVariantInstance.variantFor(variant, player);
-        postProcess.accept(instance.getChangedEntity());
+        if (instance != null)
+            postProcess.accept(instance.getChangedEntity());
         playerDataExtension.setTransfurVariant(instance);
 
         if (instance != null) {

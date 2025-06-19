@@ -4,8 +4,11 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.ltxprogrammer.changed.Changed;
 import net.ltxprogrammer.changed.client.CubeListBuilderExtender;
+import net.ltxprogrammer.changed.client.animations.Limb;
 import net.ltxprogrammer.changed.client.renderer.animate.AnimatorPresets;
 import net.ltxprogrammer.changed.client.renderer.animate.HumanoidAnimator;
+import net.ltxprogrammer.changed.client.tfanimations.HelperModel;
+import net.ltxprogrammer.changed.client.tfanimations.TransfurHelper;
 import net.ltxprogrammer.changed.entity.ChangedEntity;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
@@ -18,6 +21,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.item.ItemStack;
+import org.jetbrains.annotations.Nullable;
 
 public class ArmorPooltoyWolfModel<T extends ChangedEntity> extends LatexHumanoidArmorModel<T, ArmorPooltoyWolfModel<T>> {
     public static final ArmorModelSet<ChangedEntity, ArmorPooltoyWolfModel<ChangedEntity>> MODEL_SET =
@@ -150,6 +154,13 @@ public class ArmorPooltoyWolfModel<T extends ChangedEntity> extends LatexHumanoi
         }
 
         poseStack.popPose();
+    }
+
+    @Override
+    public @Nullable HelperModel getTransfurHelperModel(Limb limb) {
+        if (limb == Limb.TORSO)
+            return TransfurHelper.getHeavyTorsoAlt(this.armorModel);
+        return super.getTransfurHelperModel(limb);
     }
 
     @Override

@@ -43,11 +43,15 @@ public class TransfurHelper {
         protected final HelperModel DigitigradeLeftLeg;
         protected final HelperModel DigitigradeRightLeg;
         protected final HelperModel FeminineTorso;
+        protected final HelperModel HeavyTorso;
+        protected final HelperModel HeavyTorsoAlt;
 
         protected ArmorHelper(ModelPart root) {
             this.DigitigradeLeftLeg = HelperModel.fixed(root.getChild("DigitigradeLeftLeg"));
             this.DigitigradeRightLeg = HelperModel.fixed(root.getChild("DigitigradeRightLeg"));
             this.FeminineTorso = HelperModel.fixed(root.getChild("FeminineTorso"));
+            this.HeavyTorso = HelperModel.fixed(root.getChild("HeavyTorso"));
+            this.HeavyTorsoAlt = HelperModel.fixed(root.getChild("HeavyTorsoAlt"));
         }
     }
 
@@ -149,6 +153,22 @@ public class TransfurHelper {
                     .removeLastFaces(Direction.UP);
 
             PartDefinition Plantoid_r1 = Plantoids.addOrReplaceChild("Plantoid_r1", plantoidCubes.finish(), PartPose.offset(0.0F, 2.5F, 0.0F));
+        }
+
+        // HEAVY TORSO
+        {
+            PartDefinition Torso = root.addOrReplaceChild("HeavyTorso", ((CubeListBuilderExtender)CubeListBuilder.create().texOffs(16, 16).addBox(-4.0F, 0.0F, -2.0F, 8.0F, 12.0F, 4.0F, armor.dualDeformation)
+                    .texOffs(16, 22).addBox(-4.0F, 6.0F, -2.15F, 8.0F, 5.0F, 4.0F, armor.dualDeformation))
+                    .removeLastFaces(Direction.DOWN, Direction.UP).finish(), PartPose.offset(0.0F, 0.0F, 0.0F));
+        }
+
+        // HEAVY TORSO ALT
+        {
+            PartDefinition Torso = root.addOrReplaceChild("HeavyTorsoAlt", CubeListBuilder.create().texOffs(16, 16).addBox(-4.0F, 0.0F, -2.0F, 8.0F, 5.0F, 4.0F, armor.dualDeformation)
+                    .texOffs(16, 21).addBox(-4.0F, 5.0F, -2.0F, 8.0F, 6.0F, 4.0F, armor.dualDeformation)
+                    .texOffs(16, 21).addBox(-4.0F, 5.0F, -2.0F, 8.0F, 6.0F, 4.0F, armor.dualDeformation)
+                    .texOffs(16, 27).addBox(-4.0F, 11.0F, -2.0F, 8.0F, 1.0F, 4.0F, armor.dualDeformation), PartPose.offset(0.0F, 0.0F, 0.0F));
+
         }
     }
 
@@ -383,6 +403,14 @@ public class TransfurHelper {
 
     public static HelperModel getFeminineTorso(ArmorModel model) {
         return INSTANCE.get().ArmorMap.get(model).FeminineTorso;
+    }
+
+    public static HelperModel getHeavyTorso(ArmorModel model) {
+        return INSTANCE.get().ArmorMap.get(model).HeavyTorso;
+    }
+
+    public static HelperModel getHeavyTorsoAlt(ArmorModel model) {
+        return INSTANCE.get().ArmorMap.get(model).HeavyTorsoAlt;
     }
 
     public static HelperModel getBasicLeftArm() {
