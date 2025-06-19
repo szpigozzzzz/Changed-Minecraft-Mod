@@ -123,7 +123,15 @@ public abstract class LatexHumanoidArmorModel<T extends ChangedEntity, M extends
         addBreastplate(torso, layer, 0.0f, 0.0f, 0.0f);
     }
 
+    protected static void addBreastplate(PartDefinition torso, ArmorModel layer, float angle) {
+        addBreastplate(torso, layer, 0.0f, 0.0f, 0.0f, angle);
+    }
+
     protected static void addBreastplate(PartDefinition torso, ArmorModel layer, float yOffset, float zOffset, float sizeOffset) {
+        addBreastplate(torso, layer, yOffset, zOffset, sizeOffset, Mth.DEG_TO_RAD * -16F);
+    }
+
+    protected static void addBreastplate(PartDefinition torso, ArmorModel layer, float yOffset, float zOffset, float sizeOffset, float angle) {
         switch (layer) {
             case ARMOR_OUTER -> {
                 PartDefinition Plantoids = torso.addOrReplaceChild("Plantoids", CubeListBuilder.create(), PartPose.offset(0.0F, 0.0F, -2.0F + zOffset));
@@ -135,7 +143,7 @@ public abstract class LatexHumanoidArmorModel<T extends ChangedEntity, M extends
                         .copyLastFaceUVStart(Direction.NORTH, Direction.DOWN)
                         .removeLastFaces(Direction.UP);
 
-                PartDefinition Plantoid_r1 = Plantoids.addOrReplaceChild("Plantoid_r1", plantoidCubes.finish(), PartPose.offsetAndRotation(0.0F, 2.5F - yOffset, 0.0F, -0.2793F, 0.0F, 0.0F));
+                PartDefinition Plantoid_r1 = Plantoids.addOrReplaceChild("Plantoid_r1", plantoidCubes.finish(), PartPose.offsetAndRotation(0.0F, 2.5F - yOffset, 0.0F, angle, 0.0F, 0.0F));
             }
 
             case CLOTHING_INNER, CLOTHING_MIDDLE, CLOTHING_OUTER -> {
@@ -148,7 +156,7 @@ public abstract class LatexHumanoidArmorModel<T extends ChangedEntity, M extends
                         .copyLastFaceUVStart(Direction.NORTH, Direction.DOWN)
                         .removeLastFaces(Direction.UP);
 
-                PartDefinition Plantoid_r1 = Plantoids.addOrReplaceChild("Plantoid_r1", plantoidCubes.finish(), PartPose.offsetAndRotation(0.0F, 2.5F - yOffset, 0.0F, -0.2793F, 0.0F, 0.0F));
+                PartDefinition Plantoid_r1 = Plantoids.addOrReplaceChild("Plantoid_r1", plantoidCubes.finish(), PartPose.offsetAndRotation(0.0F, 2.5F - yOffset, 0.0F, angle, 0.0F, 0.0F));
             }
         }
     }

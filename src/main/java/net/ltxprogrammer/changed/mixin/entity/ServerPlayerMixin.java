@@ -100,7 +100,14 @@ public abstract class ServerPlayerMixin extends Player implements PlayerDataExte
                 Changed.LOGGER.warn("Missing transfur variant registry entry for {}, falling back", variantId);
                 variant = ChangedTransfurVariants.FALLBACK_VARIANT.get();
             }
-            final TransfurVariantInstance<?> variantInstance = ProcessTransfur.setPlayerTransfurVariant(this, variant, null, 1.0f, false);
+            final TransfurVariantInstance<?> variantInstance = ProcessTransfur.setPlayerTransfurVariant(this, variant, null, 1.0f, false,
+                    entity -> {
+                        if (tag.contains("TransfurData"))
+                            entity.readPlayerVariantData(tag.getCompound("TransfurData"));
+
+                        if (tag.contains("Leash", 10))
+                            entity.setLeashInfoTag(tag.getCompound("Leash"));
+                    });
 
             if (variantInstance == null) {
                 Changed.LOGGER.warn("Instanced transfur variant is null");
@@ -115,14 +122,6 @@ public abstract class ServerPlayerMixin extends Player implements PlayerDataExte
                 if (tag.contains("TransfurAbilities"))
                     variantInstance.loadAbilities(tag.getCompound("TransfurAbilities"));
             }
-
-            final var entity = variantInstance.getChangedEntity();
-            if (tag.contains("TransfurData"))
-                entity.readPlayerVariantData(tag.getCompound("TransfurData"));
-
-
-            if (tag.contains("Leash", 10))
-                entity.setLeashInfoTag(tag.getCompound("Leash"));
         }
     }
 

@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.Map;
 
 @OnlyIn(Dist.CLIENT)
-public class CustomLatexModel extends AdvancedHumanoidModel<CustomLatexEntity> implements AdvancedHumanoidModelInterface<CustomLatexEntity, CustomLatexModel> {
+public class CustomLatexModel extends AdvancedHumanoidModel<CustomLatexEntity> implements AdvancedHumanoidModelInterface<CustomLatexEntity, CustomLatexModel>, LowerTorsoedModel {
     // This layer location should be baked with EntityRendererProvider.Context in the entity renderer and passed into this model's constructor
     public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(Changed.modResource("custom_latex"), "main");
     private final ModelPart RightLeg;
@@ -913,6 +913,11 @@ public class CustomLatexModel extends AdvancedHumanoidModel<CustomLatexEntity> i
 
     public ModelPart getTorso() {
         return Torso;
+    }
+
+    @Override
+    public ModelPart getLowerTorso() {
+        return this.LowerTorso;
     }
 
     @Override

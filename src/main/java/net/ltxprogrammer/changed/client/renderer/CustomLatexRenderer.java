@@ -1,10 +1,7 @@
 package net.ltxprogrammer.changed.client.renderer;
 
 import net.ltxprogrammer.changed.Changed;
-import net.ltxprogrammer.changed.client.renderer.layers.CustomEyesLayer;
-import net.ltxprogrammer.changed.client.renderer.layers.GasMaskLayer;
-import net.ltxprogrammer.changed.client.renderer.layers.LatexParticlesLayer;
-import net.ltxprogrammer.changed.client.renderer.layers.TransfurCapeLayer;
+import net.ltxprogrammer.changed.client.renderer.layers.*;
 import net.ltxprogrammer.changed.client.renderer.model.CustomLatexModel;
 import net.ltxprogrammer.changed.client.renderer.model.PureWhiteLatexWolfModel;
 import net.ltxprogrammer.changed.client.renderer.model.armor.*;
@@ -15,6 +12,7 @@ import net.ltxprogrammer.changed.item.AbdomenArmor;
 import net.ltxprogrammer.changed.item.QuadrupedalArmor;
 import net.minecraft.client.model.geom.EntityModelSet;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
+import net.minecraft.client.renderer.entity.layers.SaddleLayer;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EquipmentSlot;
 
@@ -29,12 +27,17 @@ public class CustomLatexRenderer extends AdvancedHumanoidRenderer<CustomLatexEnt
 		private final Map<ArmorModel, ? extends LatexHumanoidArmorModel<ChangedEntity, ?>> bakedMaleFeline;
 		private final Map<ArmorModel, ? extends LatexHumanoidArmorModel<ChangedEntity, ?>> bakedMaleShark;
 		private final Map<ArmorModel, ? extends LatexHumanoidArmorModel<ChangedEntity, ?>> bakedMaleDragon;
+		private final Map<ArmorModel, ? extends LatexHumanoidArmorModel<ChangedEntity, ?>> bakedMaleBuffCanine;
+		private final Map<ArmorModel, ? extends LatexHumanoidArmorModel<ChangedEntity, ?>> bakedMaleBuffFeline;
+		private final Map<ArmorModel, ? extends LatexHumanoidArmorModel<ChangedEntity, ?>> bakedMaleBuffShark;
+		private final Map<ArmorModel, ? extends LatexHumanoidArmorModel<ChangedEntity, ?>> bakedMaleBuffDragon;
 		private final Map<ArmorModel, ? extends LatexHumanoidArmorModel<ChangedEntity, ?>> bakedFemaleCanine;
 		private final Map<ArmorModel, ? extends LatexHumanoidArmorModel<ChangedEntity, ?>> bakedFemaleFeline;
 		private final Map<ArmorModel, ? extends LatexHumanoidArmorModel<ChangedEntity, ?>> bakedFemaleShark;
 		private final Map<ArmorModel, ? extends LatexHumanoidArmorModel<ChangedEntity, ?>> bakedFemaleDragon;
 
 		private final Map<ArmorModel, ? extends LatexHumanoidArmorModel<ChangedEntity, ?>> bakedMaleMerUpper;
+		private final Map<ArmorModel, ? extends LatexHumanoidArmorModel<ChangedEntity, ?>> bakedMaleBuffMerUpper;
 		private final Map<ArmorModel, ? extends LatexHumanoidArmorModel<ChangedEntity, ?>> bakedFemaleMerUpper;
 
 		// Lower
@@ -46,12 +49,17 @@ public class CustomLatexRenderer extends AdvancedHumanoidRenderer<CustomLatexEnt
 			this.bakedMaleFeline = ArmorLatexMaleCatModel.MODEL_SET.createModels(models);
 			this.bakedMaleShark = ArmorLatexMaleSharkModel.MODEL_SET.createModels(models);
 			this.bakedMaleDragon = ArmorLatexMaleDragonModel.MODEL_SET.createModels(models);
+			this.bakedMaleBuffCanine = ArmorLatexMaleBuffWolfModel.MODEL_SET.createModels(models);
+			this.bakedMaleBuffFeline = ArmorLatexMaleBuffCatModel.MODEL_SET.createModels(models);
+			this.bakedMaleBuffShark = ArmorLatexMaleBuffSharkModel.MODEL_SET.createModels(models);
+			this.bakedMaleBuffDragon = ArmorLatexMaleBuffDragonModel.MODEL_SET.createModels(models);
 			this.bakedFemaleCanine = ArmorLatexFemaleWolfModel.MODEL_SET.createModels(models);
 			this.bakedFemaleFeline = ArmorLatexFemaleCatModel.MODEL_SET.createModels(models);
 			this.bakedFemaleShark = ArmorLatexFemaleSharkModel.MODEL_SET.createModels(models);
 			this.bakedFemaleDragon = ArmorLatexFemaleDragonModel.MODEL_SET.createModels(models);
 
 			this.bakedMaleMerUpper = ArmorMermaidSharkUpperBodyModel.MODEL_SET.createModels(models);
+			this.bakedMaleBuffMerUpper = ArmorBuffMermaidSharkUpperBodyModel.MODEL_SET.createModels(models);
 			this.bakedFemaleMerUpper = ArmorSirenUpperBodyModel.MODEL_SET.createModels(models);
 
 			this.bakedTaur = ArmorLatexCentaurLowerModel.MODEL_SET.createModels(models);
@@ -69,12 +77,23 @@ public class CustomLatexRenderer extends AdvancedHumanoidRenderer<CustomLatexEnt
 			};
 		}
 
+		private Map<ArmorModel, ? extends LatexHumanoidArmorModel<?, ?>> getModelSetByTorso(CustomLatexEntity.TorsoType torsoType,
+																							Map<ArmorModel, ? extends LatexHumanoidArmorModel<?, ?>> male,
+																							Map<ArmorModel, ? extends LatexHumanoidArmorModel<?, ?>> maleBuff,
+																							Map<ArmorModel, ? extends LatexHumanoidArmorModel<?, ?>> female) {
+			return switch (torsoType) {
+				case CHISELED -> maleBuff;
+				case FEMALE -> female;
+				default -> male;
+			};
+		}
+
 		private Map<ArmorModel, ? extends LatexHumanoidArmorModel<?, ?>> getModelSetByTailAndTorso(CustomLatexEntity.TailType tailType, CustomLatexEntity.TorsoType torsoType) {
 			return switch (tailType) {
-				case WOLF -> torsoType == CustomLatexEntity.TorsoType.FEMALE ? this.bakedFemaleCanine : this.bakedMaleCanine;
-				case CAT -> torsoType == CustomLatexEntity.TorsoType.FEMALE ? this.bakedFemaleFeline : this.bakedMaleFeline;
-				case SHARK -> torsoType == CustomLatexEntity.TorsoType.FEMALE ? this.bakedFemaleShark : this.bakedMaleShark;
-				case DRAGON -> torsoType == CustomLatexEntity.TorsoType.FEMALE ? this.bakedFemaleDragon : this.bakedMaleDragon;
+				case WOLF -> getModelSetByTorso(torsoType, this.bakedMaleCanine, this.bakedMaleBuffCanine, this.bakedFemaleCanine);
+				case CAT -> getModelSetByTorso(torsoType, this.bakedMaleFeline, this.bakedMaleBuffFeline, this.bakedFemaleFeline);
+				case SHARK -> getModelSetByTorso(torsoType, this.bakedMaleShark, this.bakedMaleBuffShark, this.bakedFemaleShark);
+				case DRAGON -> getModelSetByTorso(torsoType, this.bakedMaleDragon, this.bakedMaleBuffDragon, this.bakedFemaleDragon);
 				default -> Map.of();
 			};
 		}
@@ -91,7 +110,7 @@ public class CustomLatexRenderer extends AdvancedHumanoidRenderer<CustomLatexEnt
 					found = QuadrupedalArmor.useQuadrupedalModel(slot) ? this.bakedTaur : getModelSetByTailAndTorso(entity.getTailType(), entity.getTorsoType());
 				}
 				case MERMAID -> {
-					found = QuadrupedalArmor.useQuadrupedalModel(slot) ? this.bakedMer : (entity.getTorsoType() == CustomLatexEntity.TorsoType.FEMALE ? this.bakedFemaleMerUpper : this.bakedMaleMerUpper);
+					found = QuadrupedalArmor.useQuadrupedalModel(slot) ? this.bakedMer : getModelSetByTorso(entity.getTorsoType(), this.bakedMaleMerUpper, this.bakedMaleBuffMerUpper, this.bakedFemaleMerUpper);
 				}
 			}
 
@@ -121,6 +140,8 @@ public class CustomLatexRenderer extends AdvancedHumanoidRenderer<CustomLatexEnt
 		this.addLayer(new LatexParticlesLayer<>(this, getModel()));
 		this.addLayer(TransfurCapeLayer.normalCape(this, context.getModelSet()));
 		this.addLayer(new CustomEyesLayer<>(this, context.getModelSet()));
+		this.addLayer(new SaddleLayer<>(this, getModel(), Changed.modResource("textures/custom_latex_saddle.png")));
+		this.addLayer(new TaurChestPackLayer<>(this, context.getModelSet()));
 		this.addLayer(GasMaskLayer.forSnouted(this, context.getModelSet()));
 	}
 

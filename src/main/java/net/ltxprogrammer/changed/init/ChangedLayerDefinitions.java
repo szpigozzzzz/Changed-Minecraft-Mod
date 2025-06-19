@@ -126,11 +126,13 @@ public class ChangedLayerDefinitions {
         // v --- ARMOR / ENTITY --- ^
 
         ArmorLatexMaleWolfModel.MODEL_SET.registerDefinitions(event::registerLayerDefinition);
+        ArmorLatexMaleBuffWolfModel.MODEL_SET.registerDefinitions(event::registerLayerDefinition);
         ArmorLatexFemaleWolfModel.MODEL_SET.registerDefinitions(event::registerLayerDefinition);
         ArmorFemaleMantaRayUpperBodyModel.MODEL_SET.registerDefinitions(event::registerLayerDefinition);
         ArmorFemaleMantaRayAbdomenModel.MODEL_SET.registerDefinitions(event::registerLayerDefinition);
         ArmorMermaidSharkAbdomenModel.MODEL_SET.registerDefinitions(event::registerLayerDefinition);
         ArmorMermaidSharkUpperBodyModel.MODEL_SET.registerDefinitions(event::registerLayerDefinition);
+        ArmorBuffMermaidSharkUpperBodyModel.MODEL_SET.registerDefinitions(event::registerLayerDefinition);
         ArmorSirenUpperBodyModel.MODEL_SET.registerDefinitions(event::registerLayerDefinition);
         ArmorSirenAbdomenModel.MODEL_SET.registerDefinitions(event::registerLayerDefinition);
         ArmorSnakeUpperBodyModel.MODEL_SET.registerDefinitions(event::registerLayerDefinition);
@@ -138,14 +140,17 @@ public class ChangedLayerDefinitions {
         ArmorLatexBeeModel.MODEL_SET.registerDefinitions(event::registerLayerDefinition);
         ArmorLatexDeerModel.MODEL_SET.registerDefinitions(event::registerLayerDefinition);
         ArmorLatexMaleCatModel.MODEL_SET.registerDefinitions(event::registerLayerDefinition);
+        ArmorLatexMaleBuffCatModel.MODEL_SET.registerDefinitions(event::registerLayerDefinition);
         ArmorLatexFemaleCatModel.MODEL_SET.registerDefinitions(event::registerLayerDefinition);
         ArmorLatexMaleDragonModel.MODEL_SET.registerDefinitions(event::registerLayerDefinition);
+        ArmorLatexMaleBuffDragonModel.MODEL_SET.registerDefinitions(event::registerLayerDefinition);
         ArmorLatexFemaleDragonModel.MODEL_SET.registerDefinitions(event::registerLayerDefinition);
         ArmorLatexBigTailDragonModel.MODEL_SET.registerDefinitions(event::registerLayerDefinition);
         ArmorLatexMaleWingedDragonModel.MODEL_SET.registerDefinitions(event::registerLayerDefinition);
         ArmorLatexFemaleWingedDragonModel.MODEL_SET.registerDefinitions(event::registerLayerDefinition);
         ArmorLatexMaleDoubleHeadedWingedDragonModel.MODEL_SET.registerDefinitions(event::registerLayerDefinition);
         ArmorLatexMaleSharkModel.MODEL_SET.registerDefinitions(event::registerLayerDefinition);
+        ArmorLatexMaleBuffSharkModel.MODEL_SET.registerDefinitions(event::registerLayerDefinition);
         ArmorLatexFemaleSharkModel.MODEL_SET.registerDefinitions(event::registerLayerDefinition);
         ArmorLatexMaleSquidDogModel.MODEL_SET.registerDefinitions(event::registerLayerDefinition);
         ArmorLatexFemaleSquidDogModel.MODEL_SET.registerDefinitions(event::registerLayerDefinition);

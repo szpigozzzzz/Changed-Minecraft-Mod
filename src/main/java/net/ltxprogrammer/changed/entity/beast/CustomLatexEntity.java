@@ -11,18 +11,23 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.ai.attributes.AttributeMap;
 import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.common.ForgeMod;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 
-public class CustomLatexEntity extends ChangedEntity {
+public class CustomLatexEntity extends ChangedEntity implements LatexTaur<CustomLatexEntity> {
     public enum TorsoType {
         GENERIC,
         CHISELED,
@@ -478,5 +483,31 @@ public class CustomLatexEntity extends ChangedEntity {
         if (this.getRawFormFlags() != formFlagsLast) {
             this.updateShape();
         }
+    }
+    @Override
+    public void equipSaddle(@Nullable SoundSource source) {
+        this.equipSaddle(this, source);
+    }
+
+    @Override
+    public boolean isSaddled() {
+        return this.isSaddled(this);
+    }
+
+    protected void doPlayerRide(Player player) {
+        this.doPlayerRide(this, player);
+    }
+
+    public double getPassengersRidingOffset() {
+        return super.getPassengersRidingOffset() + getTorsoYOffset(this) - (2.0 / 16.0);
+    }
+
+    public InteractionResult mobInteract(Player player, InteractionHand hand) {
+        if (isSaddled()) {
+            this.doPlayerRide(player);
+            return InteractionResult.sidedSuccess(this.level.isClientSide);
+        }
+
+        return InteractionResult.PASS;
     }
 }
