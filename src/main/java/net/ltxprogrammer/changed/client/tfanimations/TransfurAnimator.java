@@ -625,7 +625,7 @@ public abstract class TransfurAnimator {
                 });
             });
 
-            final var slotTypePredicate = AccessoryEntities.INSTANCE.canEntityTypeUseSlot(variant.getChangedEntity().getType());
+            final var slotTypePredicate = AccessoryEntities.INSTANCE.canEntityTypeUseSlot(AccessoryEntities.getApparentEntityType(variant.getChangedEntity()));
             findAccessoryLayer(livingPlayerRenderer).flatMap(accessoryLayer -> AccessorySlots.getForEntity(player))
                     .ifPresent(slots -> slots.forEachSlot((slotType, itemStack) -> {
                         if (itemStack.isEmpty())

@@ -39,7 +39,7 @@ public class AccessoryLayer<T extends LivingEntity, M extends EntityModel<T>> ex
 
     @Override
     public void render(PoseStack poseStack, MultiBufferSource buffers, int packedLight, T entity, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch) {
-        final var slotTypePredicate = AccessoryEntities.INSTANCE.canEntityTypeUseSlot(entity.getType());
+        final var slotTypePredicate = AccessoryEntities.INSTANCE.canEntityTypeUseSlot(AccessoryEntities.getApparentEntityType(entity));
         AccessorySlots.getForEntity(entity).ifPresent(slots -> {
             slots.forEachSlot((slotType, stack) -> {
                 if (stack.isEmpty())
@@ -57,7 +57,7 @@ public class AccessoryLayer<T extends LivingEntity, M extends EntityModel<T>> ex
 
     @Override
     public void renderFirstPersonOnArms(PoseStack poseStack, MultiBufferSource buffers, int packedLight, T entity, HumanoidArm arm, PoseStack stackCorrector, float partialTick) {
-        final var slotTypePredicate = AccessoryEntities.INSTANCE.canEntityTypeUseSlot(entity.getType());
+        final var slotTypePredicate = AccessoryEntities.INSTANCE.canEntityTypeUseSlot(AccessoryEntities.getApparentEntityType(entity));
         AccessorySlots.getForEntity(entity).ifPresent(slots -> {
             slots.forEachSlot((slotType, stack) -> {
                 if (stack.isEmpty())

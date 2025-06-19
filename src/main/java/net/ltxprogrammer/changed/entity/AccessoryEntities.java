@@ -8,6 +8,7 @@ import net.ltxprogrammer.changed.Changed;
 import net.ltxprogrammer.changed.ability.IAbstractChangedEntity;
 import net.ltxprogrammer.changed.data.AccessorySlotType;
 import net.ltxprogrammer.changed.data.AccessorySlots;
+import net.ltxprogrammer.changed.entity.beast.CustomLatexEntity;
 import net.ltxprogrammer.changed.init.ChangedRegistry;
 import net.ltxprogrammer.changed.network.packet.AccessorySyncPacket;
 import net.ltxprogrammer.changed.network.packet.ChangedPacket;
@@ -50,7 +51,12 @@ public class AccessoryEntities extends SimplePreparableReloadListener<Multimap<E
     private final Multimap<EntityType<?>, AccessorySlotType> validEntities = HashMultimap.create();
 
     public static EntityType<?> getApparentEntityType(LivingEntity entity) {
-        return EntityUtil.maybeGetOverlaying(entity).getType();
+        entity = EntityUtil.maybeGetOverlaying(entity);
+        if (entity instanceof CustomLatexEntity customLatex) {
+            return customLatex.getEntityTypeForAccessories();
+        }
+
+        return entity.getType();
     }
 
     public void forceReloadAccessories(LivingEntity entity) {

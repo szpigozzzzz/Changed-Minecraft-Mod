@@ -1,12 +1,10 @@
 package net.ltxprogrammer.changed.entity.beast;
 
 import net.ltxprogrammer.changed.block.WhiteLatexTransportInterface;
-import net.ltxprogrammer.changed.entity.AttributePresets;
-import net.ltxprogrammer.changed.entity.ChangedEntity;
-import net.ltxprogrammer.changed.entity.LatexType;
-import net.ltxprogrammer.changed.entity.TransfurMode;
+import net.ltxprogrammer.changed.entity.*;
 import net.ltxprogrammer.changed.entity.variant.EntityShape;
 import net.ltxprogrammer.changed.entity.variant.TransfurVariant;
+import net.ltxprogrammer.changed.init.ChangedEntities;
 import net.ltxprogrammer.changed.process.ProcessTransfur;
 import net.ltxprogrammer.changed.util.Color3;
 import net.minecraft.nbt.CompoundTag;
@@ -216,7 +214,23 @@ public class CustomLatexEntity extends ChangedEntity {
             variant.refreshAttributes();
         });
 
+        AccessoryEntities.INSTANCE.forceReloadAccessories(this.maybeGetUnderlying());
+
         this.formFlagsLast = this.getRawFormFlags();
+    }
+
+    public EntityType<?> getEntityTypeForAccessories() {
+        switch (getLegType()) {
+            case CENTAUR -> {
+                return ChangedEntities.WHITE_LATEX_CENTAUR.get();
+            }
+            case MERMAID -> {
+                return ChangedEntities.LATEX_SIREN.get();
+            }
+            default -> {
+                return ChangedEntities.WHITE_WOLF_MALE.get();
+            }
+        }
     }
 
     protected EntityDimensions getDimensionsForForm() {
