@@ -543,15 +543,15 @@ public class CustomLatexModel extends AdvancedHumanoidModel<CustomLatexEntity> i
 
         PartDefinition RightArmWyvern = RightArm.addOrReplaceChild("RightArmWyvern", CubeListBuilder.create(), PartPose.offset(0.0F, 0.0F, 0.0F));
 
-        PartDefinition Wing_r1 = RightArmWyvern.addOrReplaceChild("Wing_r1", CubeListBuilder.create().texOffs(4, 2).addBox(-6.0F, -9.1F, 17.0F, 0.0F, 1.0F, 1.0F,  CubeDeformation.NONE)
-                .texOffs(6, 37).addBox(-6.0F, -10.1F, 14.0F, 0.0F, 1.0F, 4.0F,  CubeDeformation.NONE)
-                .texOffs(30, 36).addBox(-6.0F, -12.1F, 12.0F, 0.0F, 2.0F, 6.0F,  CubeDeformation.NONE), PartPose.offsetAndRotation(4.0F, 23.0F, 0.0F, 0.6545F, -0.2182F, 0.0F));
+        PartDefinition Wing_r1 = RightArmWyvern.addOrReplaceChild("Wing_r1", CubeListBuilder.create().texOffs(0, -1).addBox(-6.0F, -9.1F, 17.0F, 0.0F, 1.0F, 1.0F, CubeDeformation.NONE)
+                .texOffs(0, 1).addBox(-6.0F, -10.1F, 14.0F, 0.0F, 1.0F, 4.0F, CubeDeformation.NONE)
+                .texOffs(0, 2).addBox(-6.0F, -12.1F, 12.0F, 0.0F, 2.0F, 6.0F, CubeDeformation.NONE), PartPose.offsetAndRotation(4.0F, 23.0F, 0.0F, 0.6545F, -0.2182F, 0.0F));
 
-        PartDefinition Wing_r2 = RightArmWyvern.addOrReplaceChild("Wing_r2", CubeListBuilder.create().texOffs(28, 32).addBox(-6.5F, -12.0F, 13.0F, 1.0F, 1.0F, 6.0F,  CubeDeformation.NONE), PartPose.offsetAndRotation(4.0F, 23.0F, 0.0F, 0.6981F, -0.2182F, 0.0F));
+        PartDefinition Wing_r2 = RightArmWyvern.addOrReplaceChild("Wing_r2", CubeListBuilder.create().texOffs(5, 1).addBox(-6.5F, -12.0F, 13.0F, 1.0F, 1.0F, 6.0F, CubeDeformation.NONE), PartPose.offsetAndRotation(4.0F, 23.0F, 0.0F, 0.6981F, -0.2182F, 0.0F));
 
-        PartDefinition Wing_r3 = RightArmWyvern.addOrReplaceChild("Wing_r3", CubeListBuilder.create().texOffs(6, 32).addBox(-6.0F, -10.75F, 17.0F, 0.0F, 4.0F, 4.0F,  CubeDeformation.NONE), PartPose.offsetAndRotation(4.0F, 23.0F, 0.0F, 0.9599F, -0.2182F, 0.0F));
+        PartDefinition Wing_r3 = RightArmWyvern.addOrReplaceChild("Wing_r3", CubeListBuilder.create().texOffs(0, -3).addBox(-6.0F, -10.75F, 17.0F, 0.0F, 4.0F, 4.0F, CubeDeformation.NONE), PartPose.offsetAndRotation(4.0F, 23.0F, 0.0F, 0.9599F, -0.2182F, 0.0F));
 
-        PartDefinition Wing_r4 = RightArmWyvern.addOrReplaceChild("Wing_r4", CubeListBuilder.create().texOffs(0, 48).addBox(-6.5F, -13.89F, 7.68F, 1.0F, 1.0F, 7.0F, new CubeDeformation(0.05F)), PartPose.offsetAndRotation(4.0F, 23.0F, 0.0F, 0.3491F, -0.2182F, 0.0F));
+        PartDefinition Wing_r4 = RightArmWyvern.addOrReplaceChild("Wing_r4", CubeListBuilder.create().texOffs(0, 11).addBox(-6.5F, -13.89F, 7.68F, 1.0F, 1.0F, 7.0F, new CubeDeformation(0.05F)), PartPose.offsetAndRotation(4.0F, 23.0F, 0.0F, 0.3491F, -0.2182F, 0.0F));
 
         PartDefinition LeftArm = partdefinition.addOrReplaceChild("LeftArm", CubeListBuilder.create().texOffs(68, 79).addBox(-1.0F, -2.0F, -2.0F, 4.0F, 12.0F, 4.0F,  CubeDeformation.NONE), PartPose.offset(5.0F, 1.5F, 0.0F));
 
@@ -562,15 +562,15 @@ public class CustomLatexModel extends AdvancedHumanoidModel<CustomLatexEntity> i
 
         PartDefinition LeftArmWyvern = LeftArm.addOrReplaceChild("LeftArmWyvern", CubeListBuilder.create(), PartPose.offset(0.0F, 0.0F, 0.0F));
 
-        PartDefinition Wing_r5 = LeftArmWyvern.addOrReplaceChild("Wing_r5", CubeListBuilder.create().texOffs(3, 1).addBox(6.0F, -9.1F, 17.0F, 0.0F, 1.0F, 1.0F,  CubeDeformation.NONE)
-                .texOffs(9, 35).addBox(6.0F, -10.1F, 14.0F, 0.0F, 1.0F, 4.0F,  CubeDeformation.NONE)
-                .texOffs(21, 45).addBox(6.0F, -12.1F, 12.0F, 0.0F, 2.0F, 6.0F,  CubeDeformation.NONE), PartPose.offsetAndRotation(-4.0F, 23.0F, 0.0F, 0.6545F, 0.2182F, 0.0F));
+        PartDefinition Wing_r5 = LeftArmWyvern.addOrReplaceChild("Wing_r5", CubeListBuilder.create().texOffs(35, -1).addBox(6.0F, -9.1F, 17.0F, 0.0F, 1.0F, 1.0F, CubeDeformation.NONE)
+                .texOffs(35, 13).addBox(6.0F, -10.1F, 14.0F, 0.0F, 1.0F, 4.0F, CubeDeformation.NONE)
+                .texOffs(35, 3).addBox(6.0F, -12.1F, 12.0F, 0.0F, 2.0F, 6.0F, CubeDeformation.NONE), PartPose.offsetAndRotation(-4.0F, 23.0F, 0.0F, 0.6545F, 0.2182F, 0.0F));
 
-        PartDefinition Wing_r6 = LeftArmWyvern.addOrReplaceChild("Wing_r6", CubeListBuilder.create().texOffs(28, 32).addBox(5.5F, -12.0F, 13.0F, 1.0F, 1.0F, 6.0F,  CubeDeformation.NONE), PartPose.offsetAndRotation(-4.0F, 23.0F, 0.0F, 0.6981F, 0.2182F, 0.0F));
+        PartDefinition Wing_r6 = LeftArmWyvern.addOrReplaceChild("Wing_r6", CubeListBuilder.create().texOffs(37, 0).addBox(5.5F, -12.0F, 13.0F, 1.0F, 1.0F, 6.0F, CubeDeformation.NONE), PartPose.offsetAndRotation(-4.0F, 23.0F, 0.0F, 0.6981F, 0.2182F, 0.0F));
 
-        PartDefinition Wing_r7 = LeftArmWyvern.addOrReplaceChild("Wing_r7", CubeListBuilder.create().texOffs(9, 19).addBox(6.0F, -10.75F, 17.0F, 0.0F, 4.0F, 4.0F,  CubeDeformation.NONE), PartPose.offsetAndRotation(-4.0F, 23.0F, 0.0F, 0.9599F, 0.2182F, 0.0F));
+        PartDefinition Wing_r7 = LeftArmWyvern.addOrReplaceChild("Wing_r7", CubeListBuilder.create().texOffs(35, -3).addBox(6.0F, -10.75F, 17.0F, 0.0F, 4.0F, 4.0F, CubeDeformation.NONE), PartPose.offsetAndRotation(-4.0F, 23.0F, 0.0F, 0.9599F, 0.2182F, 0.0F));
 
-        PartDefinition Wing_r8 = LeftArmWyvern.addOrReplaceChild("Wing_r8", CubeListBuilder.create().texOffs(28, 30).addBox(5.5F, -13.89F, 7.68F, 1.0F, 1.0F, 7.0F, new CubeDeformation(0.05F)), PartPose.offsetAndRotation(-4.0F, 23.0F, 0.0F, 0.3491F, 0.2182F, 0.0F));
+        PartDefinition Wing_r8 = LeftArmWyvern.addOrReplaceChild("Wing_r8", CubeListBuilder.create().texOffs(36, 11).addBox(5.5F, -13.89F, 7.68F, 1.0F, 1.0F, 7.0F, new CubeDeformation(0.05F)), PartPose.offsetAndRotation(-4.0F, 23.0F, 0.0F, 0.3491F, 0.2182F, 0.0F));
 
         PartDefinition LowerTorso = partdefinition.addOrReplaceChild("LowerTorso", CubeListBuilder.create().texOffs(0, 0).addBox(-4.0F, -2.0F, -2.0F, 8.0F, 6.0F, 19.0F,  CubeDeformation.NONE), PartPose.offset(0.0F, 10.5F, -7.0F));
 

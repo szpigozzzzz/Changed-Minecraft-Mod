@@ -3,6 +3,7 @@ package net.ltxprogrammer.changed.client.renderer.model.armor;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.ltxprogrammer.changed.Changed;
+import net.ltxprogrammer.changed.client.CubeListBuilderExtender;
 import net.ltxprogrammer.changed.client.renderer.animate.AnimatorPresets;
 import net.ltxprogrammer.changed.client.renderer.animate.HumanoidAnimator;
 import net.ltxprogrammer.changed.entity.ChangedEntity;
@@ -13,6 +14,7 @@ import net.minecraft.client.model.geom.builders.LayerDefinition;
 import net.minecraft.client.model.geom.builders.MeshDefinition;
 import net.minecraft.client.model.geom.builders.PartDefinition;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
+import net.minecraft.core.Direction;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.item.ItemStack;
@@ -55,25 +57,27 @@ public class ArmorLatexWhiteKnightModel<T extends ChangedEntity> extends LatexHu
 
         PartDefinition RightLeg = partdefinition.addOrReplaceChild("RightLeg", CubeListBuilder.create(), PartPose.offset(-2.5F, 12.5F, 0.0F));
 
-        PartDefinition RightThigh_r1 = RightLeg.addOrReplaceChild("RightThigh_r1", CubeListBuilder.create().texOffs(0, 17).mirror().addBox(-2.0F, 0.0F, -2.0F, 4.0F, 6.0F, 4.0F, layer.altDeformation).mirror(false), PartPose.offsetAndRotation(0.0F, 0.0F, 0.0F, -0.2182F, 0.0F, 0.0F));
+        PartDefinition RightThigh_r1 = RightLeg.addOrReplaceChild("RightThigh_r1",
+                ((CubeListBuilderExtender)CubeListBuilder.create().texOffs(0, 17).addBox(-2.0F, 0.0F, -2.0F, 4.0F, 6.0F, 4.0F, layer.altDeformation)).removeLastFaces(Direction.DOWN).finish(), PartPose.offsetAndRotation(0.0F, 0.0F, 0.0F, -0.2182F, 0.0F, 0.0F));
 
         PartDefinition RightLowerLeg = RightLeg.addOrReplaceChild("RightLowerLeg", CubeListBuilder.create(), PartPose.offset(0.0F, 5.375F, -3.2F));
 
-        PartDefinition RightCalf_r1 = RightLowerLeg.addOrReplaceChild("RightCalf_r1", CubeListBuilder.create().texOffs(0, 16).mirror().addBox(-1.99F, 0.1215F, -0.0823F, 4.0F, 5.0F, 4.0F, layer.altDeformation).mirror(false), PartPose.offsetAndRotation(0.0F, -0.125F, -0.05F, 0.9774F, 0.0F, 0.0F));
+        PartDefinition RightCalf_r1 = RightLowerLeg.addOrReplaceChild("RightCalf_r1", CubeListBuilder.create().texOffs(0, 16).addBox(-1.99F, 0.1215F, -0.0823F, 4.0F, 5.0F, 4.0F, layer.altDeformation), PartPose.offsetAndRotation(0.0F, -0.125F, -0.05F, 0.9774F, 0.0F, 0.0F));
 
         PartDefinition RightFoot = RightLowerLeg.addOrReplaceChild("RightFoot", CubeListBuilder.create(), PartPose.offset(0.0F, -0.2F, 7.175F));
 
         PartDefinition RightArch_r1 = RightFoot.addOrReplaceChild("RightArch_r1", CubeListBuilder.create().texOffs(2, 20).addBox(-2.0F, -8.45F, -0.725F, 4.0F, 6.0F, 3.0F, layer.altDeformation), PartPose.offsetAndRotation(0.0F, 7.075F, -4.975F, -0.3491F, 0.0F, 0.0F));
 
-        PartDefinition RightPad = RightFoot.addOrReplaceChild("RightPad", CubeListBuilder.create().texOffs(21, 21).mirror().addBox(-2.0F, 0.0F, -2.5F, 4.0F, 2.0F, 5.0F, layer.deformation.extend(-0.25f)).mirror(false), PartPose.offset(0.0F, 4.325F, -4.425F));
+        PartDefinition RightPad = RightFoot.addOrReplaceChild("RightPad", CubeListBuilder.create().texOffs(21, 21).addBox(-2.0F, 0.0F, -2.5F, 4.0F, 2.0F, 5.0F, layer.deformation.extend(-0.25f)), PartPose.offset(0.0F, 4.325F, -4.425F));
 
         PartDefinition LeftLeg = partdefinition.addOrReplaceChild("LeftLeg", CubeListBuilder.create(), PartPose.offset(2.5F, 12.5F, 0.0F));
 
-        PartDefinition LeftThigh_r1 = LeftLeg.addOrReplaceChild("LeftThigh_r1", CubeListBuilder.create().texOffs(0, 17).addBox(-2.0F, 0.0F, -2.0F, 4.0F, 6.0F, 4.0F, layer.altDeformation), PartPose.offsetAndRotation(0.0F, 0.0F, 0.0F, -0.2182F, 0.0F, 0.0F));
+        PartDefinition LeftThigh_r1 = LeftLeg.addOrReplaceChild("LeftThigh_r1",
+                ((CubeListBuilderExtender)CubeListBuilder.create().texOffs(0, 17).mirror().addBox(-2.0F, 0.0F, -2.0F, 4.0F, 6.0F, 4.0F, layer.altDeformation).mirror(false)).removeLastFaces(Direction.DOWN).finish(), PartPose.offsetAndRotation(0.0F, 0.0F, 0.0F, -0.2182F, 0.0F, 0.0F));
 
         PartDefinition LeftLowerLeg = LeftLeg.addOrReplaceChild("LeftLowerLeg", CubeListBuilder.create(), PartPose.offset(0.0F, 5.375F, -3.2F));
 
-        PartDefinition LeftCalf_r1 = LeftLowerLeg.addOrReplaceChild("LeftCalf_r1", CubeListBuilder.create().texOffs(0, 16).addBox(-2.01F, 0.1215F, -0.0823F, 4.0F, 5.0F, 4.0F, layer.altDeformation), PartPose.offsetAndRotation(0.0F, -0.125F, -0.05F, 0.9774F, 0.0F, 0.0F));
+        PartDefinition LeftCalf_r1 = LeftLowerLeg.addOrReplaceChild("LeftCalf_r1", CubeListBuilder.create().texOffs(0, 16).mirror().addBox(-2.01F, 0.1215F, -0.0823F, 4.0F, 5.0F, 4.0F, layer.altDeformation).mirror(false), PartPose.offsetAndRotation(0.0F, -0.125F, -0.05F, 0.9774F, 0.0F, 0.0F));
 
         PartDefinition LeftFoot = LeftLowerLeg.addOrReplaceChild("LeftFoot", CubeListBuilder.create(), PartPose.offset(0.0F, -0.2F, 7.175F));
 
@@ -121,6 +125,7 @@ public class ArmorLatexWhiteKnightModel<T extends ChangedEntity> extends LatexHu
                 RightArm.render(poseStack, buffer, packedLight, packedOverlay, red, green, blue, alpha);
             }
             case LEGS -> {
+                Torso.y += 2.0f;
                 Torso.render(poseStack, buffer, packedLight, packedOverlay, red, green, blue, alpha);
                 LeftLeg.render(poseStack, buffer, packedLight, packedOverlay, red, green, blue, alpha);
                 RightLeg.render(poseStack, buffer, packedLight, packedOverlay, red, green, blue, alpha);

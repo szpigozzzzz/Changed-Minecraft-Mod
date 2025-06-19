@@ -2,6 +2,7 @@ package net.ltxprogrammer.changed.client.renderer.model.armor;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import net.ltxprogrammer.changed.Changed;
 import net.ltxprogrammer.changed.client.renderer.animate.AnimatorPresets;
 import net.ltxprogrammer.changed.client.renderer.animate.HumanoidAnimator;
 import net.ltxprogrammer.changed.entity.ChangedEntity;
@@ -14,6 +15,9 @@ import net.minecraft.world.item.ItemStack;
 import java.util.List;
 
 public class ArmorLatexOrcaModel<T extends ChangedEntity> extends LatexHumanoidArmorModel<T, ArmorLatexOrcaModel<T>> {
+    public static final ArmorModelSet<ChangedEntity, ArmorLatexOrcaModel<ChangedEntity>> MODEL_SET =
+            ArmorModelSet.castOf(ArmorLatexMaleSharkModel.MODEL_SET, ArmorLatexOrcaModel::new);
+
     private final ModelPart Head;
     private final ModelPart Torso;
     private final ModelPart LeftLeg;

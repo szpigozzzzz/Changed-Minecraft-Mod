@@ -8,6 +8,7 @@ import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.builders.LayerDefinition;
 import net.minecraft.resources.ResourceLocation;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -23,6 +24,12 @@ public class ArmorModelSet<T extends ChangedEntity, A extends LatexHumanoidArmor
     private final Function<ArmorModel, LayerDefinition> modelCreator;
     private final BiFunction<ModelPart, ArmorModel, A> modelWrapper;
 
+    private ArmorModelSet(Map<ArmorModel, ModelLayerLocation> copiedDefinitions, BiFunction<ModelPart, ArmorModel, A> modelWrapper) {
+        modelDefinitions.putAll(copiedDefinitions);
+        this.modelCreator = (armorModel -> null);
+        this.modelWrapper = modelWrapper;
+    }
+
     public ArmorModelSet(ResourceLocation rootId, Function<ArmorModel, LayerDefinition> modelCreator, BiFunction<ModelPart, ArmorModel, A> modelWrapper) {
         Arrays.stream(ArmorModel.values()).forEach(model -> {
             modelDefinitions.put(model, new ModelLayerLocation(rootId, model.identifier));
@@ -33,6 +40,13 @@ public class ArmorModelSet<T extends ChangedEntity, A extends LatexHumanoidArmor
 
     public static <T extends ChangedEntity, A extends LatexHumanoidArmorModel<T, ?>> ArmorModelSet<T, A> of(ResourceLocation rootId, Function<ArmorModel, LayerDefinition> modelCreator, BiFunction<ModelPart, ArmorModel, A> modelWrapper) {
         return new ArmorModelSet<>(rootId, modelCreator, modelWrapper);
+    }
+
+    public static <T extends ChangedEntity, A extends LatexHumanoidArmorModel<T, ?>> ArmorModelSet<T, A> castOf(ArmorModelSet<?, ?> other, BiFunction<ModelPart, ArmorModel, A> modelWrapper) {
+        return new ArmorModelSet<>(other.modelDefinitions, modelWrapper) {
+            @Override
+            public void registerDefinitions(BiConsumer<ModelLayerLocation, Supplier<LayerDefinition>> consumer) {}
+        };
     }
 
     public void registerDefinitions(BiConsumer<ModelLayerLocation, Supplier<LayerDefinition>> consumer) {
