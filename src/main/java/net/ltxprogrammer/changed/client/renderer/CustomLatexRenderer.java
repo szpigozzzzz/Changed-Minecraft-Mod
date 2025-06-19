@@ -36,6 +36,10 @@ public class CustomLatexRenderer extends AdvancedHumanoidRenderer<CustomLatexEnt
 		private final Map<ArmorModel, ? extends LatexHumanoidArmorModel<ChangedEntity, ?>> bakedFemaleShark;
 		private final Map<ArmorModel, ? extends LatexHumanoidArmorModel<ChangedEntity, ?>> bakedFemaleDragon;
 
+		private final Map<ArmorModel, ? extends LatexHumanoidArmorModel<ChangedEntity, ?>> bakedMaleTaurUpper;
+		private final Map<ArmorModel, ? extends LatexHumanoidArmorModel<ChangedEntity, ?>> bakedMaleBuffTaurUpper;
+		private final Map<ArmorModel, ? extends LatexHumanoidArmorModel<ChangedEntity, ?>> bakedFemaleTaurUpper;
+
 		private final Map<ArmorModel, ? extends LatexHumanoidArmorModel<ChangedEntity, ?>> bakedMaleMerUpper;
 		private final Map<ArmorModel, ? extends LatexHumanoidArmorModel<ChangedEntity, ?>> bakedMaleBuffMerUpper;
 		private final Map<ArmorModel, ? extends LatexHumanoidArmorModel<ChangedEntity, ?>> bakedFemaleMerUpper;
@@ -57,6 +61,10 @@ public class CustomLatexRenderer extends AdvancedHumanoidRenderer<CustomLatexEnt
 			this.bakedFemaleFeline = ArmorLatexFemaleCatModel.MODEL_SET.createModels(models);
 			this.bakedFemaleShark = ArmorLatexFemaleSharkModel.MODEL_SET.createModels(models);
 			this.bakedFemaleDragon = ArmorLatexFemaleDragonModel.MODEL_SET.createModels(models);
+
+			this.bakedMaleTaurUpper = ArmorLatexMaleTaurUpperModel.MODEL_SET.createModels(models);
+			this.bakedMaleBuffTaurUpper = ArmorLatexMaleBuffTaurUpperModel.MODEL_SET.createModels(models);
+			this.bakedFemaleTaurUpper = ArmorLatexFemaleTaurUpperModel.MODEL_SET.createModels(models);
 
 			this.bakedMaleMerUpper = ArmorMermaidSharkUpperBodyModel.MODEL_SET.createModels(models);
 			this.bakedMaleBuffMerUpper = ArmorBuffMermaidSharkUpperBodyModel.MODEL_SET.createModels(models);
@@ -107,7 +115,7 @@ public class CustomLatexRenderer extends AdvancedHumanoidRenderer<CustomLatexEnt
 					found = getModelSetByTailAndTorso(entity.getTailType(), entity.getTorsoType());
 				}
 				case CENTAUR -> {
-					found = QuadrupedalArmor.useQuadrupedalModel(slot) ? this.bakedTaur : getModelSetByTailAndTorso(entity.getTailType(), entity.getTorsoType());
+					found = QuadrupedalArmor.useQuadrupedalModel(slot) ? this.bakedTaur : getModelSetByTorso(entity.getTorsoType(), this.bakedMaleTaurUpper, this.bakedMaleBuffTaurUpper, this.bakedFemaleTaurUpper);
 				}
 				case MERMAID -> {
 					found = QuadrupedalArmor.useQuadrupedalModel(slot) ? this.bakedMer : getModelSetByTorso(entity.getTorsoType(), this.bakedMaleMerUpper, this.bakedMaleBuffMerUpper, this.bakedFemaleMerUpper);

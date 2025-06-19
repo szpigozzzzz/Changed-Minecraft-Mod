@@ -155,9 +155,10 @@ public class ChangedLayerDefinitions {
         ArmorLatexMaleSquidDogModel.MODEL_SET.registerDefinitions(event::registerLayerDefinition);
         ArmorLatexFemaleSquidDogModel.MODEL_SET.registerDefinitions(event::registerLayerDefinition);
         ArmorLatexWhiteKnightModel.MODEL_SET.registerDefinitions(event::registerLayerDefinition);
-        ArmorLatexCentaurUpperModel.MODEL_SET.registerDefinitions(event::registerLayerDefinition);
-        ArmorLatexCentaurLowerModel.MODEL_SET.registerDefinitions(event::registerLayerDefinition);
+        ArmorLatexMaleTaurUpperModel.MODEL_SET.registerDefinitions(event::registerLayerDefinition);
+        ArmorLatexMaleBuffTaurUpperModel.MODEL_SET.registerDefinitions(event::registerLayerDefinition);
         ArmorLatexFemaleTaurUpperModel.MODEL_SET.registerDefinitions(event::registerLayerDefinition);
+        ArmorLatexCentaurLowerModel.MODEL_SET.registerDefinitions(event::registerLayerDefinition);
 
         ArmorHumanModel.MODEL_SET.registerDefinitions(event::registerLayerDefinition);
 
