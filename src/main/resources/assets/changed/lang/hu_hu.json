@@ -170,6 +170,8 @@
   "death.attack.changed:pale.player": "A pale elvette %1$s játékos életét, miközben %2$s elől menekült",
   "death.attack.changed:bloodloss": "%s idegen plazmát használt",
   "death.attack.changed:bloodloss.player": "%1$s %2$s segítségével idegen plazmát használt",
+  "death.attack.changed:electrocution": "%s játékost áramütés érte",
+  "death.attack.changed:electrocution.player": "%1$s játékost áramütés érte, miközben vele harcolt: %2$s",
   "death.attack.changed:fan": "%s játékost felkockázta egy ventilátor",
   "death.attack.changed:fan.player": "%1$s játékost felkockázta egy ventilátor, miközben vele harcolt: %2$s",
 
