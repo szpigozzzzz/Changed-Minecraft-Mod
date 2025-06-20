@@ -4,9 +4,13 @@ import com.mojang.datafixers.util.Pair;
 import net.ltxprogrammer.changed.data.AccessorySlotType;
 import net.ltxprogrammer.changed.data.AccessorySlots;
 import net.ltxprogrammer.changed.init.ChangedMenus;
+import net.ltxprogrammer.changed.init.ChangedRegistry;
 import net.ltxprogrammer.changed.process.ProcessTransfur;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.chat.TextComponent;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.player.Inventory;
@@ -16,10 +20,12 @@ import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
+import net.minecraftforge.network.NetworkHooks;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public class AccessoryAccessMenu extends AbstractContainerMenu {
     static final ResourceLocation[] TEXTURE_EMPTY_SLOTS = new ResourceLocation[]{
@@ -36,12 +42,12 @@ public class AccessoryAccessMenu extends AbstractContainerMenu {
     private final Set<AccessorySlotType> builtSlots = new HashSet<>();
     private final Map<Integer, Slot> customSlots = new HashMap<>();
 
-    public AccessoryAccessMenu(int id, Player owner) {
+    private AccessoryAccessMenu(int id, Player owner, List<AccessorySlotType> slotTypes) {
         super(ChangedMenus.ACCESSORY_ACCESS, id);
         this.owner = owner;
         this.inventory = owner.getInventory();
         this.accessorySlots = AccessorySlots.getForEntity(owner).orElseGet(AccessorySlots::new);
-        this.createSlots(inventory);
+        this.createSlots(inventory, slotTypes);
 
         if (owner.containerMenu != null) {
             this.setCarried(owner.containerMenu.getCarried());
@@ -49,13 +55,35 @@ public class AccessoryAccessMenu extends AbstractContainerMenu {
         }
     }
 
-    public AccessoryAccessMenu(int id, Inventory inventory, FriendlyByteBuf extra) {
-        this(id, inventory.player);
+    public AccessoryAccessMenu(int id, Player owner) {
+        this(id, owner, AccessorySlots.getForEntity(owner).orElseGet(AccessorySlots::new).getOrderedSlots());
     }
 
-    protected void makeAccessorySlots() {
-        for (int si = 0; si < accessorySlots.getContainerSize(); ++si) {
-            final AccessorySlotType slotType = Objects.requireNonNull(this.accessorySlots.getSlotTypeByIndex(si));
+    public static void openForPlayer(ServerPlayer player) {
+        final var registry = ChangedRegistry.ACCESSORY_SLOTS.get();
+        final var slots = AccessorySlots.getForEntity(player).orElseGet(AccessorySlots::new);
+
+        NetworkHooks.openGui(player,
+                new SimpleMenuProvider((id, inv, accessor) -> new AccessoryAccessMenu(id, accessor), TextComponent.EMPTY),
+                extra -> {
+                    extra.writeCollection(slots.getOrderedSlots(), (listBuffer, slotType) -> listBuffer.writeInt(registry.getID(slotType)));
+                });
+    }
+
+    private static List<AccessorySlotType> readSlotTypes(@Nullable FriendlyByteBuf buffer) {
+        if (buffer == null)
+            return List.of();
+        final var registry = ChangedRegistry.ACCESSORY_SLOTS.get();
+        return buffer.readList(listBuffer -> registry.getValue(listBuffer.readInt()));
+    }
+
+    public AccessoryAccessMenu(int id, Inventory inventory, FriendlyByteBuf extra) {
+        this(id, inventory.player, readSlotTypes(extra));
+    }
+
+    protected void makeAccessorySlots(List<AccessorySlotType> slotTypes) {
+        for (int si = 0; si < slotTypes.size(); ++si) {
+            final AccessorySlotType slotType = slotTypes.get(si);
             this.customSlots.put(si, this.addSlot(new Slot(this.accessorySlots, si, 77 + ((si % 5) * 18), 8 + ((si / 5) * 18)) {
                 @Override
                 public @Nullable Pair<ResourceLocation, ResourceLocation> getNoItemIcon() {
@@ -73,12 +101,12 @@ public class AccessoryAccessMenu extends AbstractContainerMenu {
                     return super.mayPlace(stack) && slotType.canHoldItem(stack, inventory.player);
                 }
             }));
-        }
 
-        accessorySlots.getSlotTypes().forEach(builtSlots::add);
+            builtSlots.add(slotType);
+        }
     }
 
-    protected void createSlots(Inventory inv) {
+    protected void createSlots(Inventory inv, List<AccessorySlotType> slotTypes) {
         for (int si = 0; si < 4; ++si) {
             final EquipmentSlot equipmentSlot = SLOT_IDS[si];
             this.addSlot(new Slot(inv, 39 - si, 8, 8 + (si * 18)) {
@@ -107,13 +135,17 @@ public class AccessoryAccessMenu extends AbstractContainerMenu {
         for (int si = 0; si < 9; ++si)
             this.addSlot(new Slot(inv, si, 8 + si * 18, 142));
 
-        this.makeAccessorySlots();
+        this.makeAccessorySlots(slotTypes);
     }
 
     @Override
     public boolean stillValid(Player player) {
-        var testSet = new HashSet<>(builtSlots);
-        return accessorySlots.getSlotTypes().allMatch(testSet::remove) && testSet.isEmpty();
+        final var currentSlots = accessorySlots.getSlotTypes().collect(Collectors.toSet());
+        return currentSlots.containsAll(builtSlots) && builtSlots.containsAll(currentSlots);
+    }
+
+    public Set<AccessorySlotType> getBuiltSlots() {
+        return builtSlots;
     }
 
     public EquipmentSlot denyInvalidArmorSlot(ItemStack itemStack) {
@@ -147,8 +179,8 @@ public class AccessoryAccessMenu extends AbstractContainerMenu {
             ItemStack oldStack = slot.getItem();
             stack = oldStack.copy();
             EquipmentSlot equipmentslot = denyInvalidArmorSlot(stack);
-            Set<AccessorySlotType> accessorySlotTypes = accessorySlots.getAccessorySlotsForItem(stack);
-            Set<Integer> accessorySlotIndices = accessorySlotTypes.stream().map(accessorySlots::getSlotIndexByType).filter(Objects::nonNull).map(i -> i + 40).collect(Collectors.toSet());
+            Set<Integer> accessorySlotIndices = IntStream.range(0, builtSlots.size()).map(i -> i + 40)
+                    .collect(HashSet::new, Set::add, Set::addAll);
             if (slotId < 4) { // Move out of armor
                 if (!this.moveItemStackTo(oldStack, 4, 40, false)) {
                     return ItemStack.EMPTY;

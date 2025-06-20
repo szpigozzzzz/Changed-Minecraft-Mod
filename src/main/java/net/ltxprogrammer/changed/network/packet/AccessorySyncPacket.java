@@ -11,6 +11,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.network.NetworkEvent;
+import net.minecraftforge.network.NetworkHooks;
 
 import java.util.Map;
 import java.util.function.Supplier;
@@ -65,7 +66,7 @@ public class AccessorySyncPacket implements ChangedPacket {
             var sender = context.getSender();
             if (sender == null) return;
 
-            sender.openMenu(new SimpleMenuProvider((id, inv, player) -> new AccessoryAccessMenu(id, player), TextComponent.EMPTY));
+            AccessoryAccessMenu.openForPlayer(sender);
 
             context.setPacketHandled(true);
         }

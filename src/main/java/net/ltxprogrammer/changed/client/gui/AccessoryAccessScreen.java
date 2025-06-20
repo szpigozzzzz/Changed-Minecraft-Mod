@@ -58,8 +58,11 @@ public class AccessoryAccessScreen extends EffectRenderingInventoryScreen<Access
         blit(ms, this.leftPos, this.topPos, 0, 0, this.imageWidth, this.imageHeight, this.textureWidth, this.textureHeight);
 
         AtomicInteger slotIndex = new AtomicInteger(0);
-        menu.accessorySlots.forEachSlot((slotType, stack) -> {
+        menu.getBuiltSlots().forEach(slotType -> {
             var slot = menu.getCustomSlot(slotIndex.getAndAdd(1));
+            if (slot == null)
+                return;
+
             blit(ms, this.leftPos + slot.x - 1, this.topPos + slot.y - 1, this.imageWidth, 0, 18, 18, this.textureWidth, this.textureHeight);
         });
 

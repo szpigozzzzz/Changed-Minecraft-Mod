@@ -14,14 +14,17 @@ import net.ltxprogrammer.changed.network.packet.AccessorySyncPacket;
 import net.ltxprogrammer.changed.network.packet.ChangedPacket;
 import net.ltxprogrammer.changed.util.EntityUtil;
 import net.ltxprogrammer.changed.util.UniversalDist;
+import net.ltxprogrammer.changed.world.inventory.AccessoryAccessMenu;
 import net.minecraft.core.Registry;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.chat.TextComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimplePreparableReloadListener;
 import net.minecraft.util.profiling.ProfilerFiller;
+import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -30,6 +33,7 @@ import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.items.ItemHandlerHelper;
 import net.minecraftforge.network.NetworkEvent;
+import net.minecraftforge.network.NetworkHooks;
 import net.minecraftforge.network.PacketDistributor;
 import net.minecraftforge.registries.ForgeRegistries;
 import org.jetbrains.annotations.NotNull;
@@ -45,6 +49,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 public class AccessoryEntities extends SimplePreparableReloadListener<Multimap<EntityType<?>, AccessorySlotType>> {
     public static final AccessoryEntities INSTANCE = new AccessoryEntities();
@@ -61,14 +66,27 @@ public class AccessoryEntities extends SimplePreparableReloadListener<Multimap<E
 
     public void forceReloadAccessories(LivingEntity entity) {
         AccessorySlots.getForEntity(entity).ifPresent(slots -> {
+            final var slotsBefore = slots.getSlotTypes().collect(Collectors.toSet());
+
             if (!slots.initialize(
                     canEntityTypeUseSlot(getApparentEntityType(entity)),
                     AccessorySlots.defaultInvalidHandler(entity)))
                 return;
 
-            if (!entity.level.isClientSide)
+            final var slotsAfter = slots.getSlotTypes().collect(Collectors.toSet());
+
+            if (!entity.level.isClientSide) {
                 Changed.PACKET_HANDLER.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> entity),
                         new AccessorySyncPacket(entity.getId(), slots));
+
+                if (!slotsBefore.containsAll(slotsAfter) || !slotsAfter.containsAll(slotsBefore)) {
+                    // Available slots changed, reopen menu for player
+
+                    if (entity instanceof ServerPlayer player && player.containerMenu instanceof AccessoryAccessMenu menu && menu.owner == player) {
+                        AccessoryAccessMenu.openForPlayer(player);
+                    }
+                }
+            }
         });
     }
 

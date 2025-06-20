@@ -88,6 +88,10 @@ public class AccessorySlots implements Container {
         return sorted.get(slot);
     }
 
+    public List<AccessorySlotType> getOrderedSlots() {
+        return orderedSlots.get();
+    }
+
     public @Nullable Integer getSlotIndexByType(AccessorySlotType slotType) {
         var sorted = orderedSlots.get();
         for (int i = 0; i < sorted.size(); ++i)
@@ -332,7 +336,8 @@ public class AccessorySlots implements Container {
     }
 
     public void setAll(AccessorySlots other, boolean empty) {
-        if (empty) this.emptySlots();
+        if (empty)
+            items.clear();
         items.putAll(other.items);
     }
 
