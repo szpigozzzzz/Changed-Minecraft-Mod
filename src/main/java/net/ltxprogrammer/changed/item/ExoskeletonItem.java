@@ -25,6 +25,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.item.context.UseOnContext;
@@ -115,16 +116,20 @@ public class ExoskeletonItem<T extends AbstractRobot> extends PlaceableEntity<T>
 
     @Override
     public void accessoryTick(AccessorySlotContext<?> slotContext) {
+        boolean ignoreDamage = slotContext.wearer() instanceof Player player && player.getAbilities().invulnerable;
+
         if (!canUse(slotContext.stack())) {
-            if (!slotContext.wearer().level.isClientSide)
+            if (!slotContext.wearer().level.isClientSide && !ignoreDamage)
                 AccessorySlots.tryReplaceSlot(slotContext.wearer(), slotContext.slotType(), ItemStack.EMPTY);
         }
 
         else if (slotContext.wearer().tickCount % 20 == 0) {
-            slotContext.stack().setDamageValue(slotContext.stack().getDamageValue() + 1);
+            if (!ignoreDamage) {
+                slotContext.stack().setDamageValue(slotContext.stack().getDamageValue() + 1);
+            }
         }
 
-        if (slotContext.wearer().isInWaterOrRain()) {
+        if (slotContext.wearer().isInWaterOrRain() && !ignoreDamage) {
             int rate = slotContext.wearer().isInWater() ? 20 : 40;
 
             if (slotContext.wearer().tickCount % rate == 0) {
