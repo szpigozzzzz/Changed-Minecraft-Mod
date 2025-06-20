@@ -341,6 +341,20 @@
         ]
       }
     },
+    "changed:latex_gnoll_taur": {
+      "trigger": "minecraft:player_killed_entity",
+      "conditions": {
+        "entity": [
+          {
+            "condition": "minecraft:entity_properties",
+            "predicate": {
+              "type": "changed:latex_gnoll_taur"
+            },
+            "entity": "this"
+          }
+        ]
+      }
+    },
     "changed:latex_golden_dragon": {
       "trigger": "minecraft:player_killed_entity",
       "conditions": {
@@ -377,20 +391,6 @@
             "condition": "minecraft:entity_properties",
             "predicate": {
               "type": "changed:latex_human"
-            },
-            "entity": "this"
-          }
-        ]
-      }
-    },
-    "changed:latex_gnoll_taur": {
-      "trigger": "minecraft:player_killed_entity",
-      "conditions": {
-        "entity": [
-          {
-            "condition": "minecraft:entity_properties",
-            "predicate": {
-              "type": "changed:latex_gnoll_taur"
             },
             "entity": "this"
           }
@@ -1225,6 +1225,9 @@
       "changed:latex_fennec_fox"
     ],
     [
+      "changed:latex_gnoll_taur"
+    ],
+    [
       "changed:latex_golden_dragon"
     ],
     [
@@ -1232,9 +1235,6 @@
     ],
     [
       "changed:latex_human"
-    ],
-    [
-      "changed:latex_gnoll_taur"
     ],
     [
       "changed:latex_hypno_cat"
