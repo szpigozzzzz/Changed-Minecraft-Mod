@@ -1,7 +1,6 @@
 package net.ltxprogrammer.changed.entity.robot;
 
 import net.ltxprogrammer.changed.block.IRobotCharger;
-import net.ltxprogrammer.changed.init.ChangedItems;
 import net.ltxprogrammer.changed.util.UniversalDist;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -15,16 +14,12 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.PathfinderMob;
-import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.level.GameRules;
-import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.gameevent.GameEvent;
 
 import javax.annotation.Nullable;
@@ -86,12 +81,6 @@ public abstract class AbstractRobot extends PathfinderMob {
         }
 
         closestCharger = where;
-    }
-
-    @Override
-    protected void registerGoals() {
-        super.registerGoals();
-        this.goalSelector.addGoal(1, new SeekCharger(this));
     }
 
     @Override
@@ -282,9 +271,11 @@ public abstract class AbstractRobot extends PathfinderMob {
 
     public static class SeekCharger extends Goal {
         public final AbstractRobot robot;
+        private final double speedModifier;
 
-        public SeekCharger(AbstractRobot robot) {
+        public SeekCharger(AbstractRobot robot, double speedModifier) {
             this.robot = robot;
+            this.speedModifier = speedModifier;
         }
 
         @Override
@@ -298,7 +289,7 @@ public abstract class AbstractRobot extends PathfinderMob {
             if (robot.closestCharger == null)
                 return;
 
-            robot.getNavigation().moveTo(robot.getNavigation().createPath(robot.closestCharger, 0), 0.75);
+            robot.getNavigation().moveTo(robot.getNavigation().createPath(robot.closestCharger, 0), this.speedModifier);
         }
 
         @Override

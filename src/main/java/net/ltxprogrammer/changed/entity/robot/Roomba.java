@@ -30,6 +30,7 @@ public class Roomba extends AbstractRobot {
     @Override
     protected void registerGoals() {
         super.registerGoals();
+        this.goalSelector.addGoal(1, new SeekCharger(this, 0.75D));
         this.goalSelector.addGoal(2, new WanderGoal(this));
         this.goalSelector.addGoal(3, new RotateToNextAxisGoal(this, 90F / 15));
     }

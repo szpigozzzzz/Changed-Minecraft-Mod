@@ -2,12 +2,10 @@ package net.ltxprogrammer.changed.entity.robot;
 
 import com.mojang.datafixers.util.Pair;
 import net.ltxprogrammer.changed.block.AbstractLargePanel;
-import net.ltxprogrammer.changed.block.IRobotCharger;
 import net.ltxprogrammer.changed.block.NineSection;
 import net.ltxprogrammer.changed.data.AccessorySlots;
 import net.ltxprogrammer.changed.entity.TransfurCause;
 import net.ltxprogrammer.changed.entity.TransfurContext;
-import net.ltxprogrammer.changed.entity.variant.TransfurVariant;
 import net.ltxprogrammer.changed.entity.variant.TransfurVariantInstance;
 import net.ltxprogrammer.changed.init.*;
 import net.ltxprogrammer.changed.item.BenignPants;
@@ -16,29 +14,34 @@ import net.ltxprogrammer.changed.process.ProcessTransfur;
 import net.ltxprogrammer.changed.util.EntityUtil;
 import net.ltxprogrammer.changed.util.ItemUtil;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.EntityDataSerializers;
+import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.sounds.SoundEvent;
-import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.ai.goal.MeleeAttackGoal;
 import net.minecraft.world.entity.ai.goal.RandomStrollGoal;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.Vec3;
-import org.jetbrains.annotations.Nullable;
+import net.minecraft.world.level.pathfinder.Path;
 
+import javax.annotation.Nullable;
 import java.util.Optional;
 
 public class Exoskeleton extends AbstractRobot {
+    private static final EntityDataAccessor<Integer> DATA_ID_ATTACK_TARGET = SynchedEntityData.defineId(Exoskeleton.class, EntityDataSerializers.INT);
+    @Nullable
+    private LivingEntity clientSideCachedAttackTarget;
+    private int clientSideAttackTime;
+
     public static Optional<Pair<ItemStack, ExoskeletonItem<?>>> getEntityExoskeleton(LivingEntity entity) {
         return AccessorySlots.getForEntity(entity)
                 .flatMap(slots -> slots.getItem(ChangedAccessorySlots.FULL_BODY.get()))
@@ -92,11 +95,56 @@ public class Exoskeleton extends AbstractRobot {
     protected void registerGoals() {
         super.registerGoals();
 
-        this.goalSelector.addGoal(1, new ExoskeletonAttackGoal(this, 0.4, false));
-        this.goalSelector.addGoal(2, new ExoskeletonWanderGoal(this, 0.3, 120, false));
+        this.goalSelector.addGoal(1, new SeekCharger(this, 0.45));
+        this.goalSelector.addGoal(2, new ExoskeletonRestrainGoal(this, 0.4, false));
+        this.goalSelector.addGoal(3, new ExoskeletonTransfurGoal(this, 0.4, false));
+        this.goalSelector.addGoal(4, new ExoskeletonWanderGoal(this, 0.3, 120, false));
 
         this.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(this, LivingEntity.class, true, this::targetIsBenignLatex));
         this.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, LivingEntity.class, true, this::targetHasBenignPants));
+    }
+
+    @Override
+    protected void defineSynchedData() {
+        super.defineSynchedData();
+        this.entityData.define(DATA_ID_ATTACK_TARGET, 0);
+    }
+
+    public int getAttackDuration() {
+        return 50;
+    }
+
+    void setActiveAttackTarget(LivingEntity entity) {
+        this.entityData.set(DATA_ID_ATTACK_TARGET, entity.getId());
+    }
+
+    void setActiveAttackTarget(int entityId) {
+        this.entityData.set(DATA_ID_ATTACK_TARGET, entityId);
+    }
+
+    public boolean hasActiveAttackTarget() {
+        return this.entityData.get(DATA_ID_ATTACK_TARGET) != 0;
+    }
+
+    @Nullable
+    public LivingEntity getActiveAttackTarget() {
+        if (!this.hasActiveAttackTarget()) {
+            return null;
+        } else if (this.level.isClientSide) {
+            if (this.clientSideCachedAttackTarget != null) {
+                return this.clientSideCachedAttackTarget;
+            } else {
+                Entity entity = this.level.getEntity(this.entityData.get(DATA_ID_ATTACK_TARGET));
+                if (entity instanceof LivingEntity) {
+                    this.clientSideCachedAttackTarget = (LivingEntity)entity;
+                    return this.clientSideCachedAttackTarget;
+                } else {
+                    return null;
+                }
+            }
+        } else {
+            return this.getTarget();
+        }
     }
 
     public static AttributeSupplier.Builder createAttributes() {
@@ -171,6 +219,18 @@ public class Exoskeleton extends AbstractRobot {
     }
 
     @Override
+    public void aiStep() {
+        super.aiStep();
+
+        if (this.hasActiveAttackTarget()) {
+            if (this.clientSideAttackTime < this.getAttackDuration()) {
+                ++this.clientSideAttackTime;
+            }
+
+        }
+    }
+
+    @Override
     public boolean isPushable() {
         return super.isPushable() && !this.isCharging();
     }
@@ -188,18 +248,27 @@ public class Exoskeleton extends AbstractRobot {
         this.refreshDimensions();
     }
 
+    public float getAttackAnimationScale(float partialTicks) {
+        return ((float)this.clientSideAttackTime + partialTicks) / (float)this.getAttackDuration();
+    }
+
     @Override
     public void onSyncedDataUpdated(EntityDataAccessor<?> accessor) {
         super.onSyncedDataUpdated(accessor);
         if (DATA_ID_CHARGING.equals(accessor)) {
             this.refreshDimensions();
         }
+
+        if (DATA_ID_ATTACK_TARGET.equals(accessor)) {
+            this.clientSideAttackTime = 0;
+            this.clientSideCachedAttackTarget = null;
+        }
     }
 
-    public static class ExoskeletonAttackGoal extends MeleeAttackGoal {
+    public static class ExoskeletonRestrainGoal extends MeleeAttackGoal {
         protected final Exoskeleton exoskeleton;
 
-        public ExoskeletonAttackGoal(Exoskeleton exoskeleton, double speedModifier, boolean visualPersistence) {
+        public ExoskeletonRestrainGoal(Exoskeleton exoskeleton, double speedModifier, boolean visualPersistence) {
             super(exoskeleton, speedModifier, visualPersistence);
 
             this.exoskeleton = exoskeleton;
@@ -230,20 +299,6 @@ public class Exoskeleton extends AbstractRobot {
                 }
             }
 
-            else if (exoskeleton.targetHasBenignPants(target)) {
-                double reachSqr = this.getAttackReachSqr(target) * 1.5;
-
-                if (distanceSquared <= reachSqr && this.getTicksUntilNextAttack() <= 0) {
-                    this.resetAttackCooldown();
-                    this.mob.swing(InteractionHand.MAIN_HAND); // TODO: laser
-
-                    ItemUtil.isWearingItem(target, ChangedItems.BENIGN_PANTS.get()).ifPresent(slottedItem -> {
-                        if (ProcessTransfur.progressTransfur(target, 11.0f, BenignPants.getBenignTransfurVariant(target), TransfurContext.hazard(TransfurCause.WAIST_HAZARD)))
-                            slottedItem.itemStack().shrink(1);
-                    });
-                }
-            }
-
             else {
                 // Re-evaluate nearby entities
                 exoskeleton.setTarget(null);
@@ -257,13 +312,126 @@ public class Exoskeleton extends AbstractRobot {
         }
 
         @Override
+        public void stop() {
+            super.stop();
+            exoskeleton.setActiveAttackTarget(0);
+        }
+
+        @Override
         public boolean canUse() {
-            return super.canUse() && (!exoskeleton.isCharging() || exoskeleton.isSufficientlyCharged()) && !exoskeleton.isLowBattery();
+            LivingEntity target = this.exoskeleton.getTarget();
+            return super.canUse() && (!exoskeleton.isCharging() || exoskeleton.isSufficientlyCharged()) && !exoskeleton.isLowBattery()
+                    && target != null && exoskeleton.targetIsBenignLatex(target);
         }
 
         @Override
         public boolean canContinueToUse() {
-            return super.canContinueToUse() && !exoskeleton.isCharging() && !exoskeleton.isLowBattery();
+            LivingEntity target = this.exoskeleton.getTarget();
+            return super.canContinueToUse() && !exoskeleton.isCharging() && !exoskeleton.isLowBattery()
+                    && target != null && exoskeleton.targetIsBenignLatex(target);
+        }
+    }
+
+    public static class ExoskeletonTransfurGoal extends Goal {
+        protected final Exoskeleton exoskeleton;
+        protected final double speedModifier;
+        protected final boolean requireVisualPersistence;
+        private int attackTime;
+        private int ticksUntilNextPathRecalculation;
+        private Path path;
+        private double pathedTargetX;
+        private double pathedTargetY;
+        private double pathedTargetZ;
+
+        public ExoskeletonTransfurGoal(Exoskeleton exoskeleton, double speedModifier, boolean visualPersistence) {
+            this.exoskeleton = exoskeleton;
+            this.speedModifier = speedModifier;
+            this.requireVisualPersistence = visualPersistence;
+        }
+
+        public boolean canUse() {
+            LivingEntity livingentity = this.exoskeleton.getTarget();
+            return livingentity != null && livingentity.isAlive() && exoskeleton.targetHasBenignPants(livingentity)
+                    && (!exoskeleton.isCharging() || exoskeleton.isSufficientlyCharged()) && !exoskeleton.isLowBattery();
+        }
+
+        public boolean canContinueToUse() {
+            return super.canContinueToUse() && this.exoskeleton.getTarget() != null && exoskeleton.targetHasBenignPants(this.exoskeleton.getTarget())
+                    && !exoskeleton.isCharging() && !exoskeleton.isLowBattery();
+        }
+
+        public void start() {
+            this.attackTime = -10;
+            this.ticksUntilNextPathRecalculation = 0;
+            this.exoskeleton.getNavigation().stop();
+            this.exoskeleton.hasImpulse = true;
+        }
+
+        public void stop() {
+            this.exoskeleton.setActiveAttackTarget(0);
+            this.exoskeleton.setTarget((LivingEntity)null);
+            this.exoskeleton.getNavigation().stop();
+        }
+
+        public boolean requiresUpdateEveryTick() {
+            return true;
+        }
+
+        @Override
+        public void tick() {
+            LivingEntity target = this.exoskeleton.getTarget();
+            if (target != null) {
+                this.exoskeleton.getLookControl().setLookAt(target, 30.0F, 30.0F);
+                double d0 = this.exoskeleton.distanceToSqr(target.getX(), target.getY(), target.getZ());
+                this.ticksUntilNextPathRecalculation = Math.max(this.ticksUntilNextPathRecalculation - 1, 0);
+                if ((this.requireVisualPersistence || this.exoskeleton.getSensing().hasLineOfSight(target)) && this.ticksUntilNextPathRecalculation <= 0 && (this.pathedTargetX == 0.0D && this.pathedTargetY == 0.0D && this.pathedTargetZ == 0.0D || target.distanceToSqr(this.pathedTargetX, this.pathedTargetY, this.pathedTargetZ) >= 1.0D || this.exoskeleton.getRandom().nextFloat() < 0.05F)) {
+                    this.pathedTargetX = target.getX();
+                    this.pathedTargetY = target.getY();
+                    this.pathedTargetZ = target.getZ();
+                    this.ticksUntilNextPathRecalculation = 4 + this.exoskeleton.getRandom().nextInt(7);
+                    if (d0 > 1024.0D) {
+                        this.ticksUntilNextPathRecalculation += 10;
+                    } else if (d0 > 256.0D) {
+                        this.ticksUntilNextPathRecalculation += 5;
+                    }
+
+                    if (!this.exoskeleton.getNavigation().moveTo(target, this.speedModifier *
+                            (this.attackTime > 0 ? 0.8 : 1.0))) {
+                        this.ticksUntilNextPathRecalculation += 15;
+                    }
+
+                    this.ticksUntilNextPathRecalculation = this.adjustedTickDelay(this.ticksUntilNextPathRecalculation);
+                }
+
+                if (this.exoskeleton.getSensing().hasLineOfSight(target) && exoskeleton.distanceToSqr(target) < 25.0) { // ~5 blocks
+                    if (exoskeleton.distanceToSqr(target) < 4.0) {
+                        this.exoskeleton.getNavigation().stop();
+                        this.ticksUntilNextPathRecalculation = 2;
+                    }
+
+                    ++this.attackTime;
+                    if (this.attackTime == 0) {
+                        this.exoskeleton.setActiveAttackTarget(target.getId());
+                        if (!this.exoskeleton.isSilent()) {
+                            ChangedSounds.broadcastSound(exoskeleton, ChangedSounds.SHOT1, 1, 1);
+                        }
+                    } else if (this.attackTime >= this.exoskeleton.getAttackDuration()) {
+                        float amount = ProcessTransfur.difficultyAdjustTransfurAmount(exoskeleton.level.getDifficulty(), 11.0f);
+
+                        ItemUtil.isWearingItem(target, ChangedItems.BENIGN_PANTS.get()).ifPresent(slottedItem -> {
+                            if (ProcessTransfur.progressTransfur(target, amount, BenignPants.getBenignTransfurVariant(target), TransfurContext.hazard(TransfurCause.WAIST_HAZARD)))
+                                slottedItem.itemStack().shrink(1);
+                            else
+                                ChangedSounds.broadcastSound(target, ChangedSounds.BLOW1, 1, 1);
+                        });
+
+                        exoskeleton.setTarget(null);
+                    }
+                } else {
+                    this.attackTime = -10;
+                    this.exoskeleton.setActiveAttackTarget(0);
+                }
+            }
         }
     }
 

@@ -29,7 +29,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-public class ExoskeletonModel extends EntityModel<Exoskeleton> {
+public class ExoskeletonModel extends EntityModel<Exoskeleton> implements HeadedModel {
     public static final ModelLayerLocation LAYER_LOCATION_SUIT = new ModelLayerLocation(Changed.modResource("exoskeleton"), "main");
     public static final ModelLayerLocation LAYER_LOCATION_VISOR = new ModelLayerLocation(Changed.modResource("exoskeleton"), "visor");
     public static final ModelLayerLocation LAYER_LOCATION_HUMAN = new ModelLayerLocation(Changed.modResource("exoskeleton"), "human");
@@ -361,6 +361,11 @@ public class ExoskeletonModel extends EntityModel<Exoskeleton> {
     }
 
     @Override
+    public ModelPart getHead() {
+        return Head;
+    }
+
+    @Override
     public void renderToBuffer(PoseStack poseStack, VertexConsumer buffer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
         Head.render(poseStack, buffer, packedLight, packedOverlay, red, green, blue, alpha);
         Torso.render(poseStack, buffer, packedLight, packedOverlay, red, green, blue, alpha);
@@ -420,6 +425,7 @@ public class ExoskeletonModel extends EntityModel<Exoskeleton> {
 
     public static class VisorModel extends EntityModel<Exoskeleton> {
         public static final ResourceLocation VISOR_BLANK = Changed.modResource("textures/models/exoskeleton_visor/blank.png");
+        public static final ResourceLocation VISOR_FIRE = Changed.modResource("textures/models/exoskeleton_visor/fire.png");
         public static final ResourceLocation VISOR_ACTIVE = Changed.modResource("textures/models/exoskeleton_visor/active.png");
         public static final int VISOR_CHARGE_STATES = 17;
         public static final List<ResourceLocation> VISOR_CHARGE = Util.make(() -> {
@@ -477,6 +483,10 @@ public class ExoskeletonModel extends EntityModel<Exoskeleton> {
                     return VISOR_CHARGE.get(chargeLow);
                 else
                     return VISOR_CHARGE.get(chargeHigh);
+            }
+
+            if (exoskeleton.hasActiveAttackTarget()) {
+                return VISOR_FIRE;
             }
 
             return VISOR_BLANK;
