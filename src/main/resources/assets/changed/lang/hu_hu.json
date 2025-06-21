@@ -747,5 +747,9 @@
   "changed.stasis.modify.arms": "Karok: %s",
   "changed.stasis.modify.arms.tooltip": "Beállítás: Módosítja a latex lény karjait",
   "changed.stasis.modify.scale": "Méret: %s",
-  "changed.stasis.modify.scale.tooltip": "Beállítás: Módosítja a latex lény méretét"
+  "changed.stasis.modify.scale.tooltip": "Beállítás: Módosítja a latex lény méretét",
+
+  "changed.exoskeleton.prompt": "[%s]> %s",
+  "changed.exoskeleton.battery_low": "Akkumulátorszint alacsony",
+  "changed.exoskeleton.battery_critical": "Akkumulátorszint kritikus"
 }
