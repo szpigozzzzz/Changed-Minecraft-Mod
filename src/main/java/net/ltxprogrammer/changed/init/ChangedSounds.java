@@ -5,10 +5,12 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.network.protocol.game.ClientboundSoundPacket;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -121,5 +123,10 @@ public class ChangedSounds {
     public static void broadcastSound(Entity entity, ResourceLocation event, float volume, float pitch) {
         if (!entity.level.isClientSide)
             broadcastSound(entity.level.getServer(), event, SoundSource.NEUTRAL, entity.getX(), entity.getY(), entity.getZ(), volume, pitch);
+    }
+
+    public static void sendLocalSound(Player player, SoundEvent event, float volume, float pitch) {
+        if (player instanceof ServerPlayer serverPlayer)
+            serverPlayer.connection.send(new ClientboundSoundPacket(event, SoundSource.NEUTRAL, player.getX(), player.getY(), player.getZ(), volume, pitch));
     }
 }

@@ -747,5 +747,9 @@
   "changed.stasis.modify.arms": "Arms: %s",
   "changed.stasis.modify.arms.tooltip": "Config: Modifies the latex beast's arms",
   "changed.stasis.modify.scale": "Scale: %s",
-  "changed.stasis.modify.scale.tooltip": "Config: Modifies the latex beast's scale"
+  "changed.stasis.modify.scale.tooltip": "Config: Modifies the latex beast's scale",
+
+  "changed.exoskeleton.prompt": "[%s]> %s",
+  "changed.exoskeleton.battery_low": "Battery level low.",
+  "changed.exoskeleton.battery_critical": "Battery level critical."
 }

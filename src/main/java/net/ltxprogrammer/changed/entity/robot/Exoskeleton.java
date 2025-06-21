@@ -59,11 +59,15 @@ public class Exoskeleton extends AbstractRobot {
     public ItemStack getDropItem() {
         final var stack = new ItemStack(ChangedItems.EXOSKELETON.get());
         stack.setDamageValue((int) ((1.0f - this.getCharge()) * stack.getMaxDamage()));
+        if (this.hasCustomName())
+            stack.setHoverName(this.getCustomName());
         return stack;
     }
 
     public void loadFromItemStack(ItemStack stack) {
         this.setCharge(1.0f - ((float) (stack.getDamageValue()) / (float) (stack.getMaxDamage())));
+        if (stack.hasCustomHoverName())
+            this.setCustomName(stack.getHoverName());
     }
 
     @Override
@@ -186,8 +190,11 @@ public class Exoskeleton extends AbstractRobot {
 
     @Override
     protected InteractionResult mobInteract(Player player, InteractionHand hand) {
+        if (this.getTarget() == player || this.isLowBattery())
+            return super.mobInteract(player, hand);
+
         boolean moved = AccessorySlots.getForEntity(player).map(slots ->
-                slots.moveToSlot(ChangedAccessorySlots.FULL_BODY.get(), new ItemStack(ChangedItems.EXOSKELETON.get()))).orElse(false);
+                slots.moveToSlot(ChangedAccessorySlots.FULL_BODY.get(), this.getDropItem())).orElse(false);
         if (moved) {
             if (!this.level.isClientSide)
                 this.discard();
