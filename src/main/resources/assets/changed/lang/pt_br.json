@@ -76,7 +76,10 @@
   "subtitles.changed.paralyze3": "Intercomunicador anunciando",
   "subtitles.changed.blow1": "Jogador Sendo Infectado",
   "subtitles.changed.vacuum": "Rotaçoes do Robô aspiradorr",
+  
   "subtitles.changed.exoskeleton_step": "Paso de Exoesqueleto",
+  "subtitles.changed.exoskeleton_chime": "Sinal sonoro digital",
+  "subtitles.changed.exoskeleton_lock": "Exoesqueleto equipado",
 
   "item.changed.benign_pants": "Shorts De Látex",
   "item.changed.black_tshirt": "Camiseta preta",
