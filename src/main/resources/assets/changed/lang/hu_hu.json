@@ -76,7 +76,10 @@
   "subtitles.changed.paralyze3": "Interkom bejelenti",
   "subtitles.changed.blow1": "Játékos latexezik",
   "subtitles.changed.vacuum": "Porszívó pörög",
+  
   "subtitles.changed.exoskeleton_step": "Exoskeleton lép",
+  "subtitles.changed.exoskeleton_chime": "Digitális csengőhang",
+  "subtitles.changed.exoskeleton_lock": "Exoskeleton felvétele",
 
   "item.changed.benign_pants": "Latex rövidnadrág",
   "item.changed.black_tshirt": "Fekete póló",
@@ -747,5 +750,9 @@
   "changed.stasis.modify.arms": "Karok: %s",
   "changed.stasis.modify.arms.tooltip": "Beállítás: Módosítja a latex lény karjait",
   "changed.stasis.modify.scale": "Méret: %s",
-  "changed.stasis.modify.scale.tooltip": "Beállítás: Módosítja a latex lény méretét"
+  "changed.stasis.modify.scale.tooltip": "Beállítás: Módosítja a latex lény méretét",
+
+  "changed.exoskeleton.prompt": "[%s]> %s",
+  "changed.exoskeleton.battery_low": "Akkumulátorszint alacsony",
+  "changed.exoskeleton.battery_critical": "Akkumulátorszint kritikus"
 }
