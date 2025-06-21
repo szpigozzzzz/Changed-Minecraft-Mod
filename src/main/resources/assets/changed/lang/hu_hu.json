@@ -76,7 +76,10 @@
   "subtitles.changed.paralyze3": "Interkom bejelenti",
   "subtitles.changed.blow1": "Játékos latexezik",
   "subtitles.changed.vacuum": "Porszívó pörög",
+  
   "subtitles.changed.exoskeleton_step": "Exoskeleton lép",
+  "subtitles.changed.exoskeleton_chime": "Digitális csengőhang",
+  "subtitles.changed.exoskeleton_lock": "Exoskeleton felvétele",
 
   "item.changed.benign_pants": "Latex rövidnadrág",
   "item.changed.black_tshirt": "Fekete póló",
