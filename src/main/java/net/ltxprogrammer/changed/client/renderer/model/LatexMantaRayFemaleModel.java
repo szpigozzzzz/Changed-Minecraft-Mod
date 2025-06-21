@@ -212,4 +212,9 @@ public class LatexMantaRayFemaleModel extends AdvancedHumanoidModel<LatexMantaRa
     public HumanoidAnimator<LatexMantaRayFemale, LatexMantaRayFemaleModel> getAnimator(LatexMantaRayFemale entity) {
         return animator;
     }
+
+    @Override
+    public boolean shouldModelSit(LatexMantaRayFemale entity) {
+        return super.shouldModelSit(entity) || LeglessModel.shouldLeglessSit(entity);
+    }
 }

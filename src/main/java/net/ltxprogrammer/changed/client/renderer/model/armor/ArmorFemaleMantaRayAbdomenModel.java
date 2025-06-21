@@ -124,4 +124,9 @@ public class ArmorFemaleMantaRayAbdomenModel<T extends ChangedEntity> extends La
     public ModelPart getAbdomen() {
         return Abdomen;
     }
+
+    @Override
+    public boolean shouldModelSit(T entity) {
+        return super.shouldModelSit(entity) || LeglessModel.shouldLeglessSit(entity);
+    }
 }

@@ -80,10 +80,8 @@ public class HumanoidAnimator<T extends ChangedEntity, M extends AdvancedHumanoi
     }
 
     public void setupVariables(T entity, float partialTicks) {
-        boolean shouldSit = entity.isPassenger() && (entity.getVehicle() != null && entity.getVehicle().shouldRiderSit());
-        
         entityModel.attackTime = entity.getAttackAnim(partialTicks);
-        entityModel.riding = shouldSit;
+        entityModel.riding = entityModel.shouldModelSit(entity);
         entityModel.young = entity.isBaby();
 
         this.partialTicks = partialTicks;

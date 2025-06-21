@@ -179,4 +179,9 @@ public class LatexMermaidSharkModel extends AdvancedHumanoidModel<LatexMermaidSh
     public HumanoidAnimator<LatexMermaidShark, LatexMermaidSharkModel> getAnimator(LatexMermaidShark entity) {
         return animator;
     }
+
+    @Override
+    public boolean shouldModelSit(LatexMermaidShark entity) {
+        return super.shouldModelSit(entity) || LeglessModel.shouldLeglessSit(entity);
+    }
 }

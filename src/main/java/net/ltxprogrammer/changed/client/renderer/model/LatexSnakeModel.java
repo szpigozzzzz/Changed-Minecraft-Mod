@@ -149,4 +149,9 @@ public class LatexSnakeModel extends AdvancedHumanoidModel<LatexSnake> implement
     public HumanoidAnimator<LatexSnake, LatexSnakeModel> getAnimator(LatexSnake entity) {
         return animator;
     }
+
+    @Override
+    public boolean shouldModelSit(LatexSnake entity) {
+        return super.shouldModelSit(entity) || LeglessModel.shouldLeglessSit(entity);
+    }
 }

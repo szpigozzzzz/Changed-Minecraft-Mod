@@ -116,4 +116,9 @@ public class ArmorSnakeAbdomenModel<T extends ChangedEntity> extends LatexHumano
     public ModelPart getAbdomen() {
         return Abdomen;
     }
+
+    @Override
+    public boolean shouldModelSit(T entity) {
+        return super.shouldModelSit(entity) || LeglessModel.shouldLeglessSit(entity);
+    }
 }

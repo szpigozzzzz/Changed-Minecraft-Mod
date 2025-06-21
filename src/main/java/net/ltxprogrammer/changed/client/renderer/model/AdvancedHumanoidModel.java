@@ -126,6 +126,10 @@ public abstract class AdvancedHumanoidModel<T extends ChangedEntity> extends Pla
         return true;
     }
 
+    public boolean shouldModelSit(T entity) {
+        return entity.isPassenger() && (entity.getVehicle() != null && entity.getVehicle().shouldRiderSit());
+    }
+
     public void translateToHand(T entity, HumanoidArm arm, PoseStack poseStack) {
         this.getArm(arm).translateAndRotate(poseStack);
         if (this instanceof AdvancedHumanoidModelInterface modelInterface)

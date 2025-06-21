@@ -121,4 +121,9 @@ public class ArmorMermaidSharkAbdomenModel<T extends ChangedEntity> extends Late
     public ModelPart getAbdomen() {
         return Abdomen;
     }
+
+    @Override
+    public boolean shouldModelSit(T entity) {
+        return super.shouldModelSit(entity) || LeglessModel.shouldLeglessSit(entity);
+    }
 }

@@ -197,4 +197,9 @@ public class LatexSirenModel extends AdvancedHumanoidModel<LatexSiren> implement
     public HumanoidAnimator<LatexSiren, LatexSirenModel> getAnimator(LatexSiren entity) {
         return animator;
     }
+
+    @Override
+    public boolean shouldModelSit(LatexSiren entity) {
+        return super.shouldModelSit(entity) || LeglessModel.shouldLeglessSit(entity);
+    }
 }
