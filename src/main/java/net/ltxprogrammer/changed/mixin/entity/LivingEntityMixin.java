@@ -9,6 +9,7 @@ import net.ltxprogrammer.changed.block.ThreeXThreeSection;
 import net.ltxprogrammer.changed.block.WearableBlock;
 import net.ltxprogrammer.changed.block.WhiteLatexTransportInterface;
 import net.ltxprogrammer.changed.block.entity.StasisChamberBlockEntity;
+import net.ltxprogrammer.changed.data.AccessorySlotContext;
 import net.ltxprogrammer.changed.data.AccessorySlotType;
 import net.ltxprogrammer.changed.data.AccessorySlots;
 import net.ltxprogrammer.changed.entity.*;
@@ -18,6 +19,7 @@ import net.ltxprogrammer.changed.fluid.AbstractLatexFluid;
 import net.ltxprogrammer.changed.fluid.Gas;
 import net.ltxprogrammer.changed.fluid.TransfurGas;
 import net.ltxprogrammer.changed.init.*;
+import net.ltxprogrammer.changed.item.AccessoryItem;
 import net.ltxprogrammer.changed.item.ExoskeletonItem;
 import net.ltxprogrammer.changed.item.ExtendedItemProperties;
 import net.ltxprogrammer.changed.item.SpecializedAnimations;
@@ -209,6 +211,13 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityDa
         for (AccessorySlotType slotType : ChangedRegistry.ACCESSORY_SLOTS.get().getValues()) {
             ItemStack lastStack = accessorySlots.getLastItem(slotType);
             ItemStack newStack = accessorySlots.getItem(slotType).orElse(ItemStack.EMPTY);
+            if (lastStack.getItem() != newStack.getItem() && this.tickCount > 5) {
+                if (lastStack.getItem() instanceof AccessoryItem accessoryItem)
+                    accessoryItem.accessoryRemoved(new AccessorySlotContext<>((LivingEntity)(Entity)this, slotType, lastStack));
+                if (newStack.getItem() instanceof AccessoryItem accessoryItem)
+                    accessoryItem.accessoryEquipped(new AccessorySlotContext<>((LivingEntity)(Entity)this, slotType, newStack));
+            }
+
             if (!ItemStack.matches(newStack, lastStack)) {
                 //net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(new net.minecraftforge.event.entity.living.LivingEquipmentChangeEvent(this, equipmentslot, lastStack, newStack));
                 if (map == null) {
@@ -314,11 +323,6 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityDa
         this.checkForGas();
 
         AccessorySlots.getForEntity((LivingEntity)(Object)this).ifPresent(AccessorySlots::tick);
-    }
-
-    @Inject(method = "swing(Lnet/minecraft/world/InteractionHand;Z)V", at = @At("HEAD"))
-    public void accessorySwingHook(InteractionHand hand, boolean sendToPlayer, CallbackInfo ci) {
-        AccessorySlots.getForEntity((LivingEntity)(Object)this).ifPresent(slots -> slots.onEntitySwing(hand));
     }
 
     @Inject(method = "canStandOnFluid", at = @At("HEAD"), cancellable = true)

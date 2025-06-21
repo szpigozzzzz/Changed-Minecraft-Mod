@@ -18,6 +18,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.Container;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attribute;
@@ -208,6 +209,14 @@ public class AccessorySlots implements Container {
         for (var entry : items.entrySet()) {
             if (entry.getValue().getItem() instanceof AccessoryItem accessoryItem) {
                 accessoryItem.accessoryAttack(AccessorySlotContext.of(this.owner, entry.getKey()), hand, target);
+            }
+        }
+    }
+
+    public void onEntityDamage(DamageSource source, float amount) {
+        for (var entry : items.entrySet()) {
+            if (entry.getValue().getItem() instanceof AccessoryItem accessoryItem) {
+                accessoryItem.accessoryDamaged(AccessorySlotContext.of(this.owner, entry.getKey()), source, amount);
             }
         }
     }
