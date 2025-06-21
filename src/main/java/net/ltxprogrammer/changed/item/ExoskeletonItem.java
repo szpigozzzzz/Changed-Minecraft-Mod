@@ -8,14 +8,15 @@ import net.ltxprogrammer.changed.data.AccessorySlotType;
 import net.ltxprogrammer.changed.data.AccessorySlots;
 import net.ltxprogrammer.changed.entity.robot.AbstractRobot;
 import net.ltxprogrammer.changed.entity.robot.ChargerType;
-import net.ltxprogrammer.changed.entity.variant.TransfurVariantInstance;
-import net.ltxprogrammer.changed.init.ChangedAccessorySlots;
 import net.ltxprogrammer.changed.init.ChangedDamageSources;
+import net.ltxprogrammer.changed.init.ChangedSounds;
 import net.ltxprogrammer.changed.init.ChangedTags;
 import net.ltxprogrammer.changed.process.ProcessTransfur;
 import net.ltxprogrammer.changed.util.Cacheable;
 import net.ltxprogrammer.changed.util.EntityUtil;
-import net.minecraft.core.BlockPos;
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.*;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
@@ -52,8 +53,12 @@ public class ExoskeletonItem<T extends AbstractRobot> extends PlaceableEntity<T>
         return builder.build();
     });
 
+    public static final int CHARGE_IN_SECONDS = 12 * 60; // 12 minutes
+    public static final int CHARGE_LOW_WARNING = CHARGE_IN_SECONDS - (3 * 60); // Warn player when lower than 3 minutes left
+    public static final int CHARGE_CRITICAL_WARNING = CHARGE_IN_SECONDS - 60; // Warn player when lower than 1 minute left
+
     public ExoskeletonItem(Properties builder, Supplier<EntityType<T>> entityType) {
-        super(builder.durability(12 * 60), entityType);
+        super(builder.durability(CHARGE_IN_SECONDS), entityType);
         DispenserBlock.registerBehavior(this, AccessoryItem.DISPENSE_ITEM_BEHAVIOR);
     }
 
@@ -114,6 +119,37 @@ public class ExoskeletonItem<T extends AbstractRobot> extends PlaceableEntity<T>
         return !(stack.getDamageValue() >= stack.getMaxDamage() - 1);
     }
 
+    private static Component makePrompt(ItemStack itemStack, Component text) {
+        MutableComponent hoverName = (new TextComponent(""))
+                .append(itemStack.getHoverName())
+                .withStyle(style -> style.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_ITEM, new HoverEvent.ItemStackInfo(itemStack))));
+
+        return new TranslatableComponent("changed.exoskeleton.prompt", hoverName, text)
+                .withStyle(ChatFormatting.AQUA);
+    }
+
+    protected static final Component EXOSKELETON_BATTERY_LOW = new TranslatableComponent("changed.exoskeleton.battery_low");
+    protected static final Component EXOSKELETON_BATTERY_CRITICAL = new TranslatableComponent("changed.exoskeleton.battery_critical");
+
+    protected void tellWearer(LivingEntity entity, ItemStack itemStack, Component message) {
+        if (entity instanceof ServerPlayer wearer) {
+            wearer.displayClientMessage(makePrompt(itemStack, message), false);
+            ChangedSounds.sendLocalSound(wearer, ChangedSounds.ATTACK1, 0.6f, 1f);
+        }
+    }
+
+    protected void degradeCharge(AccessorySlotContext<?> slotContext, int amount) {
+        int before = slotContext.stack().getDamageValue();
+        int after = before + amount;
+
+        if (after >= CHARGE_LOW_WARNING && before < CHARGE_LOW_WARNING)
+            tellWearer(slotContext.wearer(), slotContext.stack(), EXOSKELETON_BATTERY_LOW);
+        else if (after >= CHARGE_CRITICAL_WARNING && before < CHARGE_CRITICAL_WARNING)
+            tellWearer(slotContext.wearer(), slotContext.stack(), EXOSKELETON_BATTERY_CRITICAL);
+
+        slotContext.stack().setDamageValue(after);
+    }
+
     @Override
     public void accessoryTick(AccessorySlotContext<?> slotContext) {
         boolean ignoreDamage = slotContext.wearer() instanceof Player player && player.getAbilities().invulnerable;
@@ -124,9 +160,8 @@ public class ExoskeletonItem<T extends AbstractRobot> extends PlaceableEntity<T>
         }
 
         else if (slotContext.wearer().tickCount % 20 == 0) {
-            if (!ignoreDamage) {
-                slotContext.stack().setDamageValue(slotContext.stack().getDamageValue() + 1);
-            }
+            if (!ignoreDamage)
+                degradeCharge(slotContext, 1);
         }
 
         if (slotContext.wearer().isInWaterOrRain() && !ignoreDamage) {
@@ -135,7 +170,7 @@ public class ExoskeletonItem<T extends AbstractRobot> extends PlaceableEntity<T>
             if (slotContext.wearer().tickCount % rate == 0) {
                 slotContext.wearer().hurt(ChangedDamageSources.ELECTROCUTION, 3);
                 TscWeapon.applyShock(slotContext.wearer(), 3);
-                slotContext.stack().setDamageValue(slotContext.stack().getDamageValue() + 30);
+                degradeCharge(slotContext, 30);
             }
         }
     }
@@ -160,7 +195,7 @@ public class ExoskeletonItem<T extends AbstractRobot> extends PlaceableEntity<T>
         if (target instanceof LivingEntity livingTarget) {
             TscWeapon.applyShock(livingTarget, ATTACK_STUN);
 
-            slotContext.stack().setDamageValue(slotContext.stack().getDamageValue() + 5);
+            degradeCharge(slotContext, 5);
         }
     }
 }
