@@ -76,7 +76,10 @@
   "subtitles.changed.paralyze3": "Intercom announces",
   "subtitles.changed.blow1": "Player infected",
   "subtitles.changed.vacuum": "Vacuum spins",
+
   "subtitles.changed.exoskeleton_step": "Exoskeleton steps",
+  "subtitles.changed.exoskeleton_chime": "Digital chime",
+  "subtitles.changed.exoskeleton_lock": "Exoskeleton equipped",
 
   "item.changed.benign_pants": "Latex Shorts",
   "item.changed.black_tshirt": "Black T-Shirt",

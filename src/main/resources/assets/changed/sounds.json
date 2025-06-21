@@ -179,16 +179,6 @@
     ],
     "subtitle": "subtitles.changed.open2"
   },
-  "exoskeleton_step": {
-    "category": "entity",
-    "sounds": [
-      {
-        "name": "changed:open2",
-        "stream": false
-      }
-    ],
-    "subtitle": "subtitles.changed.exoskeleton_step"
-  },
   "open3": {
     "category": "block",
     "sounds": [
@@ -339,6 +329,38 @@
     ],
     "subtitle": "subtitles.changed.vacuum"
   },
+
+  "exoskeleton_step": {
+    "category": "entity",
+    "sounds": [
+      {
+        "name": "changed:open2",
+        "stream": false
+      }
+    ],
+    "subtitle": "subtitles.changed.exoskeleton_step"
+  },
+  "exoskeleton_chime": {
+    "category": "entity",
+    "sounds": [
+      {
+        "name": "changed:buzzer2",
+        "stream": false
+      }
+    ],
+    "subtitle": "subtitles.changed.exoskeleton_chime"
+  },
+  "exoskeleton_lock": {
+    "category": "entity",
+    "sounds": [
+      {
+        "name": "changed:machine",
+        "stream": false
+      }
+    ],
+    "subtitle": "subtitles.changed.exoskeleton_lock"
+  },
+
   "music_disc.owo": {
     "sounds": [
       {

@@ -201,7 +201,7 @@ public abstract class AbstractRobot extends PathfinderMob {
         else if (this.getCharge() < 1f && this.isCharging()) {
             this.setCharge(Mth.clamp(this.getCharge() + this.getChargeRate(), 0f, 1f));
 
-            if (this.getCharge() >= 1f)
+            if (this.getCharge() >= 1f && !this.hasCustomName())
                 this.detachFromCharger();
         }
     }

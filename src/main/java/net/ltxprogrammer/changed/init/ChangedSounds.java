@@ -60,6 +60,8 @@ public class ChangedSounds {
     public static final SoundEvent VACUUM = register("vacuum");
 
     public static final SoundEvent EXOSKELETON_STEP = register("exoskeleton_step");
+    public static final SoundEvent EXOSKELETON_CHIME = register("exoskeleton_chime");
+    public static final SoundEvent EXOSKELETON_LOCK = register("exoskeleton_lock");
 
     public static final SoundEvent OWO = register("music_disc.owo");
 

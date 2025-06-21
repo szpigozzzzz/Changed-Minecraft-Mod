@@ -6,6 +6,7 @@ import net.ltxprogrammer.changed.block.IRobotCharger;
 import net.ltxprogrammer.changed.data.AccessorySlotContext;
 import net.ltxprogrammer.changed.data.AccessorySlotType;
 import net.ltxprogrammer.changed.data.AccessorySlots;
+import net.ltxprogrammer.changed.entity.LivingEntityDataExtension;
 import net.ltxprogrammer.changed.entity.robot.AbstractRobot;
 import net.ltxprogrammer.changed.entity.robot.ChargerType;
 import net.ltxprogrammer.changed.init.ChangedDamageSources;
@@ -17,8 +18,12 @@ import net.ltxprogrammer.changed.util.EntityUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.*;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -32,6 +37,7 @@ import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.DispenserBlock;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
 import java.util.function.Supplier;
@@ -56,6 +62,8 @@ public class ExoskeletonItem<T extends AbstractRobot> extends PlaceableEntity<T>
     public static final int CHARGE_IN_SECONDS = 12 * 60; // 12 minutes
     public static final int CHARGE_LOW_WARNING = CHARGE_IN_SECONDS - (3 * 60); // Warn player when lower than 3 minutes left
     public static final int CHARGE_CRITICAL_WARNING = CHARGE_IN_SECONDS - 60; // Warn player when lower than 1 minute left
+
+    public static final int EXOSKELETON_EQUIP_DELAY = 30;
 
     public ExoskeletonItem(Properties builder, Supplier<EntityType<T>> entityType) {
         super(builder.durability(CHARGE_IN_SECONDS), entityType);
@@ -134,7 +142,7 @@ public class ExoskeletonItem<T extends AbstractRobot> extends PlaceableEntity<T>
     protected void tellWearer(LivingEntity entity, ItemStack itemStack, Component message) {
         if (entity instanceof ServerPlayer wearer) {
             wearer.displayClientMessage(makePrompt(itemStack, message), false);
-            ChangedSounds.sendLocalSound(wearer, ChangedSounds.ATTACK1, 0.6f, 1f);
+            ChangedSounds.sendLocalSound(wearer, ChangedSounds.EXOSKELETON_CHIME, 0.6f, 1f);
         }
     }
 
@@ -197,5 +205,21 @@ public class ExoskeletonItem<T extends AbstractRobot> extends PlaceableEntity<T>
 
             degradeCharge(slotContext, 5);
         }
+    }
+
+    @Override
+    public void accessoryDamaged(AccessorySlotContext<?> slotContext, DamageSource source, float amount) {
+        if (!source.isBypassArmor())
+            degradeCharge(slotContext, (int)(4 * amount));
+    }
+
+    @Override
+    public void accessoryEquipped(AccessorySlotContext<?> slotContext) {
+        if (slotContext.wearer() instanceof Player wearer) {
+            ChangedSounds.sendLocalSound(wearer, ChangedSounds.EXOSKELETON_LOCK, 0.7f, 1.5f);
+        }
+
+        slotContext.wearer().addEffect(
+                new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 2 * 20, 5, false, false, false));
     }
 }

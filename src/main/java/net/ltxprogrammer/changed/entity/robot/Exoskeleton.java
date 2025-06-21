@@ -87,6 +87,9 @@ public class Exoskeleton extends AbstractRobot {
     }
 
     protected boolean targetIsBenignLatex(LivingEntity entity) {
+        if (ProcessTransfur.getPlayerTransfurVariantSafe(EntityUtil.playerOrNull(entity)).map(TransfurVariantInstance::isTransfurring).orElse(false))
+            return false;
+
         return EntityUtil.maybeGetOverlaying(entity).getType().is(ChangedTags.EntityTypes.BENIGN_LATEXES);
     }
 
@@ -316,6 +319,8 @@ public class Exoskeleton extends AbstractRobot {
         public void start() {
             exoskeleton.detachFromCharger();
             super.start();
+
+            exoskeleton.playSound(ChangedSounds.EXOSKELETON_CHIME, 0.3F, 1f);
         }
 
         @Override
