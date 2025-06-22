@@ -13,7 +13,7 @@
   "ability.changed.switch_transfur_mode.absorption": "吞噬",
   "ability.changed.switch_transfur_mode.absorption.desc": "吞噬：将实体吞噬在你的身体，添加饥饿值，生命值。",
   "ability.changed.switch_transfur_mode.replication": "同化",
-  "ability.changed.switch_transfur_mode.replication.desc": "同化：将实体转化为你对应的兽化实体。有时提供格外的同伙。",
+  "ability.changed.switch_transfur_mode.replication.desc": "同化：将实体转化为你对应的兽化实体。获得一些生命和饥饿值，有时提供格外的同伙。",
   "ability.changed.create_cobweb": "生成蜘蛛网",
   "ability.changed.create_inkball": "生成胶墨球",
   "ability.changed.create_honeycomb": "创建蜂窝",
@@ -388,7 +388,7 @@
   "fluid.changed.white_latex": "液态白胶",
   "fluid.changed.skunk_gas": "臭鼬兽化气体",
   "fluid.changed.tiger_gas": "老虎兽化气体",
-  "fluid.changed.wolf_gas": "毒气狼",
+  "fluid.changed.wolf_gas": "狼兽化气体",
 
   "biome.changed.dark_latex_plains": "黑胶平原",
   "biome.changed.white_latex_forest": "白胶森林",
@@ -424,7 +424,6 @@
   "entity.changed.latex_fennec_fox": "胶液狐狸",
   "entity.changed.latex_golden_dragon": "胶液金龙",
   "entity.changed.latex_human": "胶液人",
-  "entity.changed.latex_hyena_taur": "胶液鬣狗",
   "entity.changed.latex_hypno_cat": "胶液催眠猫",
   "entity.changed.latex_keon_wolf": "胶液银狐",
   "entity.changed.latex_kobold": "胶液Kobold",
@@ -535,6 +534,7 @@
   "item.changed.latex_siamese_cat_spawn_egg": "胶液暹罗猫刷怪蛋",
   "item.changed.latex_siren_spawn_egg": "胶液塞壬刷怪蛋",
   "item.changed.latex_snake_spawn_egg": "胶液蛇刷怪蛋",
+  "item.changed.latex_gnoll_taur_spawn_egg": "胶液豹狼刷怪蛋",
   "item.changed.latex_snow_leopard_female_spawn_egg": "雌性胶液雪豹刷怪蛋",
   "item.changed.latex_snow_leopard_male_spawn_egg": "雄性胶液雪豹刷怪蛋",
   "item.changed.latex_squid_dog_female_spawn_egg": "雌性乌贼犬刷怪蛋",
@@ -655,7 +655,7 @@
   "changed.tutorial.use_ability.title": "使用你的能力",
   "changed.tutorial.use_ability.description": "按下或按住%s",
 
-  "changed.instruction.clothing_state": "在外套更改状态时单击%s",
+  "changed.instruction.clothing_state": "更改外套状态单击%s",
  
   "facility.zone.red_zone": "红区",
   "facility.zone.gray_zone": "灰区",
@@ -740,7 +740,7 @@
   "changed.stasis.program.wait_duration": "等待持续时间·%ss",
 
   "changed.stasis.modify.gender": "切换性别",
-  "changed.stasis.modify.gender.tooltip": "行动：切换性别",
+  "changed.stasis.modify.gender.tooltip": "行动：修改性别",
 
   "changed.stasis.modify.torso": "躯干: %s",
   "changed.stasis.modify.torso.tooltip": "配置：躯干的形状和大小",
