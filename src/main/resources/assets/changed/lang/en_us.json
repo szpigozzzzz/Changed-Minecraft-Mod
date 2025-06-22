@@ -752,6 +752,8 @@
   "changed.stasis.modify.scale": "Scale: %s",
   "changed.stasis.modify.scale.tooltip": "Config: Modifies the latex beast's scale",
 
+  "changed.accessory.slot_disabled_by": "Slot disabled by:",
+
   "changed.exoskeleton.prompt": "[%s]> %s",
   "changed.exoskeleton.battery_low": "Battery level low",
   "changed.exoskeleton.battery_critical": "Battery level critical"

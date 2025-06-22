@@ -1,5 +1,6 @@
 package net.ltxprogrammer.changed.world.inventory;
 
+import com.google.common.collect.ImmutableList;
 import com.mojang.datafixers.util.Pair;
 import net.ltxprogrammer.changed.data.AccessorySlotType;
 import net.ltxprogrammer.changed.data.AccessorySlots;
@@ -39,7 +40,7 @@ public class AccessoryAccessMenu extends AbstractContainerMenu {
     public final Inventory inventory;
     public final AccessorySlots accessorySlots;
 
-    private final Set<AccessorySlotType> builtSlots = new HashSet<>();
+    private ImmutableList<AccessorySlotType> builtSlots;
     private final Map<Integer, Slot> customSlots = new HashMap<>();
 
     private AccessoryAccessMenu(int id, Player owner, List<AccessorySlotType> slotTypes) {
@@ -64,7 +65,7 @@ public class AccessoryAccessMenu extends AbstractContainerMenu {
         final var slots = AccessorySlots.getForEntity(player).orElseGet(AccessorySlots::new);
 
         NetworkHooks.openGui(player,
-                new SimpleMenuProvider((id, inv, accessor) -> new AccessoryAccessMenu(id, accessor), TextComponent.EMPTY),
+                new SimpleMenuProvider((id, inv, accessor) -> new AccessoryAccessMenu(id, accessor, slots.getOrderedSlots()), TextComponent.EMPTY),
                 extra -> {
                     extra.writeCollection(slots.getOrderedSlots(), (listBuffer, slotType) -> listBuffer.writeInt(registry.getID(slotType)));
                 });
@@ -82,6 +83,8 @@ public class AccessoryAccessMenu extends AbstractContainerMenu {
     }
 
     protected void makeAccessorySlots(List<AccessorySlotType> slotTypes) {
+        var builder = ImmutableList.<AccessorySlotType>builder();
+
         for (int si = 0; si < slotTypes.size(); ++si) {
             final AccessorySlotType slotType = slotTypes.get(si);
             this.customSlots.put(si, this.addSlot(new Slot(this.accessorySlots, si, 77 + ((si % 5) * 18), 8 + ((si / 5) * 18)) {
@@ -98,12 +101,14 @@ public class AccessoryAccessMenu extends AbstractContainerMenu {
 
                 @Override
                 public boolean mayPlace(ItemStack stack) {
-                    return super.mayPlace(stack) && slotType.canHoldItem(stack, inventory.player);
+                    return super.mayPlace(stack) && AccessoryAccessMenu.this.accessorySlots.isItemAllowedWithOthers(slotType, stack);
                 }
             }));
 
-            builtSlots.add(slotType);
+            builder.add(slotType);
         }
+
+        builtSlots = builder.build();
     }
 
     protected void createSlots(Inventory inv, List<AccessorySlotType> slotTypes) {
@@ -144,7 +149,7 @@ public class AccessoryAccessMenu extends AbstractContainerMenu {
         return currentSlots.containsAll(builtSlots) && builtSlots.containsAll(currentSlots);
     }
 
-    public Set<AccessorySlotType> getBuiltSlots() {
+    public List<AccessorySlotType> getBuiltSlots() {
         return builtSlots;
     }
 
@@ -179,7 +184,8 @@ public class AccessoryAccessMenu extends AbstractContainerMenu {
             ItemStack oldStack = slot.getItem();
             stack = oldStack.copy();
             EquipmentSlot equipmentslot = denyInvalidArmorSlot(stack);
-            Set<Integer> accessorySlotIndices = IntStream.range(0, builtSlots.size()).map(i -> i + 40)
+            Set<Integer> accessorySlotIndices = IntStream.range(0, builtSlots.size())
+                    .filter(index -> builtSlots.get(index).canHoldItem(oldStack, player)).map(i -> i + 40)
                     .collect(HashSet::new, Set::add, Set::addAll);
             if (slotId < 4) { // Move out of armor
                 if (!this.moveItemStackTo(oldStack, 4, 40, false)) {

@@ -1,6 +1,7 @@
 package net.ltxprogrammer.changed.item;
 
 import net.ltxprogrammer.changed.data.AccessorySlotContext;
+import net.ltxprogrammer.changed.data.AccessorySlotType;
 import net.ltxprogrammer.changed.data.AccessorySlots;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.BlockSource;
@@ -57,6 +58,39 @@ public interface AccessoryItem {
 
     static boolean isEmptyHanded(AccessorySlotContext<?> slotContext, InteractionHand hand) {
         return slotContext.wearer().getItemInHand(hand).isEmpty();
+    }
+
+    /**
+     * Allows an accessory to deny placement in a slot
+     * @param itemStack stack to check
+     * @param wearer entity to wear the accessory
+     * @param slot slot where the stack will be
+     * @return true if the item is allowed in the slot
+     */
+    default boolean allowedInSlot(ItemStack itemStack, LivingEntity wearer, AccessorySlotType slot) {
+        return true;
+    }
+
+    /**
+     * Allows an accessory to declare compatibility with another item
+     * @param itemStack stack to check
+     * @param otherStack other stack to check, may not be an AccessoryItem
+     * @param wearer entity to wear the accessories
+     * @param slot slot where this stack will be
+     * @param otherSlot slot where the other stack will be
+     * @return true if the combination of items is compatible
+     */
+    default boolean allowedWith(ItemStack itemStack, ItemStack otherStack, LivingEntity wearer, AccessorySlotType slot, AccessorySlotType otherSlot) {
+        return true;
+    }
+
+    /**
+     * Allows equipped accessories to indicate a slot is unavailable
+     * @param otherSlot
+     * @return
+     */
+    default boolean shouldDisableSlot(AccessorySlotContext<?> slotContext, AccessorySlotType otherSlot) {
+        return false;
     }
 
     default void accessoryEquipped(AccessorySlotContext<?> slotContext) {}

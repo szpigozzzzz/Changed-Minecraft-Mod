@@ -26,7 +26,6 @@ import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.items.ItemHandlerHelper;
@@ -113,6 +112,10 @@ public class AccessorySlots implements Container {
         return getForEntity(livingEntity).map(slots -> slots.getItems().anyMatch(predicate)).orElse(false);
     }
 
+    public static boolean isSlotAvailable(LivingEntity livingEntity, AccessorySlotType slot) {
+        return getForEntity(livingEntity).flatMap(slots -> slots.getItem(slot)).map(ItemStack::isEmpty).orElse(false);
+    }
+
     public static boolean tryReplaceSlot(LivingEntity livingEntity, AccessorySlotType slot, ItemStack itemStack) {
         return getForEntity(livingEntity)
                 .filter(slots -> slots.hasSlot(slot))
@@ -152,6 +155,32 @@ public class AccessorySlots implements Container {
                 new AccessoryEventPacket(livingEntity.getId(), slotType, 2));
     }
 
+    public boolean isItemAllowedWithOthers(AccessorySlotType slotType, ItemStack stack) {
+        if (!slotType.canHoldItem(stack, this.owner))
+            return false;
+
+        if (stack.isEmpty())
+            return true;
+
+        return ChangedRegistry.ACCESSORY_SLOTS.get().getValues().stream().filter(otherSlotType -> otherSlotType != slotType)
+                .allMatch(otherSlotType -> {
+                    final var otherStack = this.getItem(otherSlotType).orElse(ItemStack.EMPTY);
+                    if (otherStack.isEmpty())
+                        return true;
+
+                    if (stack.getItem() instanceof AccessoryItem accessoryItem &&
+                        (!accessoryItem.allowedWith(stack, otherStack, this.owner, slotType, otherSlotType) ||
+                                accessoryItem.shouldDisableSlot(new AccessorySlotContext<>(this.owner, slotType, stack), otherSlotType)))
+                        return false;
+                    if (otherStack.getItem() instanceof AccessoryItem accessoryItem &&
+                            (!accessoryItem.allowedWith(otherStack, stack, this.owner, otherSlotType, slotType) ||
+                                    accessoryItem.shouldDisableSlot(new AccessorySlotContext<>(this.owner, otherSlotType, otherStack), slotType)))
+                        return false;
+
+                    return true;
+                });
+    }
+
     /**
      * Call when the slot carrier may change configuration, causing
      * @param allowedSlots test for which slots may stay
@@ -176,7 +205,7 @@ public class AccessorySlots implements Container {
                     return ItemStack.EMPTY;
                 }));
 
-        items.entrySet().stream().filter(entry -> !entry.getKey().canHoldItem(entry.getValue(), this.owner))
+        items.entrySet().stream().filter(entry -> !isItemAllowedWithOthers(entry.getKey(), entry.getValue()))
                 .filter(entry -> !entry.getValue().isEmpty())
                 .map(Map.Entry::getKey)
                 .forEach(slotType -> {
@@ -224,7 +253,7 @@ public class AccessorySlots implements Container {
     public boolean moveToSlot(AccessorySlotType slot, ItemStack stack) {
         if (!items.containsKey(slot))
             return false;
-        if (!slot.canHoldItem(stack, owner))
+        if (!isItemAllowedWithOthers(slot, stack))
             return false;
 
         ItemStack oldStack = items.get(slot);
@@ -453,7 +482,7 @@ public class AccessorySlots implements Container {
 
     public boolean hasSpaceFor(ItemStack stack) {
         for (var slot : items.keySet()) {
-            if (!slot.canHoldItem(stack, owner))
+            if (!isItemAllowedWithOthers(slot, stack))
                 continue;
 
             ItemStack oldStack = items.get(slot);

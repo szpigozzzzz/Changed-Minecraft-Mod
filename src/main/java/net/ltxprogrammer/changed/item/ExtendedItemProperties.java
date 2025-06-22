@@ -38,10 +38,6 @@ public interface ExtendedItemProperties {
         };
     }
 
-    default boolean allowedInSlot(ItemStack itemStack, LivingEntity wearer, AccessorySlotType slot) {
-        return true;
-    }
-
     // Should only be called with armor slots
     default boolean allowedToWear(ItemStack itemStack, LivingEntity wearer, EquipmentSlot slot) {
         if (!(itemStack.getEquipmentSlot() == slot || (itemStack.getItem() instanceof ArmorItem armorItem && armorItem.getSlot() == slot)))
