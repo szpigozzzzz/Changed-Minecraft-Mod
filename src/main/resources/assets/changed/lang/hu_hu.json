@@ -752,6 +752,8 @@
   "changed.stasis.modify.scale": "Méret: %s",
   "changed.stasis.modify.scale.tooltip": "Beállítás: Módosítja a latex lény méretét",
 
+  "changed.accessory.slot_disabled_by": "Rekeszt letiltja:",
+
   "changed.exoskeleton.prompt": "[%s]> %s",
   "changed.exoskeleton.battery_low": "Akkumulátorszint alacsony",
   "changed.exoskeleton.battery_critical": "Akkumulátorszint kritikus"
