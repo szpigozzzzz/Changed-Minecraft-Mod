@@ -26,6 +26,10 @@ public class FacilityPieceCollection {
         return pieces.stream().map(WeightedEntry.Wrapper::getData).anyMatch(facilityPiece::equals);
     }
 
+    public Stream<FacilityPiece> stream() {
+        return pieces.stream().map(WeightedEntry.Wrapper::getData);
+    }
+
     public Stream<FacilityPiece> shuffledStream(Random random) {
         if (this.totalWeight == 0) {
             return Stream.empty();

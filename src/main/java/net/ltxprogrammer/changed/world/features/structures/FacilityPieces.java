@@ -209,49 +209,61 @@ public class FacilityPieces { // TODO extend facility pieces to be data-oriented
                 var startPos = gluNeighbor(start.blockInfo().pos, start.blockInfo().state);
                 builder.addPiece(nextStructure);
 
+                if (span <= 0)
+                    return false;
+
                 int nextSpan = pieceType.shouldConsumeSpan() ? span - 1 : span;
-                if (span > 0) {
-                    stack.push(nextPiece);
+                stack.push(nextPiece);
 
-                    var genStack = new FacilityGenerationStack(stack, nextStructure.getBoundingBox(), context, nextSpan);
-                    List<GenStep> starts = new ArrayList<>();
-                    nextStructure.addSteps(genStack, starts);
+                var genStack = new FacilityGenerationStack(stack, nextStructure.getBoundingBox(), context, nextSpan);
+                List<GenStep> starts = new ArrayList<>();
+                nextStructure.addSteps(genStack, starts);
 
-                    int piecesBefore = ((StructurePiecesBuilderExtender)builder).pieceCount();
-                    starts.stream().filter(next -> !next.blockInfo().pos.equals(startPos)).forEach(next -> {
-                        treeGenerate(builder, context, stack, nextStructure, next, genDepth, nextSpan, allowedRegion);
-                    });
-                    int piecesAfter = ((StructurePiecesBuilderExtender)builder).pieceCount();
+                int piecesBefore = ((StructurePiecesBuilderExtender)builder).pieceCount();
+                starts.stream().filter(next -> !next.blockInfo().pos.equals(startPos)).forEach(next -> {
+                    treeGenerate(builder, context, stack, nextStructure, next, genDepth, nextSpan, allowedRegion);
+                });
+                int piecesAfter = ((StructurePiecesBuilderExtender)builder).pieceCount();
 
-                    if (piecesAfter > piecesBefore) // Successfully generated pieces that attach to this one
-                        return true;
+                stack.pop();
 
-                    // No piece was generated to attach to this one
-                    if (pieceType == PieceType.ROOM)
-                        return true; // This behaviour is expected for a room
+                if (piecesAfter > piecesBefore) // Successfully generated pieces that attach to this one
+                    return true;
 
-                    // Attempt to regenerate this piece as a room, to prevent a dead end
-                    ((StructurePiecesBuilderExtender)builder).removePiece(nextStructure);
-                    StructurePiece pieceToPut = BY_PIECE_TYPE.get(PieceType.ROOM).shuffledStream(context.random()).map(nextRoom -> {
-                        var nextRoomStructure = nextRoom.createStructurePiece(context.structureManager(), genDepth);
+                // No piece was generated to attach to this one
+                if (pieceType == PieceType.ROOM || pieceType == PieceType.SEAL)
+                    return true; // This behaviour is expected for a room
+
+                // Attempt to regenerate this piece as a room, to prevent a dead end
+                ((StructurePiecesBuilderExtender)builder).removePiece(nextStructure);
+
+                StructurePiece pieceToPut = BY_PIECE_TYPE.get(PieceType.ROOM).shuffledStream(context.random()).map(nextRoom -> {
+                    var nextRoomStructure = nextRoom.createStructurePiece(context.structureManager(), genDepth);
+                    if (!nextRoomStructure.setupBoundingBox(builder, start.blockInfo(), context.random(), allowedRegion))
+                        return null;
+
+                    // Success
+                    return nextRoomStructure;
+                }).filter(Objects::nonNull).findFirst().orElse(nextStructure);
+
+                if (pieceToPut == nextStructure) {
+                    pieceToPut = BY_PIECE_TYPE.get(PieceType.SEAL).stream().map(nextSeal -> {
+                        var nextRoomStructure = nextSeal.createStructurePiece(context.structureManager(), genDepth);
                         if (!nextRoomStructure.setupBoundingBox(builder, start.blockInfo(), context.random(), allowedRegion))
                             return null;
 
                         // Success
                         return nextRoomStructure;
                     }).filter(Objects::nonNull).findFirst().orElse(nextStructure);
-
-                    if (pieceToPut == nextStructure)
-                        Changed.LOGGER.debug("Failed to seal dead end in facility, startPos {}", startPos);
-                    else
-                        Changed.LOGGER.debug("Sealed dead end in facility, startPos {}", startPos);
-                    builder.addPiece(pieceToPut);
-
-                    stack.pop();
-                    return true;
                 }
 
-                return false;
+                if (pieceToPut == nextStructure)
+                    Changed.LOGGER.debug("Failed to seal dead end in facility, startPos {}", startPos);
+                else
+                    Changed.LOGGER.debug("Sealed dead end in facility, startPos {}", startPos);
+                builder.addPiece(pieceToPut);
+
+                return true;
             });
 
             if (placed)
