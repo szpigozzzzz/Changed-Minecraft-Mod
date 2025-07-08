@@ -602,8 +602,8 @@
   "changed.config.bpi.iris_color.sync_tooltip": "رنگ عنبیه چپ را با رنگ عنبیه راست هماهنگ می‌کند",
   "changed.config.bpi.sclera_color": "رنگ سفیدی چشم",
   "changed.config.bpi.eye_style": "مدل چشم: %s",
-  "changed.config.bpi.size": "Model Size",
-  "changed.config.bpi.size.value": "Size: %s%%",
+  "changed.config.bpi.size": "اندازه مدل",
+  "changed.config.bpi.size.value": "اندازه: %s%%",
   "changed.config.bpi.override_dl_iris": "جایگزینی رنگ عنبیه روی نسخه‌های لاتکس سیاه",
   "changed.config.bpi.override_all_eye_styles": "جایگزینی همه سبک‌های چشم برای هماهنگی"
 }
