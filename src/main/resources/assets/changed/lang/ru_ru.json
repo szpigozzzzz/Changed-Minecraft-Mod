@@ -359,6 +359,8 @@
   "block.changed.wall_library_upper": "Верхняя библиотечная стена",
   "block.changed.wall_vent": "Вентиляционная стена",
   "block.changed.wall_white": "Белая стена",
+  "block.changed.wall_white_green_striped": "Белая стена с зелёными полосками",
+  "block.changed.wall_white_green_tiled": "Белая стена с зелёными плитками",
   "block.changed.wall_white_slab": "Белая плита из стены",
   "block.changed.wall_white_stairs": "Белые ступени",
   "block.changed.white_lab_table": "Белый лабораторный стол",
