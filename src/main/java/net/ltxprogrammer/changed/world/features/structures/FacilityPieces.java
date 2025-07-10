@@ -131,17 +131,22 @@ public class FacilityPieces { // TODO extend facility pieces to be data-oriented
     }
 
     private static void registerSplits(FacilityPieceCollectionBuilder builder) {
+        // Blue
         builder.register(new FacilitySplitSection(Changed.modResource("facility/corridor/split/blue/intersection1_blue")))
                 .register(new FacilitySplitSection(Changed.modResource("facility/corridor/split/blue/intersection2_blue")))
                 .register(new FacilitySplitSection(Changed.modResource("facility/corridor/split/blue/corridor_blue_t_v1")))
+                .register(new FacilitySplitSection(Changed.modResource("facility/corridor/split/blue/blue_office_split1")))
 
+                // Red
                 .register(new FacilitySplitSection(Changed.modResource("facility/corridor/split/red/intersection1_red")))
                 .register(new FacilitySplitSection(Changed.modResource("facility/corridor/split/red/intersection2_red")))
                 .register(new FacilitySplitSection(Changed.modResource("facility/corridor/split/red/corridor_red_t_v1")))
 
+                // Gray
                 .register(new FacilitySplitSection(Changed.modResource("facility/corridor/split/gray/intersection1_gray")))
                 .register(new FacilitySplitSection(Changed.modResource("facility/corridor/split/gray/intersection2_gray")))
-                .register(new FacilitySplitSection(Changed.modResource("facility/corridor/split/gray/corridor_gray_circle")));
+                .register(new FacilitySplitSection(Changed.modResource("facility/corridor/split/gray/corridor_gray_circle")))
+                .register(new FacilitySplitSection(Changed.modResource("facility/corridor/split/gray/gray_office_split1")));
     }
 
     private static void registerRooms(FacilityPieceCollectionBuilder builder) {
