@@ -118,7 +118,7 @@ public class FacilityPieces { // TODO extend facility pieces to be data-oriented
                 .register(new FacilityCorridorSection(Changed.modResource("facility/corridor/stair/red/stairs1_red")))
                 .register(new FacilityCorridorSection(Changed.modResource("facility/corridor/stair/red/stairs2_red")))
 
-                // Misc
+            // Misc
             .register(new FacilityCorridorSection(Changed.modResource("facility/corridor/special/laser_hall")))
                 .register(FacilityPieceCollectionBuilder.WEIGHT_UNCOMMON, new FacilityCorridorSection(Changed.modResource("facility/corridor/special/bathroom_gray")))
                 .register(FacilityPieceCollectionBuilder.WEIGHT_UNCOMMON, new FacilityCorridorSection(Changed.modResource("facility/corridor/special/gh_hallway_gray")));
