@@ -3,7 +3,6 @@ package net.ltxprogrammer.changed.world.features.structures;
 import net.ltxprogrammer.changed.Changed;
 import net.ltxprogrammer.changed.block.GluBlock;
 import net.ltxprogrammer.changed.world.features.structures.facility.*;
-import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.util.Mth;
@@ -118,10 +117,18 @@ public class FacilityPieces { // TODO extend facility pieces to be data-oriented
                 .register(new FacilityCorridorSection(Changed.modResource("facility/corridor/stair/red/stairs1_red")))
                 .register(new FacilityCorridorSection(Changed.modResource("facility/corridor/stair/red/stairs2_red")))
 
+                // Bathrooms
+                .register(FacilityPieceCollectionBuilder.WEIGHT_LESSCOMMON, new FacilityCorridorSection(Changed.modResource("facility/corridor/special/bathroom_blue"), LootTables.LOW_TIER_LAB))
+                .register(FacilityPieceCollectionBuilder.WEIGHT_UNCOMMON, new FacilityCorridorSection(Changed.modResource("facility/corridor/special/bathroom_blue_risk"), LootTables.HIGH_TIER_LAB))
+
+                .register(FacilityPieceCollectionBuilder.WEIGHT_LESSCOMMON, new FacilityCorridorSection(Changed.modResource("facility/corridor/special/bathroom_gray"), LootTables.LOW_TIER_LAB))
+                .register(FacilityPieceCollectionBuilder.WEIGHT_UNCOMMON, new FacilityCorridorSection(Changed.modResource("facility/corridor/special/bathroom_gray_risk"), LootTables.HIGH_TIER_LAB))
+
+                .register(FacilityPieceCollectionBuilder.WEIGHT_LESSCOMMON, new FacilityCorridorSection(Changed.modResource("facility/corridor/special/bathroom_red"), LootTables.LOW_TIER_LAB))
+                .register(FacilityPieceCollectionBuilder.WEIGHT_UNCOMMON, new FacilityCorridorSection(Changed.modResource("facility/corridor/special/bathroom_red_risk"), LootTables.HIGH_TIER_LAB))
+
             // Misc
-            .register(new FacilityCorridorSection(Changed.modResource("facility/corridor/special/laser_hall")))
-                .register(FacilityPieceCollectionBuilder.WEIGHT_UNCOMMON, new FacilityCorridorSection(Changed.modResource("facility/corridor/special/bathroom_gray")))
-                .register(FacilityPieceCollectionBuilder.WEIGHT_UNCOMMON, new FacilityCorridorSection(Changed.modResource("facility/corridor/special/gh_hallway_gray")));
+            .register(new FacilityCorridorSection(Changed.modResource("facility/corridor/special/laser_hall")));
     }
 
     private static void registerTransitions(FacilityPieceCollectionBuilder builder) {
@@ -131,7 +138,7 @@ public class FacilityPieces { // TODO extend facility pieces to be data-oriented
     }
 
     private static void registerSplits(FacilityPieceCollectionBuilder builder) {
-        // Blue
+                // Blue
         builder.register(new FacilitySplitSection(Changed.modResource("facility/corridor/split/blue/intersection1_blue")))
                 .register(new FacilitySplitSection(Changed.modResource("facility/corridor/split/blue/intersection2_blue")))
                 .register(new FacilitySplitSection(Changed.modResource("facility/corridor/split/blue/corridor_blue_t_v1")))

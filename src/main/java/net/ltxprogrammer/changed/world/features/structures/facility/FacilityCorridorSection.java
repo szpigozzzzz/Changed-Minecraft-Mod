@@ -34,6 +34,10 @@ public class  FacilityCorridorSection extends FacilitySinglePiece {
         super(PieceType.CORRIDOR, templateName, LootTables.LOW_TIER_LAB);
     }
 
+    public FacilityCorridorSection(ResourceLocation templateName, ResourceLocation lootTable) {
+        super(PieceType.CORRIDOR, templateName, lootTable);
+    }
+
     @Override
     public WeightedRandomList<WeightedEntry.Wrapper<PieceType>> getValidNeighbors(FacilityGenerationStack stack) {
         int corridors = stack.sequentialMatch(piece -> piece.type == PieceType.CORRIDOR);
