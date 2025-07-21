@@ -469,7 +469,7 @@ public class ConnectedFloorBlock extends ChangedBlock {
     }
 
     public BlockState getStateForPlacement(BlockPlaceContext context) {
-        if (!Direction.Plane.HORIZONTAL.test(context.getClickedFace()))
+        if (!Direction.Plane.HORIZONTAL.test(context.getClickedFace()) || (context.getPlayer() != null && context.getPlayer().isShiftKeyDown()))
             return super.getStateForPlacement(context);
 
         final var clickPos = context.getClickedPos();
