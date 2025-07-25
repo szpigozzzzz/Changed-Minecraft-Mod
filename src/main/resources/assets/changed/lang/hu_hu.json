@@ -58,7 +58,7 @@
   "subtitles.changed.close3": "Laborajtó zárul",
   "subtitles.changed.chime2": "Billentyűzet hozzáférést biztosít",
   "subtitles.changed.buzzer1": "Billentyűzet megtagadja a hozzáférést",
-  "subtitles.changed.crash": "Konténer eltörik",
+  "subtitles.changed.crash": "Tároló eltörik",
   "subtitles.changed.equip3": "Rövidnadrág zizeg",
   "subtitles.changed.fire": "Gáz sziszeg",
   "subtitles.changed.bow2": "Doboz nyílik",
@@ -211,7 +211,7 @@
   "container.changed.keypad": "Írja be a jelszót",
   "container.changed.note": "Értesítés",
   "container.changed.access_chest": "Láda felszerelése",
-  "container.changed.cardboard_container": "Kartondoboz konténer",
+  "container.changed.cardboard_container": "Kartondoboz tároló",
   "container.changed.cardboard_box_small": "Kicsi kartondoboz",
 
   "text.changed.compact_disc.title": "\"%s\"",
