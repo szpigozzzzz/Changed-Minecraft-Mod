@@ -126,6 +126,15 @@ public class FacilityPieces { // TODO extend facility pieces to be data-oriented
 
                 .register(FacilityPieceCollectionBuilder.WEIGHT_LESSCOMMON, new FacilityCorridorSection(Changed.modResource("facility/corridor/special/bathroom_red"), LootTables.LOW_TIER_LAB))
                 .register(FacilityPieceCollectionBuilder.WEIGHT_UNCOMMON, new FacilityCorridorSection(Changed.modResource("facility/corridor/special/bathroom_red_risk"), LootTables.HIGH_TIER_LAB))
+                // Greenhouse
+                .register(FacilityPieceCollectionBuilder.WEIGHT_LESSCOMMON, new FacilityCorridorSection(Changed.modResource("facility/corridor/special/gh_hallway_blue"), LootTables.ORANGE_TREE_CHEST))
+                .register(FacilityPieceCollectionBuilder.WEIGHT_UNCOMMON, new FacilityCorridorSection(Changed.modResource("facility/corridor/special/gh_hallway_blue_risk"), LootTables.HIGH_TIER_LAB))
+
+                .register(FacilityPieceCollectionBuilder.WEIGHT_LESSCOMMON, new FacilityCorridorSection(Changed.modResource("facility/corridor/special/gh_hallway_gray"), LootTables.ORANGE_TREE_CHEST))
+                .register(FacilityPieceCollectionBuilder.WEIGHT_UNCOMMON, new FacilityCorridorSection(Changed.modResource("facility/corridor/special/gh_hallway_gray_risk"), LootTables.HIGH_TIER_LAB))
+
+                .register(FacilityPieceCollectionBuilder.WEIGHT_LESSCOMMON, new FacilityCorridorSection(Changed.modResource("facility/corridor/special/gh_hallway_red"), LootTables.ORANGE_TREE_CHEST))
+                .register(FacilityPieceCollectionBuilder.WEIGHT_UNCOMMON, new FacilityCorridorSection(Changed.modResource("facility/corridor/special/gh_hallway_red_risk"), LootTables.HIGH_TIER_LAB))
 
             // Misc
             .register(new FacilityCorridorSection(Changed.modResource("facility/corridor/special/laser_hall")));
