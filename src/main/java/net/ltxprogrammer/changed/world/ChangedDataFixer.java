@@ -160,7 +160,7 @@ public class ChangedDataFixer {
         updateID(ENTITY_ID_REMAP, entityTag, "id");
     }
 
-    private void updateBlockEntity(@NotNull CompoundTag entityTag) {
+    public void updateBlockEntity(@NotNull CompoundTag entityTag) {
         updateTagNames(entityTag);
         updateID(ENTITY_ID_REMAP, entityTag, "id");
 
