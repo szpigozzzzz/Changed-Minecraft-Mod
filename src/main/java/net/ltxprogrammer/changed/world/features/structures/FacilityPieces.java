@@ -118,23 +118,23 @@ public class FacilityPieces { // TODO extend facility pieces to be data-oriented
                 .register(new FacilityCorridorSection(Changed.modResource("facility/corridor/stair/red/stairs2_red")))
 
                 // Bathrooms
-                .register(FacilityPieceCollectionBuilder.WEIGHT_LESSCOMMON, new FacilityCorridorSection(Changed.modResource("facility/corridor/special/bathroom_blue"), LootTables.LOW_TIER_LAB))
-                .register(FacilityPieceCollectionBuilder.WEIGHT_UNCOMMON, new FacilityCorridorSection(Changed.modResource("facility/corridor/special/bathroom_blue_risk"), LootTables.HIGH_TIER_LAB))
+                .register(FacilityPieceCollectionBuilder.WEIGHT_LESSCOMMON, new FacilityCorridorSection(Changed.modResource("facility/corridor/special/bathroom/bathroom_blue"), LootTables.LOW_TIER_LAB))
+                .register(FacilityPieceCollectionBuilder.WEIGHT_UNCOMMON, new FacilityCorridorSection(Changed.modResource("facility/corridor/special/bathroom/bathroom_blue_risk"), LootTables.HIGH_TIER_LAB))
 
-                .register(FacilityPieceCollectionBuilder.WEIGHT_LESSCOMMON, new FacilityCorridorSection(Changed.modResource("facility/corridor/special/bathroom_gray"), LootTables.LOW_TIER_LAB))
-                .register(FacilityPieceCollectionBuilder.WEIGHT_UNCOMMON, new FacilityCorridorSection(Changed.modResource("facility/corridor/special/bathroom_gray_risk"), LootTables.HIGH_TIER_LAB))
+                .register(FacilityPieceCollectionBuilder.WEIGHT_LESSCOMMON, new FacilityCorridorSection(Changed.modResource("facility/corridor/special/bathroom/bathroom_gray"), LootTables.LOW_TIER_LAB))
+                .register(FacilityPieceCollectionBuilder.WEIGHT_UNCOMMON, new FacilityCorridorSection(Changed.modResource("facility/corridor/special/bathroom/bathroom_gray_risk"), LootTables.HIGH_TIER_LAB))
 
-                .register(FacilityPieceCollectionBuilder.WEIGHT_LESSCOMMON, new FacilityCorridorSection(Changed.modResource("facility/corridor/special/bathroom_red"), LootTables.LOW_TIER_LAB))
-                .register(FacilityPieceCollectionBuilder.WEIGHT_UNCOMMON, new FacilityCorridorSection(Changed.modResource("facility/corridor/special/bathroom_red_risk"), LootTables.HIGH_TIER_LAB))
-                // Greenhouse
-                .register(FacilityPieceCollectionBuilder.WEIGHT_LESSCOMMON, new FacilityCorridorSection(Changed.modResource("facility/corridor/special/gh_hallway_blue"), LootTables.ORANGE_TREE_CHEST))
-                .register(FacilityPieceCollectionBuilder.WEIGHT_UNCOMMON, new FacilityCorridorSection(Changed.modResource("facility/corridor/special/gh_hallway_blue_risk"), LootTables.HIGH_TIER_LAB))
+                .register(FacilityPieceCollectionBuilder.WEIGHT_LESSCOMMON, new FacilityCorridorSection(Changed.modResource("facility/corridor/special/bathroom/bathroom_red"), LootTables.LOW_TIER_LAB))
+                .register(FacilityPieceCollectionBuilder.WEIGHT_UNCOMMON, new FacilityCorridorSection(Changed.modResource("facility/corridor/special/bathroom/bathroom_red_risk"), LootTables.HIGH_TIER_LAB))
+                // Garden
+                .register(FacilityPieceCollectionBuilder.WEIGHT_LESSCOMMON, new FacilityCorridorSection(Changed.modResource("facility/corridor/special/garden/hallway_blue"), LootTables.ORANGE_TREE_CHEST))
+                .register(FacilityPieceCollectionBuilder.WEIGHT_UNCOMMON, new FacilityCorridorSection(Changed.modResource("facility/corridor/special/garden/hallway_blue_risk"), LootTables.HIGH_TIER_LAB))
 
-                .register(FacilityPieceCollectionBuilder.WEIGHT_LESSCOMMON, new FacilityCorridorSection(Changed.modResource("facility/corridor/special/gh_hallway_gray"), LootTables.ORANGE_TREE_CHEST))
-                .register(FacilityPieceCollectionBuilder.WEIGHT_UNCOMMON, new FacilityCorridorSection(Changed.modResource("facility/corridor/special/gh_hallway_gray_risk"), LootTables.HIGH_TIER_LAB))
+                .register(FacilityPieceCollectionBuilder.WEIGHT_LESSCOMMON, new FacilityCorridorSection(Changed.modResource("facility/corridor/special/garden/hallway_gray"), LootTables.ORANGE_TREE_CHEST))
+                .register(FacilityPieceCollectionBuilder.WEIGHT_UNCOMMON, new FacilityCorridorSection(Changed.modResource("facility/corridor/special/garden/hallway_gray_risk"), LootTables.HIGH_TIER_LAB))
 
-                .register(FacilityPieceCollectionBuilder.WEIGHT_LESSCOMMON, new FacilityCorridorSection(Changed.modResource("facility/corridor/special/gh_hallway_red"), LootTables.ORANGE_TREE_CHEST))
-                .register(FacilityPieceCollectionBuilder.WEIGHT_UNCOMMON, new FacilityCorridorSection(Changed.modResource("facility/corridor/special/gh_hallway_red_risk"), LootTables.HIGH_TIER_LAB))
+                .register(FacilityPieceCollectionBuilder.WEIGHT_LESSCOMMON, new FacilityCorridorSection(Changed.modResource("facility/corridor/special/garden/hallway_red"), LootTables.ORANGE_TREE_CHEST))
+                .register(FacilityPieceCollectionBuilder.WEIGHT_UNCOMMON, new FacilityCorridorSection(Changed.modResource("facility/corridor/special/garden/hallway_red_risk"), LootTables.HIGH_TIER_LAB))
 
             // Misc
             .register(new FacilityCorridorSection(Changed.modResource("facility/corridor/special/laser_hall")));
@@ -166,16 +166,25 @@ public class FacilityPieces { // TODO extend facility pieces to be data-oriented
     }
 
     private static void registerRooms(FacilityPieceCollectionBuilder builder) {
+                // Blue
         builder.register(new FacilityRoomPiece(Changed.modResource("facility/room/blue/blue_wl_test"), LootTables.DECAYED_LAB_WL))
-                .register(new FacilityRoomPiece(Changed.modResource("facility/room/red/red_dl_test"), LootTables.DECAYED_LAB_DL))
-                .register(new FacilityRoomPiece(Changed.modResource("facility/room/gray/gray_origin"), LootTables.DECAYED_LAB_ORIGIN))
                 .register(new FacilityRoomPiece(Changed.modResource("facility/room/blue/blue_storage"), LootTables.LAB_WHITE_LATEX))
-                .register(new FacilityRoomPiece(Changed.modResource("facility/room/red/red_storage"), LootTables.LAB_DARK_LATEX))
-                .register(new FacilityRoomPiece(Changed.modResource("facility/room/gray/gray_storage"), LootTables.DECAYED_LAB_ORIGIN))
                 .register(new FacilityRoomPiece(Changed.modResource("facility/room/blue/blue_wl_risk"), LootTables.HIGH_TIER_LAB))
-                .register(new FacilityRoomPiece(Changed.modResource("facility/room/red/red_dl_risk"), LootTables.HIGH_TIER_LAB))
+                .register(FacilityPieceCollectionBuilder.WEIGHT_LESSCOMMON, new FacilityRoomPiece(Changed.modResource("facility/room/blue/blue_office_clean"), LootTables.LOW_TIER_LAB))
+                .register(FacilityPieceCollectionBuilder.WEIGHT_UNCOMMON, new FacilityRoomPiece(Changed.modResource("facility/room/blue/blue_office_risk"), LootTables.HIGH_TIER_LAB))
 
-                .register(new FacilityRoomPiece(Changed.modResource("facility/room/gray/gray_office_clean_1"), LootTables.LAB_WHITE_LATEX));
+                // Red
+                .register(new FacilityRoomPiece(Changed.modResource("facility/room/red/red_dl_test"), LootTables.DECAYED_LAB_DL))
+                .register(new FacilityRoomPiece(Changed.modResource("facility/room/red/red_storage"), LootTables.LAB_DARK_LATEX))
+                .register(new FacilityRoomPiece(Changed.modResource("facility/room/red/red_dl_risk"), LootTables.HIGH_TIER_LAB))
+                .register(FacilityPieceCollectionBuilder.WEIGHT_LESSCOMMON, new FacilityRoomPiece(Changed.modResource("facility/room/red/red_office_clean"), LootTables.LOW_TIER_LAB))
+                .register(FacilityPieceCollectionBuilder.WEIGHT_UNCOMMON, new FacilityRoomPiece(Changed.modResource("facility/room/red/red_office_risk"), LootTables.HIGH_TIER_LAB))
+
+                // Gray
+                .register(new FacilityRoomPiece(Changed.modResource("facility/room/gray/gray_origin"), LootTables.DECAYED_LAB_ORIGIN))
+                .register(new FacilityRoomPiece(Changed.modResource("facility/room/gray/gray_storage"), LootTables.DECAYED_LAB_ORIGIN))
+                .register(FacilityPieceCollectionBuilder.WEIGHT_LESSCOMMON, new FacilityRoomPiece(Changed.modResource("facility/room/gray/gray_office_clean"), LootTables.LOW_TIER_LAB))
+                .register(FacilityPieceCollectionBuilder.WEIGHT_UNCOMMON, new FacilityRoomPiece(Changed.modResource("facility/room/gray/gray_office_risk"), LootTables.HIGH_TIER_LAB));
     }
 
     private static void registerSeals(FacilityPieceCollectionBuilder builder) {

@@ -18,6 +18,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.random.Weight;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.StructureFeatureManager;
 import net.minecraft.world.level.WorldGenLevel;
@@ -48,6 +49,12 @@ public abstract class FacilitySinglePiece extends FacilityPiece {
         this.lootTable = Optional.of(lootTable);
     }
 
+    protected FacilitySinglePiece(Weight weight, PieceType type, ResourceLocation templateName, ResourceLocation lootTable) {
+        super(type);
+        this.templateName = templateName;
+        this.lootTable = Optional.of(lootTable);
+    }
+
     public static class StructureInstance extends FacilityPieceInstance {
         private final ResourceLocation templateName;
         private final ResourceLocation lootTable;
@@ -58,7 +65,7 @@ public abstract class FacilitySinglePiece extends FacilityPiece {
             super(ChangedStructurePieceTypes.FACILITY_SINGLE.get(), genDepth, box);
             this.templateName = templateName;
             this.lootTable = lootTable.orElse(null);
-            this.template = manager.get(templateName).orElseThrow();
+            this.template = manager.get(templateName).orElseThrow(() -> new IllegalArgumentException("Cannot read template " + templateName));
         }
 
         public StructureInstance(StructureManager manager, CompoundTag tag) {
