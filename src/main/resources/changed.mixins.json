@@ -12,6 +12,7 @@
     "PackMixin",
     "PrimaryLevelDataMixin",
     "StructurePiecesBuilderMixin",
+    "StructureTemplateMixin",
     "TreeFeaturesMixin",
     "block.BlockBehaviourMixin",
     "block.BlockBehaviourMixinFixer",

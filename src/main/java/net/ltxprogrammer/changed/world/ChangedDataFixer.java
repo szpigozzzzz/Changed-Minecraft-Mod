@@ -71,7 +71,7 @@ public class ChangedDataFixer {
     });
 
     private final HashMap<ResourceLocation, ResourceLocation> BLOCK_ID_REMAP = Util.make(new HashMap<>(), map -> {
-        
+
     });
 
     // IDs that both blocks and items share
@@ -85,6 +85,11 @@ public class ChangedDataFixer {
         map.put(Changed.modResource("light_latex_puddle_female"), ChangedBlocks.WHITE_LATEX_PUDDLE_FEMALE.getId());
         map.put(Changed.modResource("light_latex_puddle_male"), ChangedBlocks.WHITE_LATEX_PUDDLE_MALE.getId());
         map.put(Changed.modResource("tiles_darkblue"), ChangedBlocks.TILES_TEAL.getId());
+
+        map.put(Changed.modResource("tiles_greenhouse_connected"), ChangedBlocks.TILES_GREENHOUSE.getId());
+        map.put(Changed.modResource("tiles_grayblue_connected"), ChangedBlocks.TILES_GRAYBLUE.getId());
+        //map.put(Changed.modResource("tiles_grayblue_bolted_connected"), ChangedBlocks.TILES_GRAYBLUE_BOLTED.getId());
+        map.put(Changed.modResource("tiles_white_connected"), ChangedBlocks.TILES_WHITE.getId());
     });
 
     private final HashMap<ResourceLocation, ResourceLocation> VARIANT_ID_REMAP = Util.make(new HashMap<>(), map -> {
@@ -155,7 +160,7 @@ public class ChangedDataFixer {
         updateID(ENTITY_ID_REMAP, entityTag, "id");
     }
 
-    private void updateBlockEntity(@NotNull CompoundTag entityTag) {
+    public void updateBlockEntity(@NotNull CompoundTag entityTag) {
         updateTagNames(entityTag);
         updateID(ENTITY_ID_REMAP, entityTag, "id");
 
@@ -202,6 +207,28 @@ public class ChangedDataFixer {
             }
 
             updateID(VARIANT_ID_REMAP, tag, "TransfurVariant");
+        });
+        map.put(DataFixTypes.STRUCTURE, tag -> {
+            if (tag.get("entities") instanceof ListTag listTag) {
+                listTag.forEach(entityTag -> {
+                    if (entityTag instanceof CompoundTag compoundTag && compoundTag.get("nbt") instanceof CompoundTag entityDataTag)
+                        updateEntity(entityDataTag);
+                });
+            }
+
+            if (tag.get("palette") instanceof ListTag listTag) {
+                listTag.forEach(paletteTag -> {
+                    if (paletteTag instanceof CompoundTag compoundTag)
+                        updateBlock(compoundTag);
+                });
+            }
+
+            if (tag.get("blocks") instanceof ListTag listTag) {
+                listTag.forEach(blockTag -> {
+                    if (blockTag instanceof CompoundTag compoundTag && compoundTag.get("nbt") instanceof CompoundTag blockEntityTag)
+                        updateBlockEntity(blockEntityTag);
+                });
+            }
         });
         map.put(DataFixTypes.CHUNK, tag -> {
             if (tag.get("block_entities") instanceof ListTag listTag) {
