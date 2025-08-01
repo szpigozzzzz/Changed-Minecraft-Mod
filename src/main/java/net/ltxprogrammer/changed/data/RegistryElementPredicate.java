@@ -6,12 +6,19 @@ import net.minecraftforge.registries.IForgeRegistry;
 import net.minecraftforge.registries.IForgeRegistryEntry;
 
 import java.util.function.Predicate;
+import java.util.stream.Stream;
 
 public abstract class RegistryElementPredicate<T extends IForgeRegistryEntry<T>> implements Predicate<T> {
     protected final IForgeRegistry<T> registry;
 
     protected RegistryElementPredicate(IForgeRegistry<T> registry) {
         this.registry = registry;
+    }
+
+    public abstract void throwIfMissing();
+
+    public Stream<T> getValues() {
+        return registry.getValues().stream().filter(this);
     }
 
     protected static class NamespaceSpec<T extends IForgeRegistryEntry<T>> extends RegistryElementPredicate<T> {
@@ -28,6 +35,9 @@ public abstract class RegistryElementPredicate<T extends IForgeRegistryEntry<T>>
             if (regName == null) return false;
             return regName.getNamespace().equals(namespace);
         }
+
+        @Override
+        public void throwIfMissing() {}
     }
 
     protected static class FullNameSpec<T extends IForgeRegistryEntry<T>> extends RegistryElementPredicate<T> {
@@ -41,6 +51,11 @@ public abstract class RegistryElementPredicate<T extends IForgeRegistryEntry<T>>
         @Override
         public boolean test(T t) {
             return id.equals(t.getRegistryName());
+        }
+
+        @Override
+        public void throwIfMissing() {
+            registry.getHolder(id).orElseThrow(() -> new IllegalArgumentException("Full registry object name not present in registry"));
         }
     }
 
@@ -58,6 +73,9 @@ public abstract class RegistryElementPredicate<T extends IForgeRegistryEntry<T>>
             if (tags == null) return false;
             return tags.getTag(tag).contains(t);
         }
+
+        @Override
+        public void throwIfMissing() {}
     }
 
     public static <T extends IForgeRegistryEntry<T>> RegistryElementPredicate<T> parseString(IForgeRegistry<T> registry, String string) {

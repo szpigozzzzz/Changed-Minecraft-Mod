@@ -8,6 +8,7 @@ import net.ltxprogrammer.changed.Changed;
 import net.ltxprogrammer.changed.ability.IAbstractChangedEntity;
 import net.ltxprogrammer.changed.data.AccessorySlotType;
 import net.ltxprogrammer.changed.data.AccessorySlots;
+import net.ltxprogrammer.changed.data.RegistryElementPredicate;
 import net.ltxprogrammer.changed.entity.beast.CustomLatexEntity;
 import net.ltxprogrammer.changed.init.ChangedRegistry;
 import net.ltxprogrammer.changed.network.packet.AccessorySyncPacket;
@@ -99,13 +100,13 @@ public class AccessoryEntities extends SimplePreparableReloadListener<Multimap<E
         Multimap<EntityType<?>, AccessorySlotType> working = HashMultimap.create();
 
         root.getAsJsonArray("entities").forEach(entity -> {
-            final ResourceLocation entityId = new ResourceLocation(entity.getAsString());
-            if (!ForgeRegistries.ENTITIES.containsKey(entityId))
-                throw new IllegalArgumentException("Unknown entity " + entityId);
-            final EntityType<?> entityType = ForgeRegistries.ENTITIES.getValue(new ResourceLocation(entity.getAsString()));
+            final var predicate = RegistryElementPredicate.parseString(ForgeRegistries.ENTITIES, entity.getAsString());
+            predicate.throwIfMissing();
 
-            root.getAsJsonArray("slots").forEach(slot -> {
-                working.put(entityType, ChangedRegistry.ACCESSORY_SLOTS.get().getValue(new ResourceLocation(slot.getAsString())));
+            predicate.getValues().forEach(entityType -> {
+                root.getAsJsonArray("slots").forEach(slot -> {
+                    working.put(entityType, ChangedRegistry.ACCESSORY_SLOTS.get().getValue(new ResourceLocation(slot.getAsString())));
+                });
             });
         });
 
