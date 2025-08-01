@@ -92,7 +92,7 @@ public abstract class AdvancedHumanoidModel<T extends ChangedEntity> extends Pla
     @Override
     public void setupAnim(T entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
         ((ClientLivingEntityExtender)entity.maybeGetUnderlying()).getOrderedAnimations().forEach(instance -> {
-            instance.animate(this, Mth.positiveModulo(ageInTicks, 1.0f));
+            instance.animate(this, entity, Mth.positiveModulo(ageInTicks, 1.0f));
         });
 
         Exoskeleton.getEntityExoskeleton(entity).ifPresent(pair -> {
