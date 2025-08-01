@@ -1,5 +1,6 @@
 package net.ltxprogrammer.changed.client.animations;
 
+import com.google.common.collect.ImmutableMap;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import net.ltxprogrammer.changed.Changed;
@@ -8,13 +9,37 @@ import net.ltxprogrammer.changed.client.renderer.animate.tail.AbstractTailAnimat
 import net.ltxprogrammer.changed.client.renderer.animate.wing.AbstractWingAnimatorV2;
 import net.ltxprogrammer.changed.client.renderer.animate.wing.BeeWingInitAnimator;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraftforge.eventbus.api.Event;
+import net.minecraftforge.fml.ModLoader;
+import net.minecraftforge.fml.event.IModBusEvent;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
 public class LimbExtensions {
-    // TODO write and post gather event
+    private static boolean hasRunEvent = false;
     private static final Map<ResourceLocation, LimbExtension> EXTENSIONS = new HashMap<>();
+
+    public static class GatherExtensionsEvent extends Event implements IModBusEvent {
+        private final Map<ResourceLocation, LimbExtension> builder;
+
+        public GatherExtensionsEvent(Map<ResourceLocation, LimbExtension> builder) {
+            this.builder = builder;
+        }
+
+        public void addLimbExtension(ResourceLocation id, LimbExtension extension) {
+            if (builder.containsKey(id))
+                throw new IllegalArgumentException("Duplicate extension definition " + id);
+            builder.put(id, extension);
+        }
+    }
+
+    public static void gatherExtensions() {
+        if (hasRunEvent)
+            return;
+        ModLoader.get().postEvent(new GatherExtensionsEvent(EXTENSIONS));
+        hasRunEvent = true;
+    }
 
     public static DataResult<LimbExtension> fromSerial(ResourceLocation name) {
         return EXTENSIONS.keySet().stream().filter(type -> type.equals(name))
