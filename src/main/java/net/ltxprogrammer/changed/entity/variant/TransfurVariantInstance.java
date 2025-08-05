@@ -75,6 +75,7 @@ public abstract class TransfurVariantInstance<T extends ChangedEntity> {
     public MiningStrength miningStrength;
     public UseItemMode itemUseMode;
     public float jumpStrength;
+    public float stepSize;
     public int ageAsVariant = 0;
     protected int air = -100;
     protected int jumpCharges = 0;
@@ -227,6 +228,7 @@ public abstract class TransfurVariantInstance<T extends ChangedEntity> {
         this.miningStrength = parent.miningStrength;
         this.itemUseMode = parent.itemUseMode;
         this.jumpStrength = parent.jumpStrength;
+        this.stepSize = parent.stepSize;
 
         var builder = new ImmutableMap.Builder<AbstractAbility<?>, AbstractAbilityInstance>();
         parent.abilities.forEach(abilityFunction -> {
@@ -923,10 +925,10 @@ public abstract class TransfurVariantInstance<T extends ChangedEntity> {
         }
 
         // Step size
-        if (host.isCrouching() && parent.stepSize > 0.6f)
+        if (host.isCrouching() && stepSize > 0.6f)
             host.maxUpStep = 0.6f;
         else
-            host.maxUpStep = parent.stepSize;
+            host.maxUpStep = stepSize;
 
         // Effects
         if (visionType == VisionType.BLIND) {
