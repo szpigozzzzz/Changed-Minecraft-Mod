@@ -81,17 +81,17 @@ public class AbilityRenderer implements ResourceManagerReloadListener {
         return fabulous ? Sheets.translucentCullBlockSheet() : Sheets.translucentItemSheet();
     }
 
-    public void renderModelLists(BakedModel model, AbstractAbilityInstance abilityInstance, int packedLight, int packedOverlay, PoseStack poseStack, VertexConsumer buffer) {
+    public void renderModelLists(BakedModel model, AbstractAbilityInstance abilityInstance, int packedLight, int packedOverlay, PoseStack poseStack, VertexConsumer buffer, float alpha) {
         Random random = new Random();
         long seed = 42L;
 
         for(Direction direction : Direction.values()) {
             random.setSeed(seed);
-            this.renderQuadList(poseStack, buffer, model.getQuads(null, direction, random), abilityInstance, packedLight, packedOverlay);
+            this.renderQuadList(poseStack, buffer, model.getQuads(null, direction, random), abilityInstance, packedLight, packedOverlay, alpha);
         }
 
         random.setSeed(seed);
-        this.renderQuadList(poseStack, buffer, model.getQuads(null, null, random), abilityInstance, packedLight, packedOverlay);
+        this.renderQuadList(poseStack, buffer, model.getQuads(null, null, random), abilityInstance, packedLight, packedOverlay, alpha);
     }
 
     public void drawItemLayered(BakedModel modelIn, AbstractAbilityInstance abilityInstanceIn, PoseStack poseStack,
@@ -111,7 +111,7 @@ public class AbilityRenderer implements ResourceManagerReloadListener {
         net.minecraftforge.client.ForgeHooksClient.setRenderType(null);*/
     }
 
-    public void render(AbstractAbilityInstance abilityInstance, ItemTransforms.TransformType transformType, boolean leftHand, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight, int packedOverlay, BakedModel model) {
+    public void render(AbstractAbilityInstance abilityInstance, ItemTransforms.TransformType transformType, boolean leftHand, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight, int packedOverlay, BakedModel model, float alpha) {
         poseStack.pushPose();
 
         model = net.minecraftforge.client.ForgeHooksClient.handleCameraTransforms(poseStack, model, transformType, leftHand);
@@ -130,7 +130,7 @@ public class AbilityRenderer implements ResourceManagerReloadListener {
                     buffer = ItemRenderer.getFoilBuffer(bufferSource, rendertype, true, abilityInstance.hasFoil());
                 }
 
-                this.renderModelLists(model, abilityInstance, packedLight, packedOverlay, poseStack, buffer);
+                this.renderModelLists(model, abilityInstance, packedLight, packedOverlay, poseStack, buffer, alpha);
             }
         } else {
             //net.minecraftforge.client.RenderProperties.get(abilityInstance).getItemStackRenderer().renderByItem(abilityInstance, transformType, poseStack, bufferSource, packedLight, packedOverlay);
@@ -151,7 +151,7 @@ public class AbilityRenderer implements ResourceManagerReloadListener {
         return VertexMultiConsumer.create(new SheetedDecalTextureGenerator(bufferSource.getBuffer(RenderType.glintDirect()), pose.pose(), pose.normal()), bufferSource.getBuffer(renderType));
     }
 
-    public void renderQuadList(PoseStack poseStack, VertexConsumer buffer, List<BakedQuad> quads, AbstractAbilityInstance abilityInstance, int packedLight, int packedOverlay) {
+    public void renderQuadList(PoseStack poseStack, VertexConsumer buffer, List<BakedQuad> quads, AbstractAbilityInstance abilityInstance, int packedLight, int packedOverlay, float alpha) {
         PoseStack.Pose pose = poseStack.last();
 
         Int2ObjectMap<Optional<Integer>> cachedColors = new Int2ObjectOpenHashMap<>(4);
@@ -170,7 +170,7 @@ public class AbilityRenderer implements ResourceManagerReloadListener {
             float red = (float)(color >> 16 & 255) / 255.0F;
             float green = (float)(color >> 8 & 255) / 255.0F;
             float blue = (float)(color & 255) / 255.0F;
-            buffer.putBulkData(pose, quad, red, green, blue, packedLight, packedOverlay, true);
+            buffer.putBulkData(pose, quad, red, green, blue, alpha, packedLight, packedOverlay, true);
         }
 
     }
@@ -191,7 +191,7 @@ public class AbilityRenderer implements ResourceManagerReloadListener {
 
     public void renderStatic(@Nullable LivingEntity entity, AbstractAbilityInstance abilityInstance, ItemTransforms.TransformType transformType, boolean leftHand, PoseStack poseStack, MultiBufferSource bufferSource, @Nullable Level level, int packedLight, int packedOverlay, int id) {
         BakedModel model = this.getModel(abilityInstance, level, entity, id);
-        this.render(abilityInstance, transformType, leftHand, poseStack, bufferSource, packedLight, packedOverlay, model);
+        this.render(abilityInstance, transformType, leftHand, poseStack, bufferSource, packedLight, packedOverlay, model, 1.0f);
     }
 
     public void renderGuiAbility(AbstractAbilityInstance abilityInstance, int x, int y) {
@@ -233,8 +233,8 @@ public class AbilityRenderer implements ResourceManagerReloadListener {
             modelViewStack.scale(1.0F, -1.0F, 1.0F);
             modelViewStack.scale(scale, scale, scale);
             RenderSystem.applyModelViewMatrix();
-            RenderSystem.setShaderColor(0.0F, 0.0F, 0.0F, alpha * 0.5F);
-            this.render(abilityInstance, ItemTransforms.TransformType.GUI, false, poseStack, bufferSource, 15728880, OverlayTexture.NO_OVERLAY, model);
+            this.render(abilityInstance, ItemTransforms.TransformType.GUI, false, poseStack, bufferSource, 0, OverlayTexture.NO_OVERLAY, model, alpha * 0.5F);
+            bufferSource.endBatch();
 
             modelViewStack.popPose();
         }
@@ -243,7 +243,7 @@ public class AbilityRenderer implements ResourceManagerReloadListener {
         modelViewStack.scale(scale, scale, scale);
         RenderSystem.applyModelViewMatrix();
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, alpha);
-        this.render(abilityInstance, ItemTransforms.TransformType.GUI, false, poseStack, bufferSource, 15728880, OverlayTexture.NO_OVERLAY, model);
+        this.render(abilityInstance, ItemTransforms.TransformType.GUI, false, poseStack, bufferSource, LightTexture.FULL_BRIGHT, OverlayTexture.NO_OVERLAY, model, alpha);
 
         bufferSource.endBatch();
         RenderSystem.enableDepthTest();
