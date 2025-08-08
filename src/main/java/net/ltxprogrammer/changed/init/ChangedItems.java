@@ -121,8 +121,6 @@ public class ChangedItems {
     public static final RegistryObject<ExoskeletonItem<Exoskeleton>> EXOSKELETON = register("exoskeleton",
             () -> new ExoskeletonItem<>(new Item.Properties().tab(ChangedTabs.TAB_CHANGED_ITEMS).stacksTo(1), ChangedEntities.EXOSKELETON));
 
-    // Unsure whether to keep this record, it doesn't fit with the BGM from changed
-    public static final RegistryObject<RecordItem> OWO_RECORD = register("owo_record", () -> new RecordItem(8, ChangedSounds.OWO, (new Item.Properties()).stacksTo(1).tab(ChangedTabs.TAB_CHANGED_MUSIC).rarity(Rarity.RARE)));
     public static final RegistryObject<LatexRecordItem> BLACK_GOO_ZONE_RECORD = registerLatexRecord("black_goo_zone_record", () -> ChangedSounds.MUSIC_BLACK_GOO_ZONE);
     public static final RegistryObject<LatexRecordItem> CRYSTAL_ZONE_RECORD = registerLatexRecord("crystal_zone_record", () -> ChangedSounds.MUSIC_CRYSTAL_ZONE);
     public static final RegistryObject<LatexRecordItem> GAS_ROOM_RECORD = registerLatexRecord("gas_room_record", () -> ChangedSounds.MUSIC_GAS_ROOM);
