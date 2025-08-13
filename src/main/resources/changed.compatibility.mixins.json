@@ -19,6 +19,7 @@
     "DoABarrelRoll.AdvancedHumanoidRendererMixin",
     "EMF.HumanoidAnimatorMixin",
     "FirstPerson.FirstPersonBaseMixin",
+    "FirstPerson.WaveVisionLevelMixin",
     "Forgery.LatexHumanoidArmorLayerMixin",
     "HardcoreRevival.KnockoutHandlerMixin",
     "Leashed.LeadUtilMixin",
