@@ -224,6 +224,7 @@ dependencies {
     // These mods have 3rd party sharing disabled
     compileOnly fg.deobf("dev.tr7zw:notenoughanimations-forge-1.7.0-mc1.18.2:1.7.0")
     compileOnly fg.deobf("dev.tr7zw:firstperson-forge-2.3.2-mc1.18.2:2.3.2")
+    implementation fg.deobf("dev.tr7zw:entityculling-forge-1.6.1-mc1.18.2:1.6.1")
 
     // Uncomment here to test the dragons
     // implementation fg.deobf("curse.maven:geckolib-388172:4181370") // Forge 1.18.2 v3.0.57
