@@ -17,7 +17,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(value = WaveVisionRenderer.class, remap = false)
 @RequiredMods("firstperson")
-public abstract class WaveVisionLevelMixin {
+public abstract class WaveVisionRendererMixin {
     @Shadow public abstract void renderEntity(Entity entity, double camX, double camY, double camZ, float partialTicks, PoseStack poseStack, MultiBufferSource bufferSource);
 
     @Inject(method = "renderEntities", at = @At(value = "INVOKE", target = "Ljava/lang/Runnable;run()V"))
