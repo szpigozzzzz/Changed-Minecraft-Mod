@@ -12,10 +12,10 @@ import org.jetbrains.annotations.Nullable;
 public class ComputerTextScreen extends TextMenuScreen<ComputerMenu> {
     public static final TranslatableComponent TITLE = new TranslatableComponent("container.changed.computer_writing");
 
-    public final Screen previous;
-    public ComputerTextScreen(Screen previous, ComputerMenu container, Inventory inventory, Component text) {
+    //public final Screen previous;
+    public ComputerTextScreen(/*Screen previous, */ComputerMenu container, Inventory inventory, Component text) {
         super(container, inventory.player, text);
-        this.previous = previous;
+        //this.previous = previous;
     }
 
     @Override public int getBackgroundWidth() {
