@@ -27,9 +27,9 @@ public abstract class RenderTypeMixin extends RenderStateShard {
         layers.add(layers.indexOf(RenderType.cutoutMipped()) + 1, ChangedShaders.latexCutoutMipped());
         layers.add(layers.indexOf(RenderType.cutout()) + 1, ChangedShaders.latexCutout());
 
-        layers.add(layers.indexOf(ChangedShaders.latexSolid()) + 1, ChangedShaders.waveVisionResonantSolid(WaveVisionRenderer.LATEX_RESONANCE_NEUTRAL));
-        layers.add(layers.indexOf(ChangedShaders.latexCutoutMipped()) + 1, ChangedShaders.waveVisionResonantCutoutMipped(WaveVisionRenderer.LATEX_RESONANCE_NEUTRAL));
-        layers.add(layers.indexOf(ChangedShaders.latexCutout()) + 1, ChangedShaders.waveVisionResonantCutout(WaveVisionRenderer.LATEX_RESONANCE_NEUTRAL));
+        layers.add(layers.indexOf(ChangedShaders.latexSolid()) + 1, ChangedShaders.waveVisionResonantSolidFixed());
+        layers.add(layers.indexOf(ChangedShaders.latexCutoutMipped()) + 1, ChangedShaders.waveVisionResonantCutoutMippedFixed());
+        layers.add(layers.indexOf(ChangedShaders.latexCutout()) + 1, ChangedShaders.waveVisionResonantCutoutFixed());
 
         callback.setReturnValue(ImmutableList.copyOf(layers));
     }

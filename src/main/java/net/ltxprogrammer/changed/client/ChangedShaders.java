@@ -108,6 +108,18 @@ public class ChangedShaders {
         return WAVE_VISION_RESONANT_CUTOUT_MIPPED.apply(BLOCK_SHEET_MIPPED_RESONANT, resonance);
     }
 
+    public static RenderType waveVisionResonantSolidFixed() {
+        return WAVE_VISION_RESONANT_SOLID_FIXED;
+    }
+
+    public static RenderType waveVisionResonantCutoutFixed() {
+        return WAVE_VISION_RESONANT_CUTOUT_FIXED;
+    }
+
+    public static RenderType waveVisionResonantCutoutMippedFixed() {
+        return WAVE_VISION_RESONANT_CUTOUT_MIPPED_FIXED;
+    }
+
     public static RenderType latexWaveVisionSolid() {
         return WAVE_VISION_SOLID.apply(LATEX_SHEET_MIPPED);
     }
@@ -248,4 +260,9 @@ public class ChangedShaders {
                     .setShaderState(RENDERTYPE_WAVE_VISION_RESONANT_CUTOUT_SHADER.apply(resonance))
                     .setTextureState(textureStateShard)
                     .createCompositeState(true)));
+
+    // Static ctor to prevent multiple threads from attempting to create the same type
+    private static final RenderType WAVE_VISION_RESONANT_SOLID_FIXED = WAVE_VISION_RESONANT_SOLID.apply(BLOCK_SHEET_MIPPED_RESONANT, WaveVisionRenderer.LATEX_RESONANCE_NEUTRAL);
+    private static final RenderType WAVE_VISION_RESONANT_CUTOUT_MIPPED_FIXED = WAVE_VISION_RESONANT_CUTOUT_MIPPED.apply(BLOCK_SHEET_RESONANT, WaveVisionRenderer.LATEX_RESONANCE_NEUTRAL);
+    private static final RenderType WAVE_VISION_RESONANT_CUTOUT_FIXED = WAVE_VISION_RESONANT_CUTOUT.apply(BLOCK_SHEET_MIPPED_RESONANT, WaveVisionRenderer.LATEX_RESONANCE_NEUTRAL);
 }
