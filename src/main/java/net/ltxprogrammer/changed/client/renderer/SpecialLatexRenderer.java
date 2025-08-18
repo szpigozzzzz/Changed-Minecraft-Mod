@@ -46,10 +46,8 @@ public class SpecialLatexRenderer extends AdvancedHumanoidRenderer<SpecialLatex,
     }
 
     public SpecialLatexRenderer(EntityRendererProvider.Context context, PatreonBenefits.ModelData modelData) {
-        /*super(context, new SpecialLatexModel(context.bakeLayer(ensureModelIsLoaded(modelData).modelLayerLocation().get()), modelData),
-                (part, model) -> new ArmorSpecialLatexModel<>(part, model, modelData), modelData.armorModelLayerLocation().inner().get(),
-                modelData.armorModelLayerLocation().outer().get(), modelData.shadowSize());*/
-        super(context, (SpecialLatexModel) null, (ArmorModelPicker<? super SpecialLatex>) null, 0.0f);
+        super(context, new SpecialLatexModel(context.bakeLayer(ensureModelIsLoaded(modelData).modelLayerLocation().get()), modelData),
+                ArmorSpecialLatexModel.makeModelSet(modelData), modelData.shadowSize());
         if (modelData.emissive().isPresent())
             this.addLayer(new EmissiveBodyLayer<>(this, modelData.emissive().get()));
         this.isDelegate = false;
