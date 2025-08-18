@@ -21,6 +21,7 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
 import java.util.*;
+import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 public class AnimationInstance {
@@ -51,11 +52,11 @@ public class AnimationInstance {
         this.parentEntity = parentEntity;
     }
 
-    public void resetToBaseline(EntityModel<?> model, LivingEntity entity) {
+    public void resetToBaseline(EntityModel<?> model, LivingEntity entity, Predicate<ModelPartIdentifier> predicate) {
         if (model instanceof AdvancedHumanoidModel<?> advancedHumanoid && entity instanceof ChangedEntity changedEntity)
-            this.resetToBaseline(advancedHumanoid, changedEntity);
+            this.resetToBaseline(advancedHumanoid, changedEntity, predicate);
         else if (model instanceof HumanoidModel<?> humanoid)
-            this.resetToBaseline(humanoid, entity);
+            this.resetToBaseline(humanoid, entity, predicate);
     }
 
     public void captureBaseline(HumanoidModel<?> model) {
@@ -65,15 +66,14 @@ public class AnimationInstance {
         });
     }
 
-    public void resetToBaseline(HumanoidModel<?> model, LivingEntity entity) {
-        animation.channels.keySet().stream().filter(ModelPartIdentifier::isVanillaPart).filter(baselineH::containsKey).forEach(limb -> {
+    public void resetToBaseline(HumanoidModel<?> model, LivingEntity entity, Predicate<ModelPartIdentifier> predicate) {
+        animation.channels.keySet().stream().filter(ModelPartIdentifier::isVanillaPart).filter(baselineH::containsKey).filter(predicate).forEach(limb -> {
             limb.getModelPartSafe(model).ifPresent(part -> {
                 final var baseline = baselineH.get(limb);
                 if (baseline != null)
                     part.loadPose(baseline);
             });
         });
-        baselineH.clear();
     }
 
     public void captureBaseline(AdvancedHumanoidModel<?> model, ChangedEntity entity) {
@@ -83,15 +83,14 @@ public class AnimationInstance {
         });
     }
 
-    public void resetToBaseline(AdvancedHumanoidModel<?> model, ChangedEntity entity) {
-        animation.channels.keySet().stream().filter(baselineAH::containsKey).forEach(limb -> {
+    public void resetToBaseline(AdvancedHumanoidModel<?> model, ChangedEntity entity, Predicate<ModelPartIdentifier> predicate) {
+        animation.channels.keySet().stream().filter(baselineAH::containsKey).filter(predicate).forEach(limb -> {
             limb.getModelPartSafe(model, entity).ifPresent(part -> {
                 final var baseline = baselineAH.get(limb);
                 if (baseline != null)
                     part.loadPose(baselineAH.get(limb));
             });
         });
-        baselineAH.clear();
     }
 
     /**
