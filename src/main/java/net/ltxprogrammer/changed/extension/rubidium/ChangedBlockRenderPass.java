@@ -31,4 +31,8 @@ public abstract class ChangedBlockRenderPass {
     public static final BlockRenderPass LATEX_SOLID = create("LATEX_SOLID", ChangedShaders.latexSolid(), false, 0.0F);
     public static final BlockRenderPass LATEX_CUTOUT = create("LATEX_CUTOUT", ChangedShaders.latexCutout(), false, 0.1F);
     public static final BlockRenderPass LATEX_CUTOUT_MIPPED = create("LATEX_CUTOUT_MIPPED", ChangedShaders.latexCutoutMipped(), false, 0.5F);
+
+    public static final BlockRenderPass WAVE_VISION_SOLID = create("WAVE_VISION_SOLID", ChangedShaders.waveVisionResonantSolidFixed(), false, 0.0F);
+    public static final BlockRenderPass WAVE_VISION_CUTOUT = create("WAVE_VISION_CUTOUT", ChangedShaders.waveVisionResonantCutoutFixed(), false, 0.1F);
+    public static final BlockRenderPass WAVE_VISION_CUTOUT_MIPPED = create("WAVE_VISION_CUTOUT_MIPPED", ChangedShaders.waveVisionResonantCutoutMippedFixed(), false, 0.5F);
 }

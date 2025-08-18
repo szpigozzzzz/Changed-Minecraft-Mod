@@ -21,11 +21,17 @@ public abstract class BlockRenderPassManagerMixin {
 
     @Inject(method = "addMapping", at = @At("RETURN"))
     private void changedRenderMappings(RenderType layer, BlockRenderPass type, CallbackInfo ci) {
-        if (layer == RenderType.solid())
+        if (layer == RenderType.solid()) {
             this.mappingsId.put(ChangedShaders.latexSolid(), ChangedBlockRenderPass.LATEX_SOLID.ordinal());
-        else if (layer == RenderType.cutoutMipped())
+            this.mappingsId.put(ChangedShaders.waveVisionResonantSolidFixed(), ChangedBlockRenderPass.WAVE_VISION_SOLID.ordinal());
+        }
+        else if (layer == RenderType.cutoutMipped()) {
             this.mappingsId.put(ChangedShaders.latexCutoutMipped(), ChangedBlockRenderPass.LATEX_CUTOUT_MIPPED.ordinal());
-        else if (layer == RenderType.cutout())
+            this.mappingsId.put(ChangedShaders.waveVisionResonantCutoutMippedFixed(), ChangedBlockRenderPass.WAVE_VISION_CUTOUT_MIPPED.ordinal());
+        }
+        else if (layer == RenderType.cutout()) {
             this.mappingsId.put(ChangedShaders.latexCutout(), ChangedBlockRenderPass.LATEX_CUTOUT.ordinal());
+            this.mappingsId.put(ChangedShaders.waveVisionResonantCutoutFixed(), ChangedBlockRenderPass.WAVE_VISION_CUTOUT.ordinal());
+        }
     }
 }
