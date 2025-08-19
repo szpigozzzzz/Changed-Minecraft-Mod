@@ -1,5 +1,7 @@
 package net.ltxprogrammer.changed.mixin.entity;
 
+import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import net.ltxprogrammer.changed.Changed;
 import net.ltxprogrammer.changed.ability.AbstractAbility;
 import net.ltxprogrammer.changed.ability.GrabEntityAbility;
@@ -15,12 +17,12 @@ import net.ltxprogrammer.changed.data.AccessorySlots;
 import net.ltxprogrammer.changed.entity.*;
 import net.ltxprogrammer.changed.entity.robot.Exoskeleton;
 import net.ltxprogrammer.changed.entity.variant.TransfurVariant;
+import net.ltxprogrammer.changed.entity.variant.TransfurVariantInstance;
 import net.ltxprogrammer.changed.fluid.AbstractLatexFluid;
 import net.ltxprogrammer.changed.fluid.Gas;
 import net.ltxprogrammer.changed.fluid.TransfurGas;
 import net.ltxprogrammer.changed.init.*;
 import net.ltxprogrammer.changed.item.AccessoryItem;
-import net.ltxprogrammer.changed.item.ExoskeletonItem;
 import net.ltxprogrammer.changed.item.ExtendedItemProperties;
 import net.ltxprogrammer.changed.item.SpecializedAnimations;
 import net.ltxprogrammer.changed.network.packet.AccessorySyncPacket;
@@ -32,7 +34,6 @@ import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.FluidTags;
-import net.minecraft.world.InteractionHand;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
@@ -186,14 +187,12 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityDa
                 callback.setReturnValue(wearableBlock.getEquipmentSlot());
     }
 
-    @Inject(method = "isVisuallySwimming", at = @At("HEAD"), cancellable = true)
-    private void isVisuallySwimming(CallbackInfoReturnable<Boolean> callback) {
-        if ((LivingEntity)(Object)this instanceof Player player) {
-            ProcessTransfur.ifPlayerTransfurred(player, (variant) -> {
-                if (variant.getChangedEntity().isVisuallySwimming())
-                    callback.setReturnValue(true);
-            });
-        }
+    @WrapMethod(method = "isVisuallySwimming")
+    private boolean isVariantVisuallySwimming(Operation<Boolean> original) {
+        return ProcessTransfur.getPlayerTransfurVariantSafe(EntityUtil.playerOrNull(this))
+                .map(TransfurVariantInstance::getChangedEntity)
+                .map(ChangedEntity::isVisuallySwimming)
+                .orElseGet(original::call);
     }
 
     @Inject(method = "triggerItemUseEffects", at = @At("HEAD"), cancellable = true)

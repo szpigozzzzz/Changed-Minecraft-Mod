@@ -10,6 +10,7 @@ import net.ltxprogrammer.changed.entity.ChangedEntity;
 import net.ltxprogrammer.changed.entity.LivingEntityDataExtension;
 import net.ltxprogrammer.changed.entity.SeatEntity;
 import net.ltxprogrammer.changed.entity.variant.EntityShape;
+import net.ltxprogrammer.changed.entity.variant.TransfurVariantInstance;
 import net.ltxprogrammer.changed.init.ChangedAbilities;
 import net.ltxprogrammer.changed.init.ChangedTags;
 import net.ltxprogrammer.changed.process.ProcessTransfur;
@@ -93,6 +94,15 @@ public abstract class EntityMixin extends net.minecraftforge.common.capabilities
         ProcessTransfur.ifPlayerTransfurred(EntityUtil.playerOrNull(asEntity()), variant -> {
             callback.setReturnValue(variant.getChangedEntity().getPassengersRidingOffset());
         });
+    }
+
+    @WrapMethod(method = "setPose")
+    public void setVariantPose(Pose pose, Operation<Void> original) {
+        original.call(pose);
+        // Forward calls to setPose directly to variant, instead of waiting for tick
+        ProcessTransfur.getPlayerTransfurVariantSafe(EntityUtil.playerOrNull((Entity)(Object)this))
+                .map(TransfurVariantInstance::getChangedEntity)
+                .ifPresent(entity -> entity.setPose(pose));
     }
 
     @Unique
