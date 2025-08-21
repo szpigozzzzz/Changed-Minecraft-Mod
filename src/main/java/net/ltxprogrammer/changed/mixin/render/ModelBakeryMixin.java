@@ -1,6 +1,7 @@
 package net.ltxprogrammer.changed.mixin.render;
 
 import com.mojang.math.Transformation;
+import net.ltxprogrammer.changed.Changed;
 import net.ltxprogrammer.changed.client.AbilityRenderer;
 import net.ltxprogrammer.changed.client.BakeryExtender;
 import net.ltxprogrammer.changed.client.LatexCoveredBlockRenderer;
@@ -13,6 +14,7 @@ import net.minecraft.client.resources.model.UnbakedModel;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.profiling.ProfilerFiller;
+import net.minecraftforge.fml.ModLoader;
 import org.apache.commons.lang3.tuple.Triple;
 import org.slf4j.Logger;
 import org.spongepowered.asm.mixin.Final;
@@ -46,6 +48,11 @@ public abstract class ModelBakeryMixin implements BakeryExtender {
             target = "Lnet/minecraft/util/profiling/ProfilerFiller;popPush(Ljava/lang/String;)V",
             ordinal = 3))
     private void processChangedModels(ProfilerFiller profiler, int p_119250_, CallbackInfo ci) {
+        if (!ModLoader.isLoadingStateValid()) {
+            Changed.LOGGER.error("Refusing ability model generation due to invalid loading state");
+            return;
+        }
+
         profiler.popPush("changed:abilities");
 
         for(ResourceLocation resourcelocation : ChangedRegistry.ABILITY.get().getKeys()) {

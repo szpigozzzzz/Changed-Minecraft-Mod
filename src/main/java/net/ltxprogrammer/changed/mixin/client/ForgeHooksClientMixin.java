@@ -1,11 +1,13 @@
 package net.ltxprogrammer.changed.mixin.client;
 
+import net.ltxprogrammer.changed.Changed;
 import net.ltxprogrammer.changed.data.AccessorySlotType;
 import net.ltxprogrammer.changed.init.ChangedRegistry;
 import net.minecraft.client.resources.model.Material;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraftforge.client.ForgeHooksClient;
+import net.minecraftforge.fml.ModLoader;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -26,6 +28,11 @@ public abstract class ForgeHooksClientMixin {
 
     @Inject(method = "gatherFluidTextures", at = @At("HEAD"))
     private static void gatherChangedRegistryTextures(Set<Material> textures, CallbackInfo ci) {
+        if (!ModLoader.isLoadingStateValid()) {
+            Changed.LOGGER.error("Refusing texture gathering due to invalid loading state");
+            return;
+        }
+
         ChangedRegistry.ACCESSORY_SLOTS.get().getValues().stream()
                 .map(AccessorySlotType::getNoItemIcon)
                 .mapMulti(ForgeHooksClientMixin::getMaterialFromSlot)
