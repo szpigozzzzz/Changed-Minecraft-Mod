@@ -84,9 +84,11 @@ public class LatexPupCrystal extends TransfurCrystalBlock {
     @Override
     public void tick(BlockState state, ServerLevel level, BlockPos pos, Random random) {
         super.tick(state, level, pos, random);
-        if (state.getValue(HALF) == DoubleBlockHalf.UPPER)
-            this.retract(level.getBlockState(pos.below()), level, pos.below());
-        else
+        if (state.getValue(HALF) == DoubleBlockHalf.UPPER) {
+            var belowState = level.getBlockState(pos.below());
+            if (belowState.is(this))
+                this.retract(belowState, level, pos.below());
+        } else
             this.retract(state, level, pos);
     }
 
